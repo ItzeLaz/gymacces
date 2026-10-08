@@ -281,7 +281,7 @@ que la base rechaza referencias a clientes inexistentes.
 - [X] T098 Revisar seguridad: ninguna respuesta incluye `password`, los errores 500 no exponen detalles, `.env` está ignorado por Git, no hay secretos en ningún `.env.example` ni en el código, y todas las consultas de `backend/src/models/` son parametrizadas
 - [X] T099 Cargar 500 clientes de prueba con un script temporal fuera del repositorio o en `database/scripts/` marcado solo para desarrollo, y medir la búsqueda en `frontend/src/pages/Clients.jsx` (objetivo SC-003: menos de 10 s)
 - [X] T100 Actualizar `README.md` con los comandos finales de instalación, migración, arranque y pruebas de los tres paquetes
-- [ ] T101 Ejecutar el recorrido completo de [quickstart.md](./quickstart.md) (secciones 1 a 6) y anotar en `specs/001-base-usuarios-clientes/quickstart.md` cualquier ajuste necesario
+- [X] T101 Ejecutar el recorrido completo de [quickstart.md](./quickstart.md) (secciones 1 a 6) y anotar en `specs/001-base-usuarios-clientes/quickstart.md` cualquier ajuste necesario
 
 ---
 
