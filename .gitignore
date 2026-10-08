@@ -1,0 +1,28 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (nunca se suben)
+.env
+.env.*
+!.env.example
+
+# Construcción y cobertura
+dist/
+build/
+coverage/
+
+# Registros
+*.log
+npm-debug.log*
+
+# Archivos físicos de datos de MySQL / MariaDB
+*.ibd
+mysql-data/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
