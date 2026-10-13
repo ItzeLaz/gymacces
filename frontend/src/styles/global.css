@@ -446,3 +446,43 @@ a {
   color: var(--color-muted);
   font-size: 0.875rem;
 }
+
+/* Gráficas de barras del dashboard */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.bar-chart {
+  margin: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+
+.bar-chart figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.bar-chart svg {
+  width: 100%;
+  height: 140px;
+  margin-top: var(--space-2);
+}
+
+.bar-chart .bar {
+  fill: var(--color-primary);
+}
+
+.bar-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}

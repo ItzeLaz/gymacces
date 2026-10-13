@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import Dashboard from '../pages/Dashboard.jsx';
+import Dashboard, { validateRange } from '../pages/Dashboard.jsx';
 
 const MOTIVOS_EN_CERO = {
   rostro_no_identificado: 0,
@@ -89,5 +89,25 @@ describe('dashboard administrativo', () => {
     renderDashboard();
     expect(await screen.findByRole('alert')).toHaveTextContent('Ocurrió un error inesperado.');
     expect(screen.queryByText('Clientes con membresía vigente')).not.toBeInTheDocument();
+  });
+
+  it('valida_el_rango_antes_de_pedirlo_y_conserva_las_cifras', async () => {
+    mockApi(200, { data: DATA });
+    renderDashboard();
+    await screen.findByText('412');
+
+    fireEvent.change(screen.getByLabelText('Periodo'), { target: { value: 'rango' } });
+    fireEvent.change(screen.getByLabelText('Desde'), { target: { value: '2026-10-12' } });
+    fireEvent.change(screen.getByLabelText('Hasta'), { target: { value: '2026-10-01' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('La fecha inicial no puede ser posterior a la final.');
+    expect(screen.getByText('412')).toBeInTheDocument();
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('valida_el_limite_de_366_dias', () => {
+    expect(validateRange('2025-01-01', '2026-01-03')).toBe('El rango de fechas no puede superar 366 días.');
+    expect(validateRange('2025-01-01', '2026-01-02')).toBe('');
   });
 });
