@@ -440,6 +440,10 @@ Tarea: "T054 API del frontend en frontend/src/api/payments.js"
 
 ## Notas
 
+- **2026-10-12**: el equipo pospuso T108 (recorrido manual) y T109 (calibración con cámara) para
+  avanzar con el Sprint 3. Siguen pendientes y deben completarse antes de la demostración final del
+  MVP; hasta entonces, `FACE_MATCH_THRESHOLD` y `FACE_MATCH_MARGIN` conservan sus valores iniciales.
+
 - [P] = archivos distintos y sin dependencias pendientes.
 - La etiqueta [USn] relaciona cada tarea con su historia para mantener la trazabilidad
   (constitución, principio I).
