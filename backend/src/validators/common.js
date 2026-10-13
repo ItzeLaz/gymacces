@@ -1,4 +1,6 @@
 import { body, param, query } from 'express-validator';
+import { daysBetween, isValidDate } from '../utils/dates.js';
+import { compareAmounts, fromCents, isValidAmount, MAX_AMOUNT, toCents } from '../utils/money.js';
 
 export const PASSWORD_MESSAGE =
   'La contraseña debe tener entre 8 y 72 caracteres, al menos una letra y un número.';
@@ -65,3 +67,56 @@ export const forbiddenFields = (fields) =>
   fields.map((field) =>
     body(field).not().exists().withMessage(`El campo "${field}" no se puede enviar.`),
   );
+
+// Monto con hasta 2 decimales; positive exige que sea mayor a cero (research R-10)
+export const amountField = (field, { label = 'El monto', positive = false } = {}) => {
+  const message = positive
+    ? `${label} debe ser mayor a cero, con hasta 2 decimales.`
+    : `${label} debe ser un monto no negativo con hasta 2 decimales.`;
+  return body(field)
+    .exists({ values: 'null' })
+    .withMessage(message)
+    .bail()
+    .customSanitizer((value) => (typeof value === 'number' ? String(value) : value))
+    .custom(
+      (value) =>
+        isValidAmount(value) && (!positive || toCents(value) > 0) && compareAmounts(value, MAX_AMOUNT) <= 0,
+    )
+    .withMessage(message)
+    .bail()
+    .customSanitizer((value) => fromCents(toCents(value)));
+};
+
+export const dateField = (field, label) =>
+  body(field)
+    .custom((value) => isValidDate(value))
+    .withMessage(`${label} debe ser una fecha válida con formato AAAA-MM-DD.`);
+
+export const dateQuery = (field, label) =>
+  query(field)
+    .optional({ values: 'falsy' })
+    .custom((value) => isValidDate(value))
+    .withMessage(`${label} debe ser una fecha válida con formato AAAA-MM-DD.`);
+
+export const motivoField = () =>
+  body('motivo')
+    .isString()
+    .withMessage('El motivo es obligatorio.')
+    .bail()
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage('El motivo debe tener entre 1 y 255 caracteres.');
+
+// "desde" no puede ser posterior a "hasta" y el rango no puede superar maxDays
+export const dateRangeQuery = (maxDays = 366) =>
+  query('hasta')
+    .optional({ values: 'falsy' })
+    .custom((hasta, { req }) => {
+      const { desde } = req.query;
+      if (!desde || !isValidDate(desde) || !isValidDate(hasta)) return true;
+      if (desde > hasta) throw new Error('La fecha inicial no puede ser posterior a la final.');
+      if (daysBetween(desde, hasta) > maxDays) {
+        throw new Error(`El rango de fechas no puede superar ${maxDays} días.`);
+      }
+      return true;
+    });

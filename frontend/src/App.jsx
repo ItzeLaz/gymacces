@@ -10,10 +10,13 @@ import ClientForm from './pages/ClientForm.jsx';
 import ClientDetail from './pages/ClientDetail.jsx';
 import Profile from './pages/Profile.jsx';
 import NotFound from './pages/NotFound.jsx';
+import MembershipTypes from './pages/MembershipTypes.jsx';
+import MembershipTypeForm from './pages/MembershipTypeForm.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
 const CLIENT_READERS = ['administrador', 'recepcionista', 'entrenador'];
+const FRONT_DESK = ['administrador', 'recepcionista'];
 
 export default function App() {
   return (
@@ -37,6 +40,15 @@ export default function App() {
           <Route element={<ProtectedRoute roles={CLIENT_READERS} />}>
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetail />} />
+          </Route>
+
+          <Route element={<ProtectedRoute roles={ADMIN} />}>
+            <Route path="membership-types/new" element={<MembershipTypeForm />} />
+            <Route path="membership-types/:id" element={<MembershipTypeForm />} />
+          </Route>
+
+          <Route element={<ProtectedRoute roles={FRONT_DESK} />}>
+            <Route path="membership-types" element={<MembershipTypes />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={['cliente']} />}>

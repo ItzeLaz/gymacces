@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authRouter } from './auth.routes.js';
 import { usersRouter } from './users.routes.js';
 import { clientsRouter } from './clients.routes.js';
+import { membershipTypesRouter } from './membershipTypes.routes.js';
 
 export const apiRouter = Router();
 
@@ -11,4 +12,5 @@ apiRouter.get('/health', (req, res) => {
 
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', usersRouter);
+apiRouter.use('/membership-types', membershipTypesRouter);
 apiRouter.use('/clients', clientsRouter);

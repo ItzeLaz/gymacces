@@ -8,16 +8,18 @@ const ROLE_LABELS = {
   cliente: 'Cliente',
 };
 
-// Menú por rol (FR-004). Sin membresías, pagos ni reconocimiento facial (FR-033).
+// Menú por rol (FR-004); las opciones del Sprint 2 siguen la matriz de contracts/api.md
 const MENU = {
   administrador: [
     { to: '/', label: 'Inicio' },
     { to: '/users', label: 'Usuarios' },
     { to: '/clients', label: 'Clientes' },
+    { to: '/membership-types', label: 'Tipos de membresía' },
   ],
   recepcionista: [
     { to: '/', label: 'Inicio' },
     { to: '/clients', label: 'Clientes' },
+    { to: '/membership-types', label: 'Tipos de membresía' },
   ],
   entrenador: [
     { to: '/', label: 'Inicio' },
