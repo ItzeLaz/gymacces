@@ -21,7 +21,8 @@ describe('perfil del cliente', () => {
               estado: 'activo',
             },
             membresia: null,
-            pagos: null,
+            pagos: [],
+            adeudo: '0.00',
           },
         }),
     });
@@ -31,5 +32,6 @@ describe('perfil del cliente', () => {
     expect(await screen.findByText('Luis Pérez')).toBeInTheDocument();
     expect(screen.getByText('luis@correo.com')).toBeInTheDocument();
     expect(screen.getByText('No tienes una membresía registrada.')).toBeInTheDocument();
+    expect(screen.getByText('No tienes pagos registrados.')).toBeInTheDocument();
   });
 });

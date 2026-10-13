@@ -407,3 +407,8 @@ a {
   background: var(--color-error-bg);
   color: var(--color-error-text);
 }
+
+.plain-list {
+  margin: 0;
+  padding-left: var(--space-4);
+}

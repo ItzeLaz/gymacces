@@ -4,7 +4,9 @@ import Message from '../components/Message.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { formatDate } from './ClientDetail.jsx';
 import { membershipBadge } from '../components/MembershipsSection.jsx';
-import { formatDay } from '../utils/dates.js';
+import { formatDateTime, formatDay } from '../utils/dates.js';
+import Money from '../components/Money.jsx';
+import { METHOD_LABELS } from '../components/PaymentsSection.jsx';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -19,7 +21,7 @@ export default function Profile() {
   if (error) return <Message type="error">{error}</Message>;
   if (!profile) return <p>Cargando tu información…</p>;
 
-  const { cliente, membresia } = profile;
+  const { cliente, membresia, pagos = [], adeudo = '0.00' } = profile;
 
   return (
     <section className="card">
@@ -61,7 +63,37 @@ export default function Profile() {
         <p>No tienes una membresía registrada.</p>
       )}
       <h2>Pagos</h2>
-      <p>Disponible próximamente</p>
+      <p>
+        <strong>Adeudo:</strong> <Money value={adeudo} />
+      </p>
+      {pagos.length === 0 ? (
+        <p>No tienes pagos registrados.</p>
+      ) : (
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Monto</th>
+              <th scope="col">Método</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pagos.map((pago) => (
+              <tr key={pago.id_pago}>
+                <td>{formatDateTime(pago.fecha_pago)}</td>
+                <td>
+                  <Money value={pago.monto} />
+                </td>
+                <td>{METHOD_LABELS[pago.metodo_pago] ?? pago.metodo_pago}</td>
+                <td>
+                  <StatusBadge estado={pago.estado} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }

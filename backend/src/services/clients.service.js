@@ -3,6 +3,7 @@ import { conflict, notFound } from '../utils/AppError.js';
 import { ROLES } from '../utils/roles.js';
 import { getCurrentMembership, toSummary, toView } from './memberships.service.js';
 import { hasActiveFace } from './faces.service.js';
+import { getOwnPayments } from './payments.service.js';
 
 const DUPLICATE_EMAIL = 'Ya existe un cliente con ese correo.';
 
@@ -76,6 +77,9 @@ export async function getClient(id, rol) {
 // Usa siempre el cliente vinculado al usuario autenticado (FR-024, RN-14)
 export async function getOwnProfile(user) {
   const cliente = await findOrFail(user.id_cliente);
-  const membresia = toView(await getCurrentMembership(cliente.id_cliente), ROLES.CLIENT);
-  return { cliente, membresia, pagos: null };
+  const [membresia, { pagos, adeudo }] = await Promise.all([
+    getCurrentMembership(cliente.id_cliente),
+    getOwnPayments(cliente.id_cliente),
+  ]);
+  return { cliente, membresia: toView(membresia, ROLES.CLIENT), pagos, adeudo };
 }

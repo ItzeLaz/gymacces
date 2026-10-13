@@ -43,3 +43,54 @@ export async function cancel(id, { motivo, anulado_por }, connection = pool) {
     [motivo, anulado_por, id],
   );
 }
+
+// Filtros del historial general (FR-020); las fechas se comparan por día completo
+function buildFilters({ id_cliente, desde, hasta, metodo_pago, estado }) {
+  const conditions = [];
+  const params = [];
+  if (id_cliente) {
+    conditions.push('p.id_cliente = ?');
+    params.push(id_cliente);
+  }
+  if (desde) {
+    conditions.push('p.fecha_pago >= ?');
+    params.push(`${desde} 00:00:00`);
+  }
+  if (hasta) {
+    conditions.push('p.fecha_pago < DATE_ADD(?, INTERVAL 1 DAY)');
+    params.push(hasta);
+  }
+  if (metodo_pago) {
+    conditions.push('p.metodo_pago = ?');
+    params.push(metodo_pago);
+  }
+  if (estado) {
+    conditions.push('p.estado = ?');
+    params.push(estado);
+  }
+  return { where: conditions.length ? `WHERE ${conditions.join(' AND ')}` : '', params };
+}
+
+export async function list({ limit, offset, ...filters }) {
+  const { where, params } = buildFilters(filters);
+  // LIMIT y OFFSET ya son enteros validados; se interpolan porque execute no los admite como parámetros en MariaDB
+  const [rows] = await pool.execute(
+    `${VIEW_SELECT} ${where} ORDER BY p.fecha_pago DESC, p.id_pago DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`,
+    params,
+  );
+  return rows;
+}
+
+export async function count(filters) {
+  const { where, params } = buildFilters(filters);
+  const [rows] = await pool.execute(`SELECT COUNT(*) AS total FROM pagos p ${where}`, params);
+  return Number(rows[0].total);
+}
+
+// Suma de los pagos no anulados dentro de los filtros
+export async function sumPaid(filters) {
+  const { where, params } = buildFilters(filters);
+  const condition = where ? `${where} AND p.estado = 'pagado'` : "WHERE p.estado = 'pagado'";
+  const [rows] = await pool.execute(`SELECT COALESCE(SUM(p.monto), 0) AS total FROM pagos p ${condition}`, params);
+  return rows[0].total;
+}

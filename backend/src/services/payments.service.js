@@ -1,5 +1,6 @@
 import { withTransaction } from '../config/db.js';
 import * as clientModel from '../models/client.model.js';
+import * as debtModel from '../models/debt.model.js';
 import * as membershipModel from '../models/membership.model.js';
 import * as paymentModel from '../models/payment.model.js';
 import { businessRule, notFound } from '../utils/AppError.js';
@@ -76,4 +77,43 @@ export async function getClientPayments(idCliente, user) {
   ]);
   const membresias = filas.map((fila) => toMembershipView(fila, user.rol));
   return { pagos: pagos.map(toView), membresias, adeudo: debtOf(membresias) };
+}
+
+// Historial general de pagos con el total pagado del filtro (FR-020)
+export async function listPayments({ page, limit, offset, ...filters }) {
+  const [rows, total, totalPagado] = await Promise.all([
+    paymentModel.list({ ...filters, limit, offset }),
+    paymentModel.count(filters),
+    paymentModel.sumPaid(filters),
+  ]);
+  return { data: rows.map(toView), meta: { page, limit, total, total_pagado: formatAmount(totalPagado) } };
+}
+
+// Clientes con adeudo, de mayor a menor, con el desglose por membresía (FR-021)
+export async function listDebts({ search, page, limit, offset }) {
+  const [rows, { total, totalAdeudo }] = await Promise.all([
+    debtModel.listDebtors({ search, limit, offset }),
+    debtModel.countDebtors({ search }),
+  ]);
+  const detalle = await debtModel.listByClients(rows.map((row) => row.id_cliente));
+  const data = rows.map((row) => ({
+    id_cliente: row.id_cliente,
+    nombre: row.nombre,
+    apellido: row.apellido,
+    adeudo: formatAmount(row.adeudo),
+    membresias: detalle
+      .filter((item) => item.id_cliente === row.id_cliente)
+      .map((item) => ({ id_membresia: item.id_membresia, tipo: item.tipo, saldo: formatAmount(item.saldo) })),
+  }));
+  return { data, meta: { page, limit, total, total_adeudo: formatAmount(totalAdeudo) } };
+}
+
+// Pagos y adeudo propios del cliente autenticado (FR-023)
+export async function getOwnPayments(idCliente) {
+  const [pagos, filas] = await Promise.all([
+    paymentModel.listByClient(idCliente),
+    membershipModel.listByClient(idCliente, today()),
+  ]);
+  const membresias = filas.map((fila) => toMembershipView(fila));
+  return { pagos: pagos.map(toView), adeudo: debtOf(membresias) };
 }

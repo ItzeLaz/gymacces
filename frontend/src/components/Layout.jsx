@@ -15,6 +15,8 @@ const MENU = {
     { to: '/users', label: 'Usuarios' },
     { to: '/clients', label: 'Clientes' },
     { to: '/membership-types', label: 'Tipos de membresía' },
+    { to: '/payments', label: 'Pagos' },
+    { to: '/debts', label: 'Adeudos' },
     { to: '/access/station', label: 'Estación de acceso' },
   ],
   recepcionista: [

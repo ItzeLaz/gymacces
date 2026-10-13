@@ -20,13 +20,14 @@ describe('información propia del cliente', () => {
 
   after(closePool);
 
-  it('cliente_consulta_su_perfil_con_membresia_y_pagos_en_null', async () => {
+  it('cliente_sin_membresias_consulta_su_perfil_sin_pagos_ni_adeudo', async () => {
     const response = await request(app).get('/api/clients/me').set(bearer(token));
     assert.equal(response.status, 200);
     assert.equal(response.body.data.cliente.id_cliente, propio.id_cliente);
     assert.equal(response.body.data.cliente.apellido, 'Pérez');
-    assert.equal(response.body.data.membresia, null, 'la membresía llega en el Sprint 2');
-    assert.equal(response.body.data.pagos, null, 'los pagos llegan en el Sprint 2');
+    assert.equal(response.body.data.membresia, null, 'el cliente todavía no tiene membresía');
+    assert.deepEqual(response.body.data.pagos, [], 'el cliente todavía no tiene pagos');
+    assert.equal(response.body.data.adeudo, '0.00');
   });
 
   it('el_perfil_usa_el_id_cliente_del_token_e_ignora_parametros_enviados', async () => {
