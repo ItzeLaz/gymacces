@@ -12,6 +12,7 @@ const ROLE_LABELS = {
 const MENU = {
   administrador: [
     { to: '/', label: 'Inicio' },
+    { to: '/dashboard', label: 'Dashboard' },
     { to: '/users', label: 'Usuarios' },
     { to: '/clients', label: 'Clientes' },
     { to: '/membership-types', label: 'Tipos de membresía' },

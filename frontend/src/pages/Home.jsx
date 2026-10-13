@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getMenu, roleLabel } from '../components/Layout.jsx';
+import Dashboard from './Dashboard.jsx';
 
 export default function Home() {
   const { user } = useAuth();
+  // El administrador inicia en el dashboard (FR-014)
+  if (user.rol === 'administrador') return <Dashboard />;
   const shortcuts = getMenu(user.rol).filter((item) => item.to !== '/');
 
   return (

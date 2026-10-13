@@ -19,6 +19,7 @@ import AccessStation from './pages/AccessStation.jsx';
 import Payments from './pages/Payments.jsx';
 import Debts from './pages/Debts.jsx';
 import Accesses from './pages/Accesses.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
@@ -58,6 +59,7 @@ export default function App() {
           <Route element={<ProtectedRoute roles={ADMIN} />}>
             <Route path="membership-types/new" element={<MembershipTypeForm />} />
             <Route path="membership-types/:id" element={<MembershipTypeForm />} />
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="payments" element={<Payments />} />
             <Route path="debts" element={<Debts />} />
           </Route>

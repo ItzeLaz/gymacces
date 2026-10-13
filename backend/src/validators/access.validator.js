@@ -1,5 +1,6 @@
 import { body, query } from 'express-validator';
 import { dateQuery, dateRangeQuery, paginationQuery } from './common.js';
+import { ACCESS_REASONS } from '../utils/accessReasons.js';
 import { isValidDescriptor } from '../utils/faceMatching.js';
 
 // El mensaje nunca repite el descriptor recibido (FR-030)
@@ -7,15 +8,6 @@ export const accessAttemptRules = [
   body('descriptor')
     .custom((value) => value === null || isValidDescriptor(value))
     .withMessage('La captura facial no es válida.'),
-];
-
-export const ACCESS_REASONS = [
-  'rostro_no_identificado',
-  'cliente_inactivo',
-  'sin_membresia_vigente',
-  'membresia_vencida',
-  'membresia_suspendida',
-  'membresia_cancelada',
 ];
 
 export const listAccessRules = [

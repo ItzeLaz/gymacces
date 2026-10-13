@@ -38,12 +38,22 @@ export async function createMembership({ id_cliente, id_tipo_membresia, ...datos
 }
 
 export async function createPayment({ id_cliente, id_membresia, ...datos }) {
-  const pago = { monto: '100.00', metodo_pago: 'efectivo', estado: 'pagado', ...datos };
+  const pago = { monto: '100.00', metodo_pago: 'efectivo', estado: 'pagado', fecha_pago: null, ...datos };
   const [result] = await pool.execute(
-    'INSERT INTO pagos (id_cliente, id_membresia, monto, metodo_pago, estado) VALUES (?, ?, ?, ?, ?)',
-    [id_cliente, id_membresia, pago.monto, pago.metodo_pago, pago.estado],
+    `INSERT INTO pagos (id_cliente, id_membresia, monto, metodo_pago, estado, fecha_pago)
+     VALUES (?, ?, ?, ?, ?, COALESCE(?, NOW()))`,
+    [id_cliente, id_membresia, pago.monto, pago.metodo_pago, pago.estado, pago.fecha_pago],
   );
   return { ...pago, id_cliente, id_membresia, id_pago: result.insertId };
+}
+
+export async function createAccess({ id_cliente = null, resultado, motivo = null, fecha_hora = null, registrado_por }) {
+  const [result] = await pool.execute(
+    `INSERT INTO accesos (id_cliente, resultado, motivo, registrado_por, fecha_hora)
+     VALUES (?, ?, ?, ?, COALESCE(?, NOW(3)))`,
+    [id_cliente, resultado, motivo, registrado_por, fecha_hora],
+  );
+  return { id_acceso: result.insertId, id_cliente, resultado, motivo };
 }
 
 // Generador pseudoaleatorio determinista (mulberry32)
