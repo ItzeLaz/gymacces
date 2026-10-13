@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound.jsx';
 import MembershipTypes from './pages/MembershipTypes.jsx';
 import MembershipTypeForm from './pages/MembershipTypeForm.jsx';
 import MembershipForm from './pages/MembershipForm.jsx';
+import PaymentForm from './pages/PaymentForm.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
@@ -51,6 +52,7 @@ export default function App() {
           <Route element={<ProtectedRoute roles={FRONT_DESK} />}>
             <Route path="membership-types" element={<MembershipTypes />} />
             <Route path="clients/:id/memberships/new" element={<MembershipForm />} />
+            <Route path="clients/:id/payments/new" element={<PaymentForm />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={['cliente']} />}>

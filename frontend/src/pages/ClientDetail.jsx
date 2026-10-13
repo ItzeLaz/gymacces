@@ -6,6 +6,7 @@ import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Message from '../components/Message.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import MembershipsSection from '../components/MembershipsSection.jsx';
+import PaymentsSection from '../components/PaymentsSection.jsx';
 
 const LABELS = {
   nombre: 'Nombre',
@@ -31,6 +32,9 @@ export default function ClientDetail() {
   const [message, setMessage] = useState({ type: 'success', text: location.state?.message ?? '' });
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Cambia cuando una sección modifica datos que otra muestra (saldos)
+  const [refreshKey, setRefreshKey] = useState(0);
+  const refresh = () => setRefreshKey((key) => key + 1);
 
   useEffect(() => {
     getClient(id)
@@ -95,7 +99,14 @@ export default function ClientDetail() {
               ))}
           </dl>
 
-          <MembershipsSection clientId={id} rol={user.rol} clientActive={client.estado === 'activo'} />
+          <MembershipsSection
+            clientId={id}
+            rol={user.rol}
+            clientActive={client.estado === 'activo'}
+            refreshKey={refreshKey}
+            onChange={refresh}
+          />
+          {canWrite && <PaymentsSection clientId={id} rol={user.rol} refreshKey={refreshKey} onChange={refresh} />}
         </>
       )}
       <p>

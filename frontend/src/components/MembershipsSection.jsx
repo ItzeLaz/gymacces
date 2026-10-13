@@ -25,7 +25,7 @@ function availableActions(membresia) {
   return membresia.estado === 'suspendida' ? ['activa', 'cancelada'] : ['suspendida', 'cancelada'];
 }
 
-export default function MembershipsSection({ clientId, rol, clientActive, onChange }) {
+export default function MembershipsSection({ clientId, rol, clientActive, refreshKey, onChange }) {
   const isAdmin = rol === 'administrador';
   const canWrite = isAdmin || rol === 'recepcionista';
   const showMoney = canWrite;
@@ -42,7 +42,7 @@ export default function MembershipsSection({ clientId, rol, clientActive, onChan
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, refreshKey]);
 
   const confirm = async (motivo) => {
     setBusy(true);
