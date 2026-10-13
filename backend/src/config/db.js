@@ -12,6 +12,12 @@ export const pool = mysql.createPool({
   dateStrings: false,
 });
 
+// XAMPP trae MariaDB en modo no estricto: un ENUM inválido se guardaría como '' sin error.
+// El modo estricto hace que la base rechace valores fuera de sus restricciones.
+pool.pool.on('connection', (connection) => {
+  connection.query("SET SESSION sql_mode = CONCAT(@@SESSION.sql_mode, ',STRICT_TRANS_TABLES')");
+});
+
 // Ejecuta el callback dentro de una transacción con una conexión propia
 export async function withTransaction(callback) {
   const connection = await pool.getConnection();

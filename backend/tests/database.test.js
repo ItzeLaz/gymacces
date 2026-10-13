@@ -2,10 +2,19 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { env } from '../src/config/env.js';
 import { pool } from '../src/config/db.js';
-import { resetTestDatabase, createClient, closePool } from './helpers/db.js';
+import { resetTestDatabase, createClient, createUser, closePool } from './helpers/db.js';
 import { runMigrations } from '../../database/scripts/migrate.js';
 
-const SPRINT_TABLES = ['clientes', 'membresias', 'pagos', 'tipos_membresia', 'usuarios'];
+const SPRINT_TABLES = [
+  'accesos',
+  'auditoria',
+  'clientes',
+  'membresias',
+  'pagos',
+  'rostros',
+  'tipos_membresia',
+  'usuarios',
+];
 
 async function expectRejected(sql, params, mensaje) {
   await assert.rejects(pool.execute(sql, params), mensaje);
@@ -26,7 +35,7 @@ describe('estructura de la base de datos', () => {
 
   after(closePool);
 
-  it('existen_las_cinco_tablas_del_sprint_con_innodb_y_utf8mb4', async () => {
+  it('existen_las_tablas_de_ambos_sprints_con_innodb_y_utf8mb4', async () => {
     const [rows] = await pool.execute(
       `SELECT TABLE_NAME AS nombre, ENGINE AS motor, TABLE_COLLATION AS collation
        FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME <> 'schema_migrations'
@@ -95,11 +104,38 @@ describe('estructura de la base de datos', () => {
     assert.deepEqual(aplicadas, [], 'no debe volver a aplicar migraciones');
   });
 
-  it('no_existen_tablas_rostros_accesos_ni_auditoria', async () => {
-    const [rows] = await pool.execute(
-      "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ('rostros', 'accesos', 'auditoria')",
-      [env.db.name],
+  it('metodo_de_pago_solo_admite_los_valores_permitidos', async () => {
+    await expectRejected(
+      "INSERT INTO pagos (id_cliente, monto, metodo_pago) VALUES (?, 100, 'cheque')",
+      [cliente.id_cliente],
+      'el método "cheque" no está permitido',
     );
-    assert.equal(rows.length, 0, 'esas tablas pertenecen al Sprint 2');
+  });
+
+  it('acceso_rechazado_exige_motivo', async () => {
+    const usuario = await createUser({ rol: 'recepcionista' });
+    await expectRejected(
+      "INSERT INTO accesos (resultado, motivo, registrado_por) VALUES ('rechazado', NULL, ?)",
+      [usuario.id_usuario],
+      'un rechazo sin motivo debe impedirse',
+    );
+    await expectRejected(
+      "INSERT INTO accesos (resultado, motivo, registrado_por) VALUES ('autorizado', 'membresia_vencida', ?)",
+      [usuario.id_usuario],
+      'un acceso autorizado no lleva motivo',
+    );
+  });
+
+  it('no_permite_dos_rostros_activos_del_mismo_cliente', async () => {
+    const usuario = await createUser({ rol: 'recepcionista' });
+    const insertar = () =>
+      pool.execute(
+        "INSERT INTO rostros (id_cliente, descriptor_cifrado, iv, auth_tag, version_modelo, consentimiento, registrado_por) VALUES (?, 'x', 'iv', 'tag', 'prueba', 1, ?)",
+        [cliente.id_cliente, usuario.id_usuario],
+      );
+    await insertar();
+    await assert.rejects(insertar(), 'el segundo registro activo debe rechazarse');
+    await pool.execute("UPDATE rostros SET estado = 'inactivo' WHERE id_cliente = ?", [cliente.id_cliente]);
+    await insertar();
   });
 });

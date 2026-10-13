@@ -130,7 +130,7 @@ pendiente de `docs/sprint-2.md` (sección 9). Las decisiones del Sprint 1 (R-01 
 
 ## R-07. Funcionamiento de la estación de acceso
 
-- **Decisión** (aclaración provisional del 2026-10-12): pantalla `/access/station` en el frontend,
+- **Decisión** (aclaración confirmada el 2026-10-12): pantalla `/access/station` en el frontend,
   abierta con la sesión de un administrador o recepcionista. Funciona en ciclo continuo:
   1. Detecta un rostro que cumpla las condiciones de R-04 y lo mantiene durante ~1 s.
   2. Envía el descriptor a `POST /api/access/attempts`.
@@ -175,7 +175,7 @@ pendiente de `docs/sprint-2.md` (sección 9). Las decisiones del Sprint 1 (R-01 
 
 ## R-10. Pagos parciales, montos y métodos de pago
 
-- **Decisión** (aclaración provisional del 2026-10-12): se permiten abonos. Cada membresía guarda
+- **Decisión** (aclaración confirmada el 2026-10-12): se permiten abonos. Cada membresía guarda
   su `monto` copiado del precio del tipo al asignarse (FR-004, FR-006). El saldo es
   `monto − SUM(pagos con estado 'pagado')`, calculado en SQL al consultar, sin columna guardada.
   Los métodos son un `ENUM('efectivo','tarjeta','transferencia')`. Los montos se manejan como
@@ -237,7 +237,10 @@ pendiente de `docs/sprint-2.md` (sección 9). Las decisiones del Sprint 1 (R-01 
 
 ## Decisiones pendientes que no bloquean el plan
 
-- Confirmación del equipo de las tres aclaraciones provisionales (abonos, adeudo sin bloqueo y
-  estación con sesión del personal). Si cambian, afectan a R-07, R-10 y a los contratos.
+- ~~Confirmación del equipo de las tres aclaraciones provisionales~~: confirmadas tal cual el
+  2026-10-12 (T002).
+- Aprobación del equipo de R-01 (librería `@vladmandic/human` 3.3.6), R-02 (procesamiento en el
+  navegador y comparación en el backend) y R-05 (descriptores cifrados con AES-256-GCM, sin
+  imágenes): **aprobadas el 2026-10-12** (T003).
 - Valores finales de `FACE_MATCH_THRESHOLD` y `FACE_MATCH_MARGIN`, que salen de la calibración.
 - Modelo exacto de la cámara de pruebas.

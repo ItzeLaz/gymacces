@@ -184,7 +184,7 @@ Solo se insertan filas; no hay operaciones de modificación ni borrado (FR-039).
 | 6 | Membresía actual con estado efectivo `vencida` | rechazado | `membresia_vencida` |
 | 7 | Sin membresías, o solo una futura (por iniciar) | rechazado | `sin_membresia_vigente` |
 
-El adeudo no interviene (aclaración provisional del 2026-10-12). Si en la ventana
+El adeudo no interviene (aclaración confirmada el 2026-10-12). Si en la ventana
 `ACCESS_DEDUP_SECONDS` ya existe un intento del mismo cliente con el mismo resultado, no se inserta
 otra fila y se devuelve la existente (FR-038).
 

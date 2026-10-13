@@ -15,6 +15,10 @@
   --color-active-text: #166534;
   --color-inactive-bg: #e5e7eb;
   --color-inactive-text: #374151;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-info-bg: #dbeafe;
+  --color-info-text: #1e3a8a;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -237,6 +241,45 @@ a {
 .badge-inactivo {
   background: var(--color-inactive-bg);
   color: var(--color-inactive-text);
+}
+
+/* Estados de membresía, pago y acceso: cada uno lleva texto, no solo color (FR-047) */
+.badge-activa,
+.badge-pagada,
+.badge-pagado,
+.badge-autorizado {
+  background: var(--color-active-bg);
+  color: var(--color-active-text);
+}
+
+.badge-vencida,
+.badge-rechazado,
+.badge-pendiente {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.badge-suspendida,
+.badge-parcial {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.badge-por_iniciar {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.badge-cancelada,
+.badge-cancelado {
+  background: var(--color-inactive-bg);
+  color: var(--color-inactive-text);
+  text-decoration: line-through;
+}
+
+.money {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .message {

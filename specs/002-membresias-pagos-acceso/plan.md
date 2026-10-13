@@ -32,10 +32,9 @@ e incorpora el reconocimiento facial y el control de acceso. Incluye:
 
 Las decisiones están justificadas en [research.md](./research.md).
 
-**Aclaraciones provisionales**: las tres preguntas de la especificación (abonos, adeudo y acceso,
-modo de la estación) no tuvieron respuesta. Se adoptaron las opciones recomendadas y están
-registradas en "Clarifications" de la especificación. Si el equipo cambia alguna, hay que revisar
-research R-07 y R-10, `data-model.md` (pagos y decisión de acceso) y `contracts/api.md`.
+**Aclaraciones**: las tres preguntas de la especificación (abonos, adeudo y acceso, modo de la
+estación) se resolvieron con las opciones recomendadas, que el equipo confirmó el 2026-10-12
+(registradas en "Clarifications" de la especificación).
 
 ## Contexto técnico
 
@@ -91,7 +90,7 @@ usar la cámara.
 |---|-----------|------------------------|--------|
 | I | Alcance, MVP y fuente de verdad | Solo US-S2-01 a US-S2-09. Dashboard, reportes y consulta de auditoría en pantalla quedan fuera. Cada requisito se rastrea a su historia y aparece en el quickstart. | ✅ |
 | II | Arquitectura con responsabilidades separadas | Las tres carpetas de siempre. En el backend, reconocimiento facial (`faces.*`, `utils/faceMatching.js`, `utils/faceCrypto.js`) y control de acceso (`access.*`) son módulos separados; el segundo usa el primero solo mediante el servicio. La decisión de acceso vive en `services/`, no en la interfaz. | ✅ |
-| III | Stack tecnológico | React, Node.js + Express, ES Modules, MySQL/MariaDB, REST, JWT y bcrypt sin cambios. La librería facial es JavaScript y compatible con la web, y está justificada en research R-01. Única dependencia nueva: `@vladmandic/human`. | ⚠️ Pendiente de aprobación del equipo (T003) |
+| III | Stack tecnológico | React, Node.js + Express, ES Modules, MySQL/MariaDB, REST, JWT y bcrypt sin cambios. La librería facial es JavaScript y compatible con la web, y está justificada en research R-01. Única dependencia nueva: `@vladmandic/human`. | ✅ Aprobada por el equipo el 2026-10-12 (T003) |
 | IV | Base de datos y persistencia | Se crean `rostros`, `accesos` y `auditoria`, como manda la etapa Sprint 2. Todo con InnoDB, `utf8mb4`, llaves primarias y foráneas, consultas parametrizadas y migraciones nuevas `003` y `004` sin modificar `001` ni `002`. La información facial va cifrada. | ✅ |
 | V | Seguridad y protección | Descriptores cifrados con AES-256-GCM y llave en `.env`. Permisos y validación en el backend. Errores genéricos. Sin endpoints públicos con datos biométricos (todas las rutas exigen sesión y rol). | ✅ |
 | VI | Roles y permisos | La matriz de [contracts/api.md](./contracts/api.md) sigue la constitución. El recepcionista no gestiona tipos, no cambia estados de membresías, no anula pagos ni ve el historial financiero general (configuración administrativa). El entrenador no ve información financiera. El cliente solo ve lo suyo. | ✅ |
@@ -100,11 +99,12 @@ usar la cámara.
 | IX | API y manejo de errores | Mismas convenciones JSON y middlewares. Se agrega el código `422 BUSINESS_RULE` dentro del manejador centralizado, documentado en el contrato. | ✅ |
 | X | Pruebas | Cubre membresías (registro y renovación), pagos, adeudos, roles, reconocimiento facial (con descriptores sintéticos y prueba manual), autorización y rechazo de accesos, y registro de accesos. Los reportes no forman parte del sprint. | ✅ |
 | XI | UX/UI profesional y sencilla | Estados de membresía y acceso con `StatusBadge`. Confirmación al anular, suspender, cancelar y desactivar. Mensajes de éxito y error. La estación muestra el resultado en verde o rojo con texto. | ✅ |
-| — | Flujo de desarrollo (ramas) | Se usa la rama `002-membresias-pagos-acceso`, igual que la carpeta de la feature y con la misma convención del Sprint 1; la crea T001 de `tasks.md`. | ⚠️ Pendiente de crear la rama |
+| — | Flujo de desarrollo (ramas) | Se usa la rama `002-membresias-pagos-acceso`, igual que la carpeta de la feature y con la misma convención del Sprint 1; la crea T001 de `tasks.md`. | ✅ Rama creada |
 
 **Resultado de la compuerta (antes de la Fase 0)**: aprobada con dos pendientes de aprobación del
 equipo, que `tasks.md` convierte en compuertas (T002: aclaraciones provisionales; T003: librería
-facial y almacenamiento de datos faciales) y un pendiente operativo (crear la rama).
+facial y almacenamiento de datos faciales) y un pendiente operativo (crear la rama). Los tres se
+resolvieron el 2026-10-12.
 
 **Revisión después de la Fase 1**: el modelo de datos, los contratos y la estructura mantienen el
 resultado. Se revisaron dos riesgos:

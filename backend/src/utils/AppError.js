@@ -26,3 +26,6 @@ export const notFound = (message = 'El recurso solicitado no existe.') =>
   new AppError(404, 'NOT_FOUND', message);
 
 export const conflict = (message) => new AppError(409, 'CONFLICT', message);
+
+// Solicitud válida en formato que viola una regla de negocio (contracts/api.md)
+export const businessRule = (message) => new AppError(422, 'BUSINESS_RULE', message);

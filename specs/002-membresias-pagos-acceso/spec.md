@@ -14,17 +14,17 @@ constitución como referencias).
 
 ### Session 2026-10-12
 
-Las tres preguntas de `/speckit-specify` y `/speckit-clarify` quedaron sin respuesta del equipo. Al
-ejecutar `/speckit-plan` se adoptaron las opciones recomendadas como **decisiones provisionales**;
-el equipo puede cambiarlas antes de `/speckit-tasks`.
+Las tres preguntas de `/speckit-specify` y `/speckit-clarify` quedaron sin respuesta durante la
+especificación. Al ejecutar `/speckit-plan` se adoptaron las opciones recomendadas como decisiones
+provisionales, y el equipo las **confirmó tal cual el 2026-10-12** (T002 de `tasks.md`).
 
 - Q: ¿Se permiten pagos parciales (abonos) o cada membresía se paga completa en un solo pago? → A:
-  (provisional) Se permiten abonos de cualquier monto mayor a cero hasta liquidar la membresía; el
+  Se permiten abonos de cualquier monto mayor a cero hasta liquidar la membresía; el
   adeudo es el saldo pendiente.
-- Q: ¿Un adeudo pendiente impide el acceso? → A: (provisional) No; el acceso depende solo de la
+- Q: ¿Un adeudo pendiente impide el acceso? → A: No; el acceso depende solo de la
   coincidencia facial, del estado del cliente y de la vigencia de la membresía. El adeudo se
   gestiona en recepción.
-- Q: ¿Cómo opera el punto de acceso? → A: (provisional) Como estación de reconocimiento continuo
+- Q: ¿Cómo opera el punto de acceso? → A: Como estación de reconocimiento continuo
   abierta con la sesión de un administrador o recepcionista; no se crea un rol ni una credencial
   nueva para el dispositivo.
 
