@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import Profile from '../pages/Profile.jsx';
 
 describe('perfil del cliente', () => {
-  it('muestra_los_datos_del_cliente_y_disponible_proximamente', async () => {
+  it('muestra_los_datos_del_cliente_y_avisa_si_no_tiene_membresia', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -30,6 +30,6 @@ describe('perfil del cliente', () => {
 
     expect(await screen.findByText('Luis Pérez')).toBeInTheDocument();
     expect(screen.getByText('luis@correo.com')).toBeInTheDocument();
-    expect(screen.getAllByText('Disponible próximamente')).toHaveLength(2);
+    expect(screen.getByText('No tienes una membresía registrada.')).toBeInTheDocument();
   });
 });

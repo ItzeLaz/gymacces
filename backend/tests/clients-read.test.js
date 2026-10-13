@@ -5,7 +5,8 @@ import { app } from '../src/app.js';
 import { resetTestDatabase, createUser, createClient, createClientUser, closePool } from './helpers/db.js';
 import { tokenFor, bearer } from './helpers/auth.js';
 
-const BASIC_FIELDS = ['apellido', 'estado', 'id_cliente', 'nombre'];
+// Desde el Sprint 2 también reciben el resumen de membresía (FR-013)
+const BASIC_FIELDS = ['apellido', 'estado', 'id_cliente', 'membresia_actual', 'nombre'];
 
 describe('consulta de clientes por el personal', () => {
   let recepToken;

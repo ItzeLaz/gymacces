@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Message from '../components/Message.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
+import MembershipsSection from '../components/MembershipsSection.jsx';
 
 const LABELS = {
   nombre: 'Nombre',
@@ -93,6 +94,8 @@ export default function ClientDetail() {
                 </div>
               ))}
           </dl>
+
+          <MembershipsSection clientId={id} rol={user.rol} clientActive={client.estado === 'activo'} />
         </>
       )}
       <p>

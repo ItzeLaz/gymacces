@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Message from '../components/Message.jsx';
 import Pagination from '../components/Pagination.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
+import { membershipBadge } from '../components/MembershipsSection.jsx';
+import { formatDay } from '../utils/dates.js';
 
 const LIMIT = 20;
 
@@ -15,7 +17,17 @@ const COLUMNS = [
   { key: 'correo', label: 'Correo' },
   { key: 'telefono', label: 'Teléfono' },
   { key: 'estado', label: 'Estado' },
+  { key: 'membresia_actual', label: 'Membresía' },
 ];
+
+function MembershipCell({ membresia }) {
+  if (!membresia) return 'Sin membresía';
+  return (
+    <>
+      <StatusBadge estado={membershipBadge(membresia)} /> hasta {formatDay(membresia.fecha_fin)}
+    </>
+  );
+}
 
 export default function Clients() {
   const { user } = useAuth();
@@ -120,7 +132,13 @@ export default function Clients() {
               <tr key={client.id_cliente}>
                 {visibleColumns.map((column) => (
                   <td key={column.key}>
-                    {column.key === 'estado' ? <StatusBadge estado={client.estado} /> : client[column.key] ?? '—'}
+                    {column.key === 'estado' ? (
+                      <StatusBadge estado={client.estado} />
+                    ) : column.key === 'membresia_actual' ? (
+                      <MembershipCell membresia={client.membresia_actual} />
+                    ) : (
+                      client[column.key] ?? '—'
+                    )}
                   </td>
                 ))}
                 <td>

@@ -66,3 +66,12 @@ export async function update(id, fields) {
 export async function updateStatus(id, estado) {
   await pool.execute('UPDATE clientes SET estado = ? WHERE id_cliente = ?', [estado, id]);
 }
+
+// Bloquea la fila del cliente mientras dura la transacción (research R-09)
+export async function lockById(id, connection) {
+  const [rows] = await connection.execute(
+    'SELECT id_cliente, nombre, estado FROM clientes WHERE id_cliente = ? FOR UPDATE',
+    [id],
+  );
+  return rows[0] ?? null;
+}

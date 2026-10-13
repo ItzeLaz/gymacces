@@ -3,6 +3,8 @@ import { getMyProfile } from '../api/clients.js';
 import Message from '../components/Message.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { formatDate } from './ClientDetail.jsx';
+import { membershipBadge } from '../components/MembershipsSection.jsx';
+import { formatDay } from '../utils/dates.js';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -17,7 +19,7 @@ export default function Profile() {
   if (error) return <Message type="error">{error}</Message>;
   if (!profile) return <p>Cargando tu información…</p>;
 
-  const { cliente } = profile;
+  const { cliente, membresia } = profile;
 
   return (
     <section className="card">
@@ -42,7 +44,22 @@ export default function Profile() {
       </dl>
 
       <h2>Membresía</h2>
-      <p>Disponible próximamente</p>
+      {membresia ? (
+        <dl className="details-list">
+          <dt>Tipo</dt>
+          <dd>{membresia.tipo.nombre}</dd>
+          <dt>Periodo</dt>
+          <dd>
+            {formatDay(membresia.fecha_inicio)} al {formatDay(membresia.fecha_fin)}
+          </dd>
+          <dt>Estado</dt>
+          <dd>
+            <StatusBadge estado={membershipBadge(membresia)} />
+          </dd>
+        </dl>
+      ) : (
+        <p>No tienes una membresía registrada.</p>
+      )}
       <h2>Pagos</h2>
       <p>Disponible próximamente</p>
     </section>

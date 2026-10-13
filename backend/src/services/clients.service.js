@@ -1,6 +1,7 @@
 import * as clientModel from '../models/client.model.js';
 import { conflict, notFound } from '../utils/AppError.js';
 import { ROLES } from '../utils/roles.js';
+import { getCurrentMembership, toSummary, toView } from './memberships.service.js';
 
 const DUPLICATE_EMAIL = 'Ya existe un cliente con ese correo.';
 
@@ -11,6 +12,12 @@ function projectForRole(cliente, rol) {
     return { id_cliente, nombre, apellido, estado };
   }
   return cliente;
+}
+
+// Agrega el resumen de la membresía actual que ve el personal (FR-013)
+async function withMembership(cliente, rol) {
+  const actual = await getCurrentMembership(cliente.id_cliente);
+  return { ...projectForRole(cliente, rol), membresia_actual: toSummary(actual, rol) };
 }
 
 async function ensureEmailAvailable(correo, exceptId) {
@@ -54,15 +61,17 @@ export async function listClients({ search, estado, page, limit, offset }, rol) 
     clientModel.list({ ...filters, limit, offset }),
     clientModel.count(filters),
   ]);
-  return { data: rows.map((cliente) => projectForRole(cliente, rol)), meta: { page, limit, total } };
+  const data = await Promise.all(rows.map((cliente) => withMembership(cliente, rol)));
+  return { data, meta: { page, limit, total } };
 }
 
 export async function getClient(id, rol) {
-  return projectForRole(await findOrFail(id), rol);
+  return withMembership(await findOrFail(id), rol);
 }
 
 // Usa siempre el cliente vinculado al usuario autenticado (FR-024, RN-14)
 export async function getOwnProfile(user) {
   const cliente = await findOrFail(user.id_cliente);
-  return { cliente, membresia: null, pagos: null };
+  const membresia = toView(await getCurrentMembership(cliente.id_cliente), ROLES.CLIENT);
+  return { cliente, membresia, pagos: null };
 }
