@@ -28,6 +28,7 @@ vez no duplica nada.
 | `002_create_membresias_pagos.sql` | `tipos_membresia`, `membresias`, `pagos` (estructura) | 1 |
 | `003_ajustar_membresias_pagos.sql` | Monto, motivo y trazabilidad en `membresias`; métodos de pago (`efectivo`, `tarjeta`, `transferencia`), estados (`pagado`, `cancelado`) y datos de anulación en `pagos` | 2 |
 | `004_create_rostros_accesos_auditoria.sql` | `rostros`, `accesos`, `auditoria` | 2 |
+| `005_indices_dashboard.sql` | Índices por fecha en `pagos` y `membresias` para el dashboard | 3 |
 
 `rostros` guarda los descriptores faciales **cifrados** con la llave `FACE_DATA_KEY` del backend.
 Una copia de la base no sirve para identificar a nadie sin esa misma llave: si la llave se pierde o

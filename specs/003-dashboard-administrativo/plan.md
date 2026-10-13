@@ -120,9 +120,13 @@ backend/
 │   ├── controllers/dashboard.controller.js  ➕
 │   ├── services/dashboard.service.js        ➕ periodo, ejecución en paralelo, días sin datos con cero
 │   ├── models/dashboard.model.js            ➕ consultas agregadas parametrizadas
+│   ├── utils/accessReasons.js               ➕ motivos de rechazo compartidos (antes en el validador de accesos)
 │   └── validators/dashboard.validator.js    ➕ periodo y rango
 └── tests/
-    └── dashboard.test.js                    ➕ indicadores, periodos, permisos, datos sensibles, volumen
+    ├── dashboard.test.js                    ➕ indicadores con datos conocidos y base vacía
+    ├── dashboard-security.test.js           ➕ permisos de los cuatro roles y datos sensibles
+    ├── dashboard-periods.test.js            ➕ periodos, tendencia y validación del rango
+    └── dashboard-volume.test.js             ➕ rendimiento con 1 000 clientes, 5 000 pagos y 10 000 accesos
 
 frontend/src/
 ├── api/dashboard.js                         ➕
@@ -133,7 +137,7 @@ frontend/src/
 ├── App.jsx                                  ✏️ ruta /dashboard
 ├── components/Layout.jsx                    ✏️ opción "Dashboard" para el administrador
 ├── styles/global.css                        ✏️ tarjetas y gráficas
-└── tests/Dashboard.test.jsx, tests/BarChart.test.jsx   ➕
+└── tests/Dashboard.test.jsx, tests/BarChart.test.jsx, tests/DashboardAccess.test.jsx   ➕
 ```
 
 **Decisión de estructura**: se mantiene la estructura de tres carpetas y las capas del backend de

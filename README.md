@@ -6,6 +6,7 @@ gimnasio mediante reconocimiento facial. Este repositorio contiene:
 - **Sprint 1**: base del sistema, autenticación, usuarios, roles y clientes.
 - **Sprint 2**: tipos de membresía, asignación y renovación de membresías, pagos y adeudos,
   registro facial, estación de acceso con reconocimiento facial y consulta de accesos.
+- **Sprint 3**: dashboard administrativo.
 
 ## Requisitos
 
@@ -93,6 +94,22 @@ iluminación. Ajústalos con la sección 5 de
 (al menos 10 clientes registrados y 20 personas no registradas), priorizando que ninguna persona no
 registrada obtenga acceso. Anota aquí los valores finales y el modelo de cámara usado.
 
+## Dashboard administrativo
+
+El administrador inicia sesión directamente en el dashboard (también en **Dashboard** del menú).
+Muestra, calculado en el momento:
+
+- Clientes activos e inactivos.
+- Clientes con membresía vigente, vencida y por vencer en los próximos 7 días (sin contar a quienes
+  ya renovaron), con la lista para contactarlos.
+- Pagos e ingresos del periodo y el adeudo total actual.
+- Accesos autorizados y rechazados del periodo, los rechazos por motivo y los 10 más recientes.
+- La evolución diaria de ingresos y accesos.
+
+El periodo se elige arriba: hoy, últimos 7 días, mes en curso (por omisión) o un rango de hasta 366
+días. Cada gráfica tiene el botón **Ver datos** para consultar los valores en una tabla. Solo el
+administrador puede abrir el dashboard.
+
 ## Pruebas
 
 ```powershell
@@ -106,11 +123,12 @@ Las pruebas faciales del backend usan descriptores sintéticos y no necesitan c�
 
 | Rol | Puede |
 |-----|-------|
-| Administrador | Todo lo anterior, más usuarios y roles, tipos de membresía, cambios de estado de membresías, historial general de pagos, adeudos y anulación de pagos |
+| Administrador | Todo lo anterior, más dashboard, usuarios y roles, tipos de membresía, cambios de estado de membresías, historial general de pagos, adeudos y anulación de pagos |
 | Recepcionista | Clientes, asignar y renovar membresías, registrar pagos, registrar información facial, abrir la estación de acceso y consultar accesos |
 | Entrenador | Consultar clientes, estado de sus membresías y accesos, sin información financiera |
 | Cliente | Consultar su información, su membresía, sus pagos, su adeudo y sus accesos |
 
 Guías de validación:
 [Sprint 1](specs/001-base-usuarios-clientes/quickstart.md) ·
-[Sprint 2](specs/002-membresias-pagos-acceso/quickstart.md).
+[Sprint 2](specs/002-membresias-pagos-acceso/quickstart.md) ·
+[Sprint 3](specs/003-dashboard-administrativo/quickstart.md).

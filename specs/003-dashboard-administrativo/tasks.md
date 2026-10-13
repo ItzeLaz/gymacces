@@ -144,12 +144,12 @@ coinciden con lo registrado en cada periodo.
 
 ## Fase 6: Pulido y aspectos transversales
 
-- [ ] T026 [P] Crear `backend/tests/dashboard-volume.test.js` que inserte en bloque 1 000 clientes con membresías, 5 000 pagos y 10 000 accesos repartidos en 300 días, y verifique que `GET /api/dashboard` y `GET /api/dashboard?periodo=rango` con un rango de 366 días responden en menos de 3 s cada uno (SC-001, SC-003)
-- [ ] T027 [P] Actualizar `README.md`: el administrador inicia en el dashboard, qué muestra, cómo elegir el periodo, y enlace a `specs/003-dashboard-administrativo/quickstart.md`
-- [ ] T028 [P] Agregar la migración 005 a la tabla de `database/README.md`
-- [ ] T029 [P] Agregar en `docs/project-context.md` sección 16 un "Sprint 3 - Dashboard administrativo" con su objetivo y funcionalidades, y aclarar que el MVP se completa en tres sprints, con entrenadores, rutinas y progreso como mejoras futuras (constitución, principio I)
-- [ ] T030 Revisar con `git grep -nE "require\(|module\.exports" -- backend database` que no hay CommonJS, que `frontend/package.json` y `backend/package.json` no tienen dependencias nuevas frente a la rama del Sprint 2 y que todos los textos nuevos están en español
-- [ ] T031 Ejecutar `npm test` en `backend/` y `frontend/`, y `npx vite build` en `frontend/`, y corregir los fallos hasta que todo pase
+- [X] T026 [P] Crear `backend/tests/dashboard-volume.test.js` que inserte en bloque 1 000 clientes con membresías, 5 000 pagos y 10 000 accesos repartidos en 300 días, y verifique que `GET /api/dashboard` y `GET /api/dashboard?periodo=rango` con un rango de 366 días responden en menos de 3 s cada uno (SC-001, SC-003)
+- [X] T027 [P] Actualizar `README.md`: el administrador inicia en el dashboard, qué muestra, cómo elegir el periodo, y enlace a `specs/003-dashboard-administrativo/quickstart.md`
+- [X] T028 [P] Agregar la migración 005 a la tabla de `database/README.md`
+- [X] T029 [P] Agregar en `docs/project-context.md` sección 16 un "Sprint 3 - Dashboard administrativo" con su objetivo y funcionalidades, y aclarar que el MVP se completa en tres sprints, con entrenadores, rutinas y progreso como mejoras futuras (constitución, principio I)
+- [X] T030 Revisar con `git grep -nE "require\(|module\.exports" -- backend database` que no hay CommonJS, que `frontend/package.json` y `backend/package.json` no tienen dependencias nuevas frente a la rama del Sprint 2 y que todos los textos nuevos están en español
+- [X] T031 Ejecutar `npm test` en `backend/` y `frontend/`, y `npx vite build` en `frontend/`, y corregir los fallos hasta que todo pase
 - [ ] T032 Ejecutar el recorrido manual de la sección 3 de [quickstart.md](./quickstart.md) (pasos 1 a 10) y anotar cualquier desviación (SC-002, SC-006)
 
 ---

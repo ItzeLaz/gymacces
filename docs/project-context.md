@@ -798,7 +798,8 @@ usuarios
 
 # 16. Sprints del MVP
 
-El MVP se desarrollará en **dos sprints**.
+El MVP se desarrollará en **tres sprints**. El tercero se agregó el 2026-10-12 para el dashboard
+administrativo, que ya formaba parte del alcance (sección 7.8).
 
 ## Sprint 1 - Base del sistema, usuarios y clientes
 
@@ -842,6 +843,30 @@ Implementar la gestión de membresías y pagos, integrar el reconocimiento facia
 * Rechazo de acceso.
 * Registro de accesos.
 * Auditoría.
+
+---
+
+## Sprint 3 - Dashboard administrativo
+
+### Objetivo
+
+Implementar el dashboard administrativo para que el administrador supervise de forma rápida el
+estado de clientes, membresías, pagos, ingresos y accesos del gimnasio.
+
+### Funcionalidades principales
+
+* Clientes activos e inactivos.
+* Clientes con membresía vigente, vencida y por vencer.
+* Pagos, ingresos y adeudo total.
+* Accesos autorizados, rechazados y rechazos por motivo.
+* Evolución diaria por periodo.
+* Acceso exclusivo del administrador.
+
+### Mejoras futuras (fuera del MVP)
+
+La gestión de entrenadores, la asignación de clientes a entrenadores, las rutinas, los objetivos y
+el progreso de entrenamiento se propusieron para este sprint y se aplazaron; están descritos en la
+sección 8 de `docs/sprint-3.md`.
 
 ---
 
