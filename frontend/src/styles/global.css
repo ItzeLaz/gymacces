@@ -358,3 +358,52 @@ a {
   background: #000;
   transform: scaleX(-1);
 }
+
+/* Estación de acceso: pantalla completa con resultado grande y con texto (FR-036, FR-047) */
+.station {
+  min-height: 100vh;
+  padding: var(--space-6);
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: var(--space-4);
+}
+
+.station-header {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.station-camera video {
+  max-width: 720px;
+}
+
+.station-hint {
+  font-size: 1.5rem;
+  color: var(--color-muted);
+}
+
+.station-result {
+  padding: var(--space-6);
+  border-radius: var(--radius);
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.station-result p {
+  margin: 0;
+}
+
+.station-authorized {
+  background: var(--color-active-bg);
+  color: var(--color-active-text);
+}
+
+.station-rejected {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}

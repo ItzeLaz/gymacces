@@ -15,6 +15,7 @@ import MembershipTypeForm from './pages/MembershipTypeForm.jsx';
 import MembershipForm from './pages/MembershipForm.jsx';
 import PaymentForm from './pages/PaymentForm.jsx';
 import FaceRegister from './pages/FaceRegister.jsx';
+import AccessStation from './pages/AccessStation.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
@@ -26,6 +27,11 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
+        {/* La estación ocupa toda la pantalla, fuera del menú (FR-037) */}
+        <Route element={<ProtectedRoute roles={FRONT_DESK} />}>
+          <Route path="access/station" element={<AccessStation />} />
+        </Route>
+
         <Route element={<Layout />}>
           <Route index element={<Home />} />
 

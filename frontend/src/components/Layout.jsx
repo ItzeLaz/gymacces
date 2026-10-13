@@ -15,11 +15,13 @@ const MENU = {
     { to: '/users', label: 'Usuarios' },
     { to: '/clients', label: 'Clientes' },
     { to: '/membership-types', label: 'Tipos de membresía' },
+    { to: '/access/station', label: 'Estación de acceso' },
   ],
   recepcionista: [
     { to: '/', label: 'Inicio' },
     { to: '/clients', label: 'Clientes' },
     { to: '/membership-types', label: 'Tipos de membresía' },
+    { to: '/access/station', label: 'Estación de acceso' },
   ],
   entrenador: [
     { to: '/', label: 'Inicio' },
