@@ -22,14 +22,16 @@ vez no duplica nada.
 
 ## Migraciones
 
-| Migración | Tablas | Estado en el Sprint 1 |
-|-----------|--------|-----------------------|
-| `001_create_usuarios_clientes.sql` | `clientes`, `usuarios` | Funcionales |
-| `002_create_membresias_pagos.sql` | `tipos_membresia`, `membresias`, `pagos` | Solo estructura para el Sprint 2 |
+| Migración | Contenido | Sprint |
+|-----------|-----------|--------|
+| `001_create_usuarios_clientes.sql` | `clientes`, `usuarios` | 1 |
+| `002_create_membresias_pagos.sql` | `tipos_membresia`, `membresias`, `pagos` (estructura) | 1 |
+| `003_ajustar_membresias_pagos.sql` | Monto, motivo y trazabilidad en `membresias`; métodos de pago (`efectivo`, `tarjeta`, `transferencia`), estados (`pagado`, `cancelado`) y datos de anulación en `pagos` | 2 |
+| `004_create_rostros_accesos_auditoria.sql` | `rostros`, `accesos`, `auditoria` | 2 |
 
-En `pagos`, los valores de `metodo_pago` y de `estado` (`pagado`, `pendiente`, `cancelado`) son
-provisionales; el Sprint 2 los ajustará con una nueva migración si hace falta. Las tablas
-`rostros`, `accesos` y `auditoria` se crearán en el Sprint 2.
+`rostros` guarda los descriptores faciales **cifrados** con la llave `FACE_DATA_KEY` del backend.
+Una copia de la base no sirve para identificar a nadie sin esa misma llave: si la llave se pierde o
+se cambia, hay que volver a registrar los rostros. Nunca se guardan fotografías.
 
 Todas las llaves foráneas usan `ON DELETE RESTRICT ON UPDATE RESTRICT`: no se pueden borrar
 clientes con información relacionada.

@@ -173,6 +173,11 @@ pendiente de `docs/sprint-2.md` (sección 9). Las decisiones del Sprint 1 (R-01 
 - **Alternativas consideradas**: restricciones únicas en la base (no expresan "sin traslape" ni
   "saldo ≥ 0"); bloqueos en memoria en Node.js (no protegen si hay más de un proceso).
 
+- **Ajuste durante la implementación (2026-10-12)**: el MariaDB 10.4 de XAMPP trae `sql_mode` sin
+  `STRICT_TRANS_TABLES`, y en ese modo un valor fuera de un `ENUM` se guarda como `''` sin error.
+  `backend/src/config/db.js` activa `STRICT_TRANS_TABLES` en cada conexión del pool para que la base
+  rechace valores fuera de sus restricciones. No requiere cambios en el servidor.
+
 ## R-10. Pagos parciales, montos y métodos de pago
 
 - **Decisión** (aclaración confirmada el 2026-10-12): se permiten abonos. Cada membresía guarda

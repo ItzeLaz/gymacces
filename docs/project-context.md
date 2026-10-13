@@ -526,6 +526,26 @@ Las funciones disponibles deben depender del rol del usuario y los permisos debe
 
 Un cliente solamente puede consultar su propia información.
 
+## RN-15 - Pagos parciales
+
+Una membresía puede pagarse en varios abonos hasta liquidar su monto. El adeudo es el saldo
+pendiente de las membresías no canceladas.
+
+## RN-16 - Adeudo y acceso
+
+Un adeudo pendiente no impide el acceso: el acceso depende solo de la identificación facial, del
+estado del cliente y de la vigencia de la membresía.
+
+## RN-17 - Suspensión de membresías
+
+Solo el administrador puede suspender o reactivar una membresía, indicando el motivo. La
+suspensión no compensa días: las fechas de la membresía no cambian.
+
+## RN-18 - Sin periodo de tolerancia
+
+Una membresía es válida hasta el final de su fecha de fin y está vencida a partir del día
+siguiente.
+
 ---
 
 # 13. Historias de usuario generales
@@ -849,24 +869,19 @@ El MVP se considerará terminado cuando:
 
 # 18. Decisiones técnicas pendientes
 
-Las siguientes decisiones deben resolverse antes de implementar las partes correspondientes:
+Las decisiones del Sprint 1 y del Sprint 2 ya se resolvieron (driver `mysql2`, SQL directo,
+`express-validator`, librería `@vladmandic/human`, almacenamiento cifrado de descriptores, métodos
+de pago, pagos parciales, suspensión, tolerancia, cámara y condiciones de captura). Están
+documentadas en `specs/001-base-usuarios-clientes/research.md`,
+`specs/002-membresias-pagos-acceso/research.md` y en la sección 9 de `docs/sprint-2.md`.
 
-* Driver de MySQL para Node.js.
-* Uso de driver directo, query builder u ORM.
-* Librería de reconocimiento facial compatible con JavaScript.
-* Forma definitiva de almacenar la información facial.
+Siguen pendientes:
+
 * Librería de componentes para React.
 * Manejo de estado en React.
-* Estrategia de validación de formularios.
 * Diseño definitivo del dashboard.
 * Formato de los reportes.
 * Formato de exportación de reportes.
-* Método de pago que se manejará en el sistema.
-* Política de pagos parciales.
-* Política de membresías suspendidas.
-* Tiempo de tolerancia después del vencimiento.
-* Tipo de cámara para las pruebas.
-* Condiciones necesarias para el reconocimiento facial.
 
 ---
 
