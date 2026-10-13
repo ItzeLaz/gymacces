@@ -254,13 +254,13 @@ de la actual.
 
 ### Pruebas de la historia 6
 
-- [ ] T082 [P] [US6] Crear `backend/tests/memberships-renew.test.js`: renovación de una vigente (inicio = fin anterior + 1, auditoría `membresia.renovar`); de una vencida (inicio hoy o la fecha indicada, nunca pasada); de una cancelada (como asignación nueva); doble renovación encadenada al fin de la última; renovación de una suspendida con fin futuro (se encadena después); el historial conserva todas las membresías; tipo inactivo → 422; entrenador → 403
+- [X] T082 [P] [US6] Crear `backend/tests/memberships-renew.test.js`: renovación de una vigente (inicio = fin anterior + 1, auditoría `membresia.renovar`); de una vencida (inicio hoy o la fecha indicada, nunca pasada); de una cancelada (como asignación nueva); doble renovación encadenada al fin de la última; renovación de una suspendida con fin futuro (se encadena después); el historial conserva todas las membresías; tipo inactivo → 422; entrenador → 403
 
 ### Implementación de la historia 6
 
-- [ ] T083 [US6] Agregar `renewMembership(idCliente, { id_tipo_membresia, fecha_inicio }, user)` en `backend/src/services/memberships.service.js` según data-model, "Renovación": transacción con `lockById` del cliente, `findLastNotCancelled`; si su `fecha_fin >= today()`, inicio = `addDays(fecha_fin, 1)`; si no, `fecha_inicio` indicada o hoy (422 si es anterior a hoy); validar traslape, copiar `monto` y auditar `membresia.renovar`
-- [ ] T084 [US6] Agregar `renew` en `backend/src/controllers/memberships.controller.js` y la ruta `POST /renew` (administrador y recepcionista) en `clientMembershipsRouter` de `backend/src/routes/memberships.routes.js`
-- [ ] T085 [US6] Agregar el modo renovación en `frontend/src/pages/MembershipForm.jsx` (muestra la fecha de inicio calculada: "Iniciará el <fecha>, al terminar la membresía actual") con la ruta `/clients/:id/memberships/renew` en `frontend/src/App.jsx`, y el botón "Renovar" en la sección de membresías de `frontend/src/pages/ClientDetail.jsx`
+- [X] T083 [US6] Agregar `renewMembership(idCliente, { id_tipo_membresia, fecha_inicio }, user)` en `backend/src/services/memberships.service.js` según data-model, "Renovación": transacción con `lockById` del cliente, `findLastNotCancelled`; si su `fecha_fin >= today()`, inicio = `addDays(fecha_fin, 1)`; si no, `fecha_inicio` indicada o hoy (422 si es anterior a hoy); validar traslape, copiar `monto` y auditar `membresia.renovar`
+- [X] T084 [US6] Agregar `renew` en `backend/src/controllers/memberships.controller.js` y la ruta `POST /renew` (administrador y recepcionista) en `clientMembershipsRouter` de `backend/src/routes/memberships.routes.js`
+- [X] T085 [US6] Agregar el modo renovación en `frontend/src/pages/MembershipForm.jsx` (muestra la fecha de inicio calculada: "Iniciará el <fecha>, al terminar la membresía actual") con la ruta `/clients/:id/memberships/renew` en `frontend/src/App.jsx`, y el botón "Renovar" en la sección de membresías de `frontend/src/pages/ClientDetail.jsx`
 
 **Punto de control**: renovación funcional; las historias 1 a 5 siguen pasando.
 

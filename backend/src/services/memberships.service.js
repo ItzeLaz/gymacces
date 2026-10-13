@@ -3,7 +3,7 @@ import * as clientModel from '../models/client.model.js';
 import * as membershipModel from '../models/membership.model.js';
 import * as typeModel from '../models/membershipType.model.js';
 import { businessRule, notFound } from '../utils/AppError.js';
-import { endDateFor, today } from '../utils/dates.js';
+import { addDays, endDateFor, today } from '../utils/dates.js';
 import { formatAmount, fromCents, toCents } from '../utils/money.js';
 import { ROLES } from '../utils/roles.js';
 import { AUDIT_ACTIONS, record } from './audit.service.js';
@@ -105,6 +105,34 @@ export async function assignMembership(idCliente, { id_tipo_membresia, fecha_ini
       fechaInicio,
       user,
       accion: AUDIT_ACTIONS.MEMBERSHIP_ASSIGN,
+    });
+    return toView(await membershipModel.findById(id, hoy, connection), user.rol);
+  });
+}
+
+// Renovación (FR-010): si la última membresía no cancelada aún no termina (vigente, suspendida
+// o por iniciar), la nueva empieza al día siguiente de su fin; si no, en la fecha indicada u hoy.
+export async function renewMembership(idCliente, { id_tipo_membresia, fecha_inicio }, user) {
+  return withTransaction(async (connection) => {
+    await lockActiveClient(idCliente, connection);
+    const tipo = await findActiveType(id_tipo_membresia, connection);
+    const hoy = today();
+    const ultima = await membershipModel.findLastNotCancelled(idCliente, connection);
+
+    let fechaInicio;
+    if (ultima && ultima.fecha_fin >= hoy) {
+      fechaInicio = addDays(ultima.fecha_fin, 1);
+    } else {
+      fechaInicio = fecha_inicio || hoy;
+      if (fechaInicio < hoy) throw businessRule('La fecha de inicio no puede ser anterior a hoy.');
+    }
+
+    const id = await insertMembership(connection, {
+      idCliente,
+      tipo,
+      fechaInicio,
+      user,
+      accion: AUDIT_ACTIONS.MEMBERSHIP_RENEW,
     });
     return toView(await membershipModel.findById(id, hoy, connection), user.rol);
   });

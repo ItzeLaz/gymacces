@@ -20,6 +20,8 @@ clientMembershipsRouter.use(authenticate);
 
 clientMembershipsRouter.get('/', staff, listClientMembershipsRules, validate, membershipsController.listByClient);
 clientMembershipsRouter.post('/', frontDesk, assignMembershipRules, validate, membershipsController.assign);
+// La renovación usa las mismas reglas de entrada que la asignación
+clientMembershipsRouter.post('/renew', frontDesk, assignMembershipRules, validate, membershipsController.renew);
 
 // Montado en /memberships
 export const membershipsRouter = Router();

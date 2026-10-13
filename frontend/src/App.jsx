@@ -59,6 +59,7 @@ export default function App() {
           <Route element={<ProtectedRoute roles={FRONT_DESK} />}>
             <Route path="membership-types" element={<MembershipTypes />} />
             <Route path="clients/:id/memberships/new" element={<MembershipForm />} />
+            <Route path="clients/:id/memberships/renew" element={<MembershipForm mode="renew" />} />
             <Route path="clients/:id/payments/new" element={<PaymentForm />} />
             <Route path="clients/:id/face" element={<FaceRegister />} />
           </Route>
