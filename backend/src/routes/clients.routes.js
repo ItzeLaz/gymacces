@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import * as clientsController from '../controllers/clients.controller.js';
+import * as accessController from '../controllers/access.controller.js';
+import { ownAccessRules } from '../validators/access.validator.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
 import { validate } from '../middlewares/validate.js';
@@ -21,6 +23,7 @@ clientsRouter.use(authenticate);
 
 // /me va antes de /:id para que no lo capture el parámetro
 clientsRouter.get('/me', authorize(ROLES.CLIENT), clientsController.me);
+clientsRouter.get('/me/access', authorize(ROLES.CLIENT), ownAccessRules, validate, accessController.listOwn);
 
 clientsRouter.get('/', canRead, listClientsRules, validate, clientsController.list);
 clientsRouter.get('/:id', canRead, getClientRules, validate, clientsController.getById);

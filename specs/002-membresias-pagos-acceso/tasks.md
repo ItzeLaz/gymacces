@@ -305,17 +305,17 @@ cada uno con su motivo.
 
 ### Pruebas de la historia 8
 
-- [ ] T094 [P] [US8] Crear `backend/tests/access-query.test.js`: `GET /access` sin filtros devuelve solo los de hoy; filtros por rango, cliente, resultado y motivo; los de `rostro_no_identificado` llegan con `cliente: null`; el administrador recibe `similitud` y el recepcionista y el entrenador no; el entrenador no recibe datos financieros; el cliente recibe 403 en `GET /access` y en `GET /clients/me/access` solo ve los suyos sin `similitud` ni `registrado_por`; no existen `PATCH` ni `DELETE` sobre `/access/:id` (404); con 10 000 filas insertadas en bloque, filtrar los rechazados de un día responde en menos de 1 s (SC-010)
+- [X] T094 [P] [US8] Crear `backend/tests/access-query.test.js`: `GET /access` sin filtros devuelve solo los de hoy; filtros por rango, cliente, resultado y motivo; los de `rostro_no_identificado` llegan con `cliente: null`; el administrador recibe `similitud` y el recepcionista y el entrenador no; el entrenador no recibe datos financieros; el cliente recibe 403 en `GET /access` y en `GET /clients/me/access` solo ve los suyos sin `similitud` ni `registrado_por`; no existen `PATCH` ni `DELETE` sobre `/access/:id` (404); con 10 000 filas insertadas en bloque, filtrar los rechazados de un día responde en menos de 1 s (SC-010)
 
 ### Implementación de la historia 8
 
-- [ ] T095 [US8] Agregar en `backend/src/models/access.model.js` `list(filtros)` y `count(filtros)` con filtros parametrizados (`desde`, `hasta`, `id_cliente`, `resultado`, `motivo`), orden `fecha_hora` descendente y uniones con `clientes` y `usuarios`
-- [ ] T096 [P] [US8] Agregar en `backend/src/validators/access.validator.js` las reglas de `GET /access` y `GET /clients/me/access` (fechas válidas con `desde ≤ hasta`, `resultado` en `autorizado|rechazado`, `motivo` dentro del `ENUM`, paginación)
-- [ ] T097 [US8] Agregar `listAccesses(filtros, user)` (por omisión el día de hoy en `env.timezone`; `similitud` solo para administrador) y `listOwnAccesses(user, paginacion)` en `backend/src/services/access.service.js`
-- [ ] T098 [US8] Agregar `list` y `listOwn` en `backend/src/controllers/access.controller.js`, la ruta `GET /` (administrador, recepcionista y entrenador) en `backend/src/routes/access.routes.js` y `GET /me/access` (solo cliente, antes de `/:id`) en `backend/src/routes/clients.routes.js`
-- [ ] T099 [P] [US8] Agregar `listAccesses` y `listOwnAccesses` en `frontend/src/api/access.js`
-- [ ] T100 [US8] Crear `frontend/src/pages/Accesses.jsx` (filtros por fechas, cliente, resultado y motivo; tabla con fecha y hora, cliente o "No identificado", `StatusBadge` del resultado, motivo con los textos del contrato y similitud solo para administrador; `Pagination`), agregar la ruta `/access` (administrador, recepcionista y entrenador) en `frontend/src/App.jsx` y la opción "Accesos" en `frontend/src/components/Layout.jsx`
-- [ ] T101 [P] [US8] Agregar en `frontend/src/pages/Profile.jsx` la sección "Mis accesos" con los accesos propios paginados
+- [X] T095 [US8] Agregar en `backend/src/models/access.model.js` `list(filtros)` y `count(filtros)` con filtros parametrizados (`desde`, `hasta`, `id_cliente`, `resultado`, `motivo`), orden `fecha_hora` descendente y uniones con `clientes` y `usuarios`
+- [X] T096 [P] [US8] Agregar en `backend/src/validators/access.validator.js` las reglas de `GET /access` y `GET /clients/me/access` (fechas válidas con `desde ≤ hasta`, `resultado` en `autorizado|rechazado`, `motivo` dentro del `ENUM`, paginación)
+- [X] T097 [US8] Agregar `listAccesses(filtros, user)` (por omisión el día de hoy en `env.timezone`; `similitud` solo para administrador) y `listOwnAccesses(user, paginacion)` en `backend/src/services/access.service.js`
+- [X] T098 [US8] Agregar `list` y `listOwn` en `backend/src/controllers/access.controller.js`, la ruta `GET /` (administrador, recepcionista y entrenador) en `backend/src/routes/access.routes.js` y `GET /me/access` (solo cliente, antes de `/:id`) en `backend/src/routes/clients.routes.js`
+- [X] T099 [P] [US8] Agregar `listAccesses` y `listOwnAccesses` en `frontend/src/api/access.js`
+- [X] T100 [US8] Crear `frontend/src/pages/Accesses.jsx` (filtros por fechas, cliente, resultado y motivo; tabla con fecha y hora, cliente o "No identificado", `StatusBadge` del resultado, motivo con los textos del contrato y similitud solo para administrador; `Pagination`), agregar la ruta `/access` (administrador, recepcionista y entrenador) en `frontend/src/App.jsx` y la opción "Accesos" en `frontend/src/components/Layout.jsx`
+- [X] T101 [P] [US8] Agregar en `frontend/src/pages/Profile.jsx` la sección "Mis accesos" con los accesos propios paginados
 
 **Punto de control**: todas las historias funcionan de forma independiente.
 

@@ -3,6 +3,8 @@ import * as accessModel from '../models/access.model.js';
 import * as clientModel from '../models/client.model.js';
 import { getCurrentMembership } from './memberships.service.js';
 import { identify } from './faces.service.js';
+import { today } from '../utils/dates.js';
+import { ROLES } from '../utils/roles.js';
 
 // Módulo de control de acceso: usa el reconocimiento facial solo a través de su servicio
 // (constitución, principio II).
@@ -69,4 +71,45 @@ export async function registerAttempt({ descriptor }, user) {
     registrado_por: user.id_usuario,
   });
   return stationResponse(idAcceso, decision);
+}
+
+// Registro de acceso para el personal; la similitud solo la ve el administrador (FR-040)
+function toView(fila, rol) {
+  const view = {
+    id_acceso: fila.id_acceso,
+    fecha_hora: fila.fecha_hora,
+    resultado: fila.resultado,
+    motivo: fila.motivo,
+    cliente: fila.id_cliente
+      ? { id_cliente: fila.id_cliente, nombre: fila.cliente_nombre, apellido: fila.cliente_apellido }
+      : null,
+    registrado_por: { id_usuario: fila.registrado_por, nombre: fila.registrado_por_nombre },
+  };
+  if (rol === ROLES.ADMIN) view.similitud = fila.similitud;
+  return view;
+}
+
+// Sin rango de fechas, se muestra el día de hoy
+export async function listAccesses({ page, limit, offset, ...filters }, user) {
+  const criteria = { ...filters };
+  if (!criteria.desde && !criteria.hasta) {
+    criteria.desde = today();
+    criteria.hasta = criteria.desde;
+  }
+  const [rows, total] = await Promise.all([
+    accessModel.list({ ...criteria, limit, offset }),
+    accessModel.count(criteria),
+  ]);
+  return { data: rows.map((fila) => toView(fila, user.rol)), meta: { page, limit, total } };
+}
+
+// El cliente solo ve sus accesos; el identificador se toma del token (FR-040)
+export async function listOwnAccesses(user, { page, limit, offset }) {
+  const criteria = { id_cliente: user.id_cliente };
+  const [rows, total] = await Promise.all([
+    accessModel.list({ ...criteria, limit, offset }),
+    accessModel.count(criteria),
+  ]);
+  const data = rows.map(({ id_acceso, fecha_hora, resultado, motivo }) => ({ id_acceso, fecha_hora, resultado, motivo }));
+  return { data, meta: { page, limit, total } };
 }

@@ -4,7 +4,7 @@ import { authenticate } from '../middlewares/authenticate.js';
 import { authorize } from '../middlewares/authorize.js';
 import { validate } from '../middlewares/validate.js';
 import { ROLES } from '../utils/roles.js';
-import { accessAttemptRules } from '../validators/access.validator.js';
+import { accessAttemptRules, listAccessRules } from '../validators/access.validator.js';
 
 // Montado en /access. No hay rutas para modificar ni eliminar accesos (FR-039)
 export const accessRouter = Router();
@@ -18,4 +18,12 @@ accessRouter.post(
   accessAttemptRules,
   validate,
   accessController.registerAttempt,
+);
+
+accessRouter.get(
+  '/',
+  authorize(ROLES.ADMIN, ROLES.RECEPTIONIST, ROLES.TRAINER),
+  listAccessRules,
+  validate,
+  accessController.list,
 );

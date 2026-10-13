@@ -18,6 +18,7 @@ import FaceRegister from './pages/FaceRegister.jsx';
 import AccessStation from './pages/AccessStation.jsx';
 import Payments from './pages/Payments.jsx';
 import Debts from './pages/Debts.jsx';
+import Accesses from './pages/Accesses.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
@@ -51,6 +52,7 @@ export default function App() {
           <Route element={<ProtectedRoute roles={CLIENT_READERS} />}>
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetail />} />
+            <Route path="access" element={<Accesses />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={ADMIN} />}>

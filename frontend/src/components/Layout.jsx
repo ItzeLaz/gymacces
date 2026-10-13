@@ -17,17 +17,20 @@ const MENU = {
     { to: '/membership-types', label: 'Tipos de membresía' },
     { to: '/payments', label: 'Pagos' },
     { to: '/debts', label: 'Adeudos' },
+    { to: '/access', label: 'Accesos' },
     { to: '/access/station', label: 'Estación de acceso' },
   ],
   recepcionista: [
     { to: '/', label: 'Inicio' },
     { to: '/clients', label: 'Clientes' },
     { to: '/membership-types', label: 'Tipos de membresía' },
+    { to: '/access', label: 'Accesos' },
     { to: '/access/station', label: 'Estación de acceso' },
   ],
   entrenador: [
     { to: '/', label: 'Inicio' },
     { to: '/clients', label: 'Clientes' },
+    { to: '/access', label: 'Accesos' },
   ],
   cliente: [
     { to: '/', label: 'Inicio' },
@@ -57,7 +60,7 @@ export default function Layout() {
       <header className="layout-header">
         <nav aria-label="Menú principal">
           {getMenu(user.rol).map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.to === '/'}>
+            <NavLink key={item.to} to={item.to} end={item.to === '/' || item.to === '/access'}>
               {item.label}
             </NavLink>
           ))}

@@ -7,6 +7,7 @@ import { membershipBadge } from '../components/MembershipsSection.jsx';
 import { formatDateTime, formatDay } from '../utils/dates.js';
 import Money from '../components/Money.jsx';
 import { METHOD_LABELS } from '../components/PaymentsSection.jsx';
+import OwnAccesses from '../components/OwnAccesses.jsx';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -94,6 +95,8 @@ export default function Profile() {
           </tbody>
         </table>
       )}
+
+      <OwnAccesses />
     </section>
   );
 }
