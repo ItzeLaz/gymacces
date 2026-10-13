@@ -7,6 +7,7 @@ import Message from '../components/Message.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import MembershipsSection from '../components/MembershipsSection.jsx';
 import PaymentsSection from '../components/PaymentsSection.jsx';
+import FaceSection from '../components/FaceSection.jsx';
 
 const LABELS = {
   nombre: 'Nombre',
@@ -107,6 +108,7 @@ export default function ClientDetail() {
             onChange={refresh}
           />
           {canWrite && <PaymentsSection clientId={id} rol={user.rol} refreshKey={refreshKey} onChange={refresh} />}
+          {canWrite && <FaceSection clientId={id} clientActive={client.estado === 'activo'} />}
         </>
       )}
       <p>

@@ -2,6 +2,7 @@ import * as clientModel from '../models/client.model.js';
 import { conflict, notFound } from '../utils/AppError.js';
 import { ROLES } from '../utils/roles.js';
 import { getCurrentMembership, toSummary, toView } from './memberships.service.js';
+import { hasActiveFace } from './faces.service.js';
 
 const DUPLICATE_EMAIL = 'Ya existe un cliente con ese correo.';
 
@@ -66,7 +67,10 @@ export async function listClients({ search, estado, page, limit, offset }, rol) 
 }
 
 export async function getClient(id, rol) {
-  return withMembership(await findOrFail(id), rol);
+  const cliente = await withMembership(await findOrFail(id), rol);
+  // Solo el personal que registra rostros sabe si existe el registro (FR-025)
+  if (rol === ROLES.ADMIN || rol === ROLES.RECEPTIONIST) cliente.rostro_registrado = await hasActiveFace(id);
+  return cliente;
 }
 
 // Usa siempre el cliente vinculado al usuario autenticado (FR-024, RN-14)

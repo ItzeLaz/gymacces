@@ -333,3 +333,28 @@ a {
   min-height: 100vh;
   place-items: center;
 }
+
+/* Avisos que no son error ni éxito */
+.message-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Vista de la cámara (registro facial y estación de acceso) */
+.camera-view {
+  margin: var(--space-4) 0;
+}
+
+.camera-view video {
+  width: 100%;
+  max-width: 640px;
+  border-radius: var(--radius);
+  background: #000;
+  transform: scaleX(-1);
+}
