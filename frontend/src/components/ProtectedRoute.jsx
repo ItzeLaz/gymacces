@@ -7,7 +7,7 @@ export default function ProtectedRoute({ roles, children }) {
   const location = useLocation();
 
   if (loading) {
-    return <p className="layout-main">Cargando…</p>;
+    return <p className="main-content">Cargando…</p>;
   }
 
   if (!user) {

@@ -50,6 +50,9 @@ export default function Payments() {
         <p>
           Total pagado en el filtro: <Money value={meta.total_pagado} />
         </p>
+        <Link to="/debts" className="btn btn-secondary">
+          Ver adeudos
+        </Link>
       </div>
       <Message type="error">{error}</Message>
 

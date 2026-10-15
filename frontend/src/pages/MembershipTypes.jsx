@@ -60,13 +60,19 @@ export default function MembershipTypes() {
   return (
     <section>
       <div className="page-title">
-        <h1>Tipos de membresía</h1>
+        <h1>Membresías</h1>
         {isAdmin && (
-          <Link to="/membership-types/new" className="btn">
+          <Link to="/memberships/new" className="btn">
             Nuevo tipo
           </Link>
         )}
       </div>
+      <p className="field-hint">
+        Para asignar o renovar la membresía de una persona, abre su ficha en{' '}
+        <Link to="/clients">Clientes</Link>.
+      </p>
+
+      <h2>Tipos de membresía</h2>
 
       <Message type={message.type}>{message.text}</Message>
 
@@ -101,7 +107,7 @@ export default function MembershipTypes() {
                 </td>
                 {isAdmin && (
                   <td className="actions">
-                    <Link to={`/membership-types/${tipo.id_tipo_membresia}`} className="btn btn-secondary">
+                    <Link to={`/memberships/${tipo.id_tipo_membresia}`} className="btn btn-secondary">
                       Editar
                     </Link>
                     <button type="button" className="btn btn-secondary" onClick={() => setPending(tipo)}>

@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Login from './pages/Login.jsx';
@@ -20,11 +20,19 @@ import Payments from './pages/Payments.jsx';
 import Debts from './pages/Debts.jsx';
 import Accesses from './pages/Accesses.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Training from './pages/Training.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
 const CLIENT_READERS = ['administrador', 'recepcionista', 'entrenador'];
 const FRONT_DESK = ['administrador', 'recepcionista'];
+const TRAINING = ['administrador', 'entrenador'];
+
+// Las rutas /membership-types/* cambiaron a /memberships/*; se redirigen para no romper enlaces guardados
+function LegacyMembershipTypeRedirect() {
+  const { id } = useParams();
+  return <Navigate to={id ? `/memberships/${id}` : '/memberships'} replace />;
+}
 
 export default function App() {
   return (
@@ -57,19 +65,25 @@ export default function App() {
           </Route>
 
           <Route element={<ProtectedRoute roles={ADMIN} />}>
-            <Route path="membership-types/new" element={<MembershipTypeForm />} />
-            <Route path="membership-types/:id" element={<MembershipTypeForm />} />
+            <Route path="memberships/new" element={<MembershipTypeForm />} />
+            <Route path="memberships/:id" element={<MembershipTypeForm />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="payments" element={<Payments />} />
             <Route path="debts" element={<Debts />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={FRONT_DESK} />}>
-            <Route path="membership-types" element={<MembershipTypes />} />
+            <Route path="memberships" element={<MembershipTypes />} />
+            <Route path="membership-types" element={<LegacyMembershipTypeRedirect />} />
+            <Route path="membership-types/:id" element={<LegacyMembershipTypeRedirect />} />
             <Route path="clients/:id/memberships/new" element={<MembershipForm />} />
             <Route path="clients/:id/memberships/renew" element={<MembershipForm mode="renew" />} />
             <Route path="clients/:id/payments/new" element={<PaymentForm />} />
             <Route path="clients/:id/face" element={<FaceRegister />} />
+          </Route>
+
+          <Route element={<ProtectedRoute roles={TRAINING} />}>
+            <Route path="training" element={<Training />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={['cliente']} />}>

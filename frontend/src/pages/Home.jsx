@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { getMenu, roleLabel } from '../components/Layout.jsx';
+import { getMenu, roleLabel } from '../components/Navbar.jsx';
 import Dashboard from './Dashboard.jsx';
 
 export default function Home() {

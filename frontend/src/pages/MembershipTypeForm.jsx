@@ -69,7 +69,7 @@ export default function MembershipTypeForm() {
     try {
       if (isEdit) await updateMembershipType(id, payload);
       else await createMembershipType(payload);
-      navigate('/membership-types', {
+      navigate('/memberships', {
         state: { message: isEdit ? 'Tipo de membresía actualizado.' : 'Tipo de membresía registrado.' },
       });
     } catch (error) {
@@ -127,7 +127,7 @@ export default function MembershipTypeForm() {
           <button type="submit" className="btn" disabled={saving}>
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/membership-types')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/memberships')}>
             Volver
           </button>
         </div>

@@ -6,7 +6,7 @@ import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Message from '../components/Message.jsx';
 import Pagination from '../components/Pagination.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
-import { roleLabel } from '../components/Layout.jsx';
+import { roleLabel } from '../components/Navbar.jsx';
 
 const LIMIT = 20;
 

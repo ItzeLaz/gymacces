@@ -5,10 +5,10 @@ import MembershipTypeForm from '../pages/MembershipTypeForm.jsx';
 
 function renderForm() {
   return render(
-    <MemoryRouter initialEntries={['/membership-types/new']}>
+    <MemoryRouter initialEntries={['/memberships/new']}>
       <Routes>
-        <Route path="/membership-types/new" element={<MembershipTypeForm />} />
-        <Route path="/membership-types" element={<p>Catálogo de tipos</p>} />
+        <Route path="/memberships/new" element={<MembershipTypeForm />} />
+        <Route path="/memberships" element={<p>Catálogo de tipos</p>} />
       </Routes>
     </MemoryRouter>,
   );

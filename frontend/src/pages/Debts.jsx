@@ -51,6 +51,9 @@ export default function Debts() {
         <p>
           Total adeudado: <Money value={meta.total_adeudo} />
         </p>
+        <Link to="/payments" className="btn btn-secondary">
+          Volver a pagos
+        </Link>
       </div>
       <Message type="error">{error}</Message>
 

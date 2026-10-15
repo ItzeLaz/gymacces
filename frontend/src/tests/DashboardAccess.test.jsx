@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { getMenu } from '../components/Layout.jsx';
+import { getMenu } from '../components/Navbar.jsx';
 import ProtectedRoute from '../components/ProtectedRoute.jsx';
 import Home from '../pages/Home.jsx';
 import Dashboard from '../pages/Dashboard.jsx';

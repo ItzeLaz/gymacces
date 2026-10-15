@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { listAccesses } from '../api/access.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import Message from '../components/Message.jsx';
@@ -55,6 +56,11 @@ export default function Accesses() {
     <section>
       <div className="page-title">
         <h1>Accesos</h1>
+        {user.rol !== 'entrenador' && (
+          <Link to="/access/station" className="btn">
+            Abrir estación de acceso
+          </Link>
+        )}
       </div>
       <Message type="error">{error}</Message>
 
