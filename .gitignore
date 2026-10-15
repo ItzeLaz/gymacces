@@ -26,3 +26,6 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# Modelos de reconocimiento facial (los copia el postinstall de frontend/)
+frontend/public/models/

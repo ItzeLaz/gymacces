@@ -238,31 +238,34 @@ En este sprint no se implementará:
 
 El reconocimiento facial de este sprint se limita a la identificación de clientes previamente registrados para validar su acceso al gimnasio.
 
-## 9. Decisiones pendientes para `/speckit.clarify`
+## 9. Decisiones del Sprint 2 (resueltas)
 
-Las siguientes decisiones deberán resolverse antes de la implementación definitiva:
+Estas decisiones estaban pendientes para `/speckit.clarify`. Se resolvieron durante la
+especificación y la planificación del Sprint 2, y el equipo las confirmó el 2026-10-12. El
+detalle y las alternativas descartadas están en
+[`specs/002-membresias-pagos-acceso/research.md`](../specs/002-membresias-pagos-acceso/research.md).
 
-* Librería de reconocimiento facial para JavaScript.
-* Compatibilidad de la librería con React y Node.js.
-* Lugar donde se ejecutará el procesamiento facial: frontend, backend o combinación de ambos.
-* Forma de captura mediante cámara.
-* Forma de almacenamiento de los descriptores faciales.
-* Protección de los datos biométricos.
-* Si se almacenarán únicamente descriptores o también imágenes temporales.
-* Umbral de coincidencia del reconocimiento facial.
-* Condiciones mínimas de iluminación.
-* Cámara que se utilizará para las pruebas.
-* Manejo de intentos fallidos de reconocimiento facial.
-* Número máximo de intentos permitidos.
-* Mensaje que se mostrará cuando no se reconozca al cliente.
-* Métodos de pago disponibles.
-* Manejo de pagos parciales.
-* Política para membresías suspendidas.
-* Tiempo de tolerancia para membresías vencidas, en caso de existir.
-* Política para renovar una membresía antes de que finalice.
-* Reglas específicas de auditoría que serán funcionales en este sprint.
-
-La librería de reconocimiento facial **no deberá seleccionarse ni instalarse de forma arbitraria**. Debe quedar documentada y justificada en la investigación y planificación del Sprint 2 antes de su implementación.
+| Decisión | Resolución | Referencia |
+|----------|------------|------------|
+| Librería de reconocimiento facial | `@vladmandic/human` 3.3.6 (MIT), local, sin servicios externos | R-01 |
+| Compatibilidad con React y Node.js | Se ejecuta en el navegador con React; el backend no necesita la librería | R-01, R-02 |
+| Lugar del procesamiento facial | El navegador genera el descriptor; el backend compara y decide el acceso | R-02 |
+| Forma de captura | Cámara web con la API del navegador, 640×480, desde `http://localhost` | R-04 |
+| Almacenamiento de descriptores | 3 muestras por cliente en `rostros`, cifradas con AES-256-GCM | R-05 |
+| Protección de datos biométricos | Llave `FACE_DATA_KEY` solo en `.env`; ningún descriptor sale del backend | R-05 |
+| Descriptores o imágenes | Solo descriptores; nunca se guardan imágenes, ni temporales | R-05 |
+| Umbral de coincidencia | Similitud coseno ≥ 0.60 y margen de 0.05 frente al segundo candidato; se ajustan en la calibración | R-06 |
+| Condiciones mínimas de iluminación | Un solo rostro, detección ≥ 0.8, rostro ≥ 120 px, antisuplantación y presencia ≥ 0.5 | R-04 |
+| Cámara para las pruebas | La webcam del equipo de recepción (720p o más); el modelo se anota en la calibración | R-04 |
+| Intentos fallidos | No hay bloqueo; cada intento se registra y se invita a acudir a recepción | R-07 |
+| Número máximo de intentos | Sin límite; una presentación continua no genera registros duplicados (10 s) | R-07 |
+| Mensaje si no se reconoce | "Acceso no autorizado. Acude a recepción." | R-07 |
+| Métodos de pago | Efectivo, tarjeta y transferencia (solo registro, sin cobro en línea) | R-10 |
+| Pagos parciales | Se permiten abonos hasta liquidar la membresía | R-10 |
+| Membresías suspendidas | Solo el administrador suspende o reactiva, con motivo; no se compensan días | Especificación, FR-009 |
+| Tolerancia para membresías vencidas | No hay tolerancia: vence al terminar su fecha de fin | Especificación, Supuestos |
+| Renovación antes de que termine | La nueva membresía inicia al día siguiente del fin de la actual | Especificación, FR-010 |
+| Auditoría funcional en el sprint | Tipos de membresía, membresías, pagos e información facial; consulta en pantalla en un sprint posterior | R-11 |
 
 ## 10. Restricciones técnicas heredadas
 

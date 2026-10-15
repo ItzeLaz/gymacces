@@ -1,29 +1,3 @@
-<!--
-Reporte de impacto de la sincronización
-
-- Cambio de versión: (plantilla sin completar) → 1.0.0
-- Origen del contenido: docs/reglas.md (borrador del equipo, redactado el 2026-10-06).
-- Principios definidos (todos nuevos):
-  I. Alcance, MVP y fuente de verdad (NO NEGOCIABLE)
-  II. Arquitectura con responsabilidades separadas (NO NEGOCIABLE)
-  III. Stack tecnológico
-  IV. Base de datos y persistencia (NO NEGOCIABLE)
-  V. Seguridad y protección de información (NO NEGOCIABLE)
-  VI. Roles y permisos
-  VII. Integridad de las reglas de negocio (NO NEGOCIABLE)
-  VIII. Reconocimiento facial y control de acceso
-  IX. API y manejo de errores
-  X. Pruebas
-  XI. UX/UI profesional y sencilla
-- Secciones añadidas: "Tecnologías y dependencias", "Flujo de desarrollo",
-  "Decisiones pendientes" y "Gobernanza".
-- Secciones eliminadas: ninguna.
-- Pendientes:
-  - TODO(RATIFICATION_DATE): el equipo aún no ratifica la constitución.
-  - Revisar la convención de nombres de rama (feature/..., fix/...) frente a la
-    convención de Spec Kit (001-nombre-de-feature) definida en AGENTS.md.
--->
-
 # Constitución del Sistema de Gestión para Gimnasio
 
 El Sistema de Gestión para Gimnasio es un proyecto académico cuyo objetivo es
@@ -63,7 +37,9 @@ evita que el proyecto crezca de manera innecesaria.
 
 ### II. Arquitectura con responsabilidades separadas (NO NEGOCIABLE)
 
-- El proyecto DEBE separar frontend, backend y base de datos.
+- El proyecto DEBE separar frontend, backend y base de datos en las carpetas
+  `frontend/`, `backend/` y `database/` de la raíz del repositorio. NO DEBEN
+  crearse estructuras alternativas como `client/`, `server/` o `dataBase/`.
 - El frontend DEBE encargarse de la interfaz y de la interacción con el usuario.
 - El backend DEBE encargarse de la lógica de negocio, autenticación,
   autorización y comunicación con la base de datos.
@@ -82,9 +58,13 @@ pruebas y las modificaciones futuras del sistema.
 
 - Frontend: React con JavaScript.
 - Backend: Node.js con Express y JavaScript.
-- Base de datos: MongoDB.
-- El backend DEBE utilizar una tecnología compatible con MongoDB para las
-  operaciones de persistencia.
+- El backend y los scripts JavaScript de `database/` DEBEN usar ES Modules:
+  `"type": "module"` en su `package.json` e `import`/`export`. NO DEBE usarse
+  CommonJS (`require()` ni `module.exports`).
+- Base de datos: MySQL 8 o MariaDB 10.4+ en ejecución local (por ejemplo, el
+  servidor de XAMPP).
+- El backend DEBE acceder a la base de datos con un driver compatible con MySQL
+  y consultas parametrizadas.
 - La comunicación entre frontend y backend DEBE realizarse mediante una API REST.
 - La autenticación DEBE utilizar JWT.
 - Las contraseñas DEBEN almacenarse con un algoritmo de hash seguro, como bcrypt.
@@ -104,7 +84,7 @@ La base de datos DEBE desarrollarse en dos sprints.
 
 #### Sprint 1 — Información principal y financiera
 
-La primera etapa DEBE incluir las colecciones:
+La primera etapa DEBE incluir las tablas:
 
 - `usuarios`
 - `clientes`
@@ -112,34 +92,47 @@ La primera etapa DEBE incluir las colecciones:
 - `membresias`
 - `pagos`
 
-Estas colecciones permiten administrar los usuarios del sistema, registrar
+Estas tablas permiten administrar los usuarios del sistema, registrar
 clientes, definir los tipos de membresía, controlar la vigencia de las
 membresías y registrar los pagos realizados.
 
 #### Sprint 2 — Reconocimiento, acceso y auditoría
 
-La segunda etapa DEBE incluir las colecciones:
+La segunda etapa DEBE incluir las tablas:
 
 - `rostros`
 - `accesos`
 - `auditoria`
 
-Estas colecciones permiten almacenar la información necesaria para el
+Estas tablas permiten almacenar la información necesaria para el
 reconocimiento facial, registrar los accesos y mantener un historial de las
 acciones importantes realizadas dentro del sistema.
 
 #### Reglas de persistencia
 
-- Los datos DEBEN mantener relaciones lógicas mediante identificadores.
-- El frontend NUNCA DEBE conectarse directamente a MongoDB; únicamente el
-  backend DEBE tener acceso a la base de datos.
-- Los cambios en la estructura de la base de datos DEBEN quedar documentados.
+- Todas las tablas DEBEN usar el motor InnoDB y el juego de caracteres
+  `utf8mb4`, con una collation disponible tanto en MySQL 8 como en MariaDB
+  10.4+ (por ejemplo, `utf8mb4_unicode_ci`).
+- Cada tabla DEBE tener llave primaria, y las relaciones DEBEN definirse con
+  llaves foráneas que garanticen la integridad referencial.
+- Todas las consultas DEBEN ser parametrizadas; NUNCA DEBEN construirse
+  concatenando valores proporcionados por el usuario.
+- El frontend NUNCA DEBE conectarse directamente a la base de datos; únicamente
+  el backend DEBE tener acceso a ella.
+- Todo cambio de estructura DEBE hacerse con una nueva migración SQL numerada en
+  `database/migrations/` (`001_...sql`, `002_...sql`, ...). Una migración ya
+  aplicada NO DEBE modificarse.
+- La base de datos DEBE poder reconstruirse desde cero con las migraciones y
+  semillas del repositorio. Los archivos físicos de datos de MySQL NO DEBEN
+  subirse al repositorio.
 - La información facial DEBE tratarse como información sensible y almacenarse
   con las medidas de seguridad correspondientes.
 
 **Justificación:** separar la base de datos en dos etapas permite construir
 primero la estructura principal e integrar después el reconocimiento facial,
-el control de acceso y la auditoría.
+el control de acceso y la auditoría. Un motor relacional con llaves foráneas
+garantiza en la propia base las relaciones que exigen las reglas de negocio, y
+las migraciones numeradas permiten que todo el equipo tenga la misma estructura.
 
 ### V. Seguridad y protección de información (NO NEGOCIABLE)
 
@@ -316,8 +309,10 @@ necesita consultar y registrar información rápidamente.
 - Frontend: React.
 - Lenguaje principal: JavaScript.
 - Backend: Node.js.
-- Framework backend: Express.js.
-- Base de datos: MongoDB.
+- Framework backend: Express.js, con ES Modules.
+- Base de datos: MySQL 8 o MariaDB 10.4+ local (XAMPP), InnoDB, `utf8mb4`.
+- Migraciones: scripts SQL numerados en `database/migrations/`.
+- Estructura del repositorio: `frontend/`, `backend/` y `database/`.
 - Autenticación: JWT.
 - Hash de contraseñas: bcrypt.
 - Reconocimiento facial: librería o tecnología compatible con JavaScript.
@@ -396,4 +391,4 @@ aprobadas por el equipo antes de considerarse definitivas:
 - El cumplimiento de estas reglas DEBE revisarse durante cada sprint.
 - Toda desviación DEBE justificarse y ser conocida por el equipo.
 
-**Versión**: 1.0.0 | **Ratificada**: TODO(RATIFICATION_DATE): pendiente de aprobación del equipo | **Última enmienda**: 2026-10-08
+**Versión**: 2.0.0 | **Ratificada**: TODO(RATIFICATION_DATE): pendiente de aprobación del equipo | **Última enmienda**: 2026-10-08

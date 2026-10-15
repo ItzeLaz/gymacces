@@ -1,0 +1,18 @@
+{
+  "name": "gym-access-database",
+  "version": "1.0.0",
+  "description": "Migraciones y semillas de la base de datos del sistema de gimnasio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js",
+    "db:reset": "node scripts/reset.js",
+    "db:check-encoding": "node scripts/check-encoding.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.4.7",
+    "mysql2": "^3.14.0"
+  }
+}
