@@ -7,7 +7,8 @@
   "scripts": {
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
-    "db:reset": "node scripts/reset.js"
+    "db:reset": "node scripts/reset.js",
+    "db:check-encoding": "node scripts/check-encoding.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

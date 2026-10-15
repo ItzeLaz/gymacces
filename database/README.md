@@ -16,6 +16,7 @@ collation `utf8mb4_unicode_ci`, disponible en ambos motores.
 | `npm run db:migrate` | Crea la base si no existe y aplica las migraciones pendientes en orden. |
 | `npm run db:seed` | Crea el administrador inicial si todavía no existe ninguno. |
 | `npm run db:reset` | Borra y recrea la base aplicando todas las migraciones. Prohibido con `NODE_ENV=production`. |
+| `npm run db:check-encoding` | Lista los textos guardados con `�` (tildes o ñ perdidas). Termina con código 1 si encuentra alguno. |
 
 La tabla `schema_migrations` guarda qué migraciones se aplicaron; ejecutar los comandos más de una
 vez no duplica nada.
@@ -36,6 +37,16 @@ se cambia, hay que volver a registrar los rostros. Nunca se guardan fotografías
 
 Todas las llaves foráneas usan `ON DELETE RESTRICT ON UPDATE RESTRICT`: no se pueden borrar
 clientes con información relacionada.
+
+## Codificación
+
+La base, las tablas, las columnas y las conexiones (backend y scripts) usan `utf8mb4`. El backend
+rechaza con 400 cualquier cuerpo JSON que no esté en UTF-8, porque de lo contrario las tildes y la
+ñ se guardarían como `�` sin aviso. Ojo con `Invoke-RestMethod` de Windows PowerShell 5.1: envía
+el cuerpo en Latin-1; usa `-Body ([System.Text.Encoding]::UTF8.GetBytes($json))` o PowerShell 7.
+
+Un `�` guardado no se puede revertir de forma automática porque el carácter original se perdió:
+`db:check-encoding` indica qué registros corregir a mano.
 
 ## Reglas
 
