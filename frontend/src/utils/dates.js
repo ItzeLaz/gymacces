@@ -37,3 +37,11 @@ export function formatDateTime(value) {
   if (!value) return '—';
   return new Date(value).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
 }
+
+const WEEKDAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+// "2026-10-19" → "Lunes 19 de octubre de 2026"
+export function formatWeekdayDay(fecha) {
+  if (!fecha) return '—';
+  return `${WEEKDAYS[toLocalDate(fecha).getDay()]} ${formatDay(fecha)}`;
+}

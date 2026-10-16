@@ -4,8 +4,18 @@ import * as reservationModel from '../models/reservation.model.js';
 import { businessRule, notFound, validationError } from '../utils/AppError.js';
 import { nowInGym } from '../utils/dates.js';
 import { ROLES } from '../utils/roles.js';
-import { endsSameDay, toHHMM, toMinutes } from '../utils/sessions.js';
+import {
+  bookingWindow,
+  endsSameDay,
+  isInBookingWindow,
+  isoWeekday,
+  sessionDates,
+  sessionState,
+  toHHMM,
+  toMinutes,
+} from '../utils/sessions.js';
 import { AUDIT_ACTIONS, record } from './audit.service.js';
+import { toView as toReservationView } from './reservations.service.js';
 
 // Mensajes de contracts/api.md (historia 1)
 const NOT_FOUND = 'La clase no existe.';
@@ -140,4 +150,73 @@ export async function deactivateClass(id, user) {
     await record(connection, user, AUDIT_ACTIONS.CLASS_DEACTIVATE, 'clases', id, describe(actual));
     return toView(await classModel.findById(id, connection));
   });
+}
+
+// Forma SessionView del contrato: una clase en una fecha concreta con sus lugares (research R-01)
+function toSessionView(clase, fechaSesion, reservasActivas, ahora) {
+  const vista = toView(clase);
+  const inicio = toMinutes(clase.hora_inicio);
+  const lugares = Math.max(clase.cupo_maximo - reservasActivas, 0);
+  return {
+    id_clase: vista.id_clase,
+    nombre: vista.nombre,
+    instructor: vista.instructor,
+    fecha_sesion: fechaSesion,
+    hora_inicio: vista.hora_inicio,
+    hora_fin: vista.hora_fin,
+    cupo_maximo: vista.cupo_maximo,
+    reservas_activas: reservasActivas,
+    lugares_disponibles: lugares,
+    llena: lugares === 0,
+    estado_sesion: sessionState(fechaSesion, inicio, inicio + clase.duracion_minutos, ahora),
+  };
+}
+
+// Horario de la ventana [desde, hoy + 7] con los lugares de cada sesión (US4, criterios 4 y 5)
+export async function getSchedule({ desde }) {
+  const ahora = nowInGym();
+  const ventana = bookingWindow(ahora.fecha);
+  const inicio = desde ?? ventana.desde;
+  if (!isInBookingWindow(inicio, ahora.fecha)) {
+    throw validationError([
+      { field: 'desde', message: 'La fecha inicial debe estar entre hoy y los próximos 7 días.' },
+    ]);
+  }
+
+  const clases = await classModel.listActive();
+  const conteos = await reservationModel.countActiveBySessions(
+    clases.map((clase) => clase.id_clase),
+    inicio,
+    ventana.hasta,
+  );
+  const ocupados = new Map(conteos.map((fila) => [`${fila.id_clase}|${fila.fecha_sesion}`, fila.total]));
+
+  const sesiones = clases.flatMap((clase) =>
+    sessionDates(clase.dia_semana, inicio, ventana.hasta).map((fecha) =>
+      toSessionView(clase, fecha, ocupados.get(`${clase.id_clase}|${fecha}`) ?? 0, ahora),
+    ),
+  );
+  return sesiones.sort(
+    (a, b) =>
+      a.fecha_sesion.localeCompare(b.fecha_sesion) ||
+      a.hora_inicio.localeCompare(b.hora_inicio) ||
+      a.nombre.localeCompare(b.nombre, 'es'),
+  );
+}
+
+// Detalle de una sesión con su lista de reservados; admite fechas pasadas (US4, criterios 1 a 3)
+export async function getSessionDetail(idClase, fecha) {
+  const clase = await classModel.findById(idClase);
+  if (!clase) throw notFound(NOT_FOUND);
+  if (isoWeekday(fecha) !== clase.dia_semana) {
+    throw validationError([{ field: 'fecha', message: 'La fecha no corresponde al día de la clase.' }]);
+  }
+  const ahora = nowInGym();
+  const filas = await reservationModel.listActiveBySession(idClase, fecha);
+  const sesion = toSessionView(clase, fecha, filas.length, ahora);
+  return {
+    sesion,
+    texto_lugares: `Quedan ${sesion.lugares_disponibles} de ${sesion.cupo_maximo} lugares`,
+    reservas: filas.map((fila) => toReservationView(fila, ahora.fecha)),
+  };
 }

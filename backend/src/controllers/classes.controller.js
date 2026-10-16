@@ -22,3 +22,11 @@ export async function update(req, res) {
 export async function deactivate(req, res) {
   sendData(res, await classesService.deactivateClass(req.params.id, req.user));
 }
+
+export async function schedule(req, res) {
+  sendData(res, await classesService.getSchedule(req.validatedQuery));
+}
+
+export async function sessionDetail(req, res) {
+  sendData(res, await classesService.getSessionDetail(req.params.id, req.params.fecha));
+}

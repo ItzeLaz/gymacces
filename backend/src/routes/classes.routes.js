@@ -8,6 +8,8 @@ import {
   classStatusRules,
   createClassRules,
   listClassesRules,
+  scheduleRules,
+  sessionParams,
   updateClassRules,
 } from '../validators/classes.validator.js';
 
@@ -22,6 +24,8 @@ classesRouter.use(authenticate);
 
 classesRouter.get('/', frontDesk, listClassesRules, validate, classesController.list);
 classesRouter.get('/instructors', adminOnly, classesController.instructors);
+classesRouter.get('/schedule', frontDesk, scheduleRules, validate, classesController.schedule);
+classesRouter.get('/:id/sessions/:fecha', frontDesk, sessionParams, validate, classesController.sessionDetail);
 classesRouter.post('/', adminOnly, createClassRules, validate, classesController.create);
 classesRouter.patch('/:id', adminOnly, updateClassRules, validate, classesController.update);
 classesRouter.patch('/:id/status', adminOnly, classStatusRules, validate, classesController.deactivate);

@@ -426,64 +426,64 @@ muestra 3 reservados y "Quedan 17 de 20 lugares".
 
 Todas en `backend/tests/sessions.test.js`, salvo la de permisos.
 
-- [ ] T060 [US4] Prueba `el_horario_muestra_las_sesiones_de_la_ventana_con_sus_lugares`:
+- [X] T060 [US4] Prueba `el_horario_muestra_las_sesiones_de_la_ventana_con_sus_lugares`:
   - `GET /classes/schedule` → sesiones desde hoy hasta hoy + 7, ordenadas por fecha y hora, con `lugares_disponibles`.
   - Excluye las clases inactivas (US1-12).
   - `desde` fuera de la ventana → 400.
 
   **Atiende**: US4-4, US1-12, FR-008, R-05. **Verificación**: `npm test` en rojo.
-- [ ] T061 [US4] Prueba `el_detalle_de_sesion_muestra_datos_y_quedan_x_de_y_lugares`: `GET /classes/:id/sessions/:fecha` → nombre, instructor, fecha, hora, cupo, `reservas_activas` y `texto_lugares: 'Quedan 17 de 20 lugares'`. **Atiende**: US4-1, FR-008. **Verificación**: `npm test` en rojo.
-- [ ] T062 [US4] Prueba `la_lista_de_reservados_esta_ordenada_por_apellido_y_nombre_con_su_asistencia`. **Atiende**: US4-2. **Verificación**: `npm test` en rojo.
-- [ ] T063 [US4] Prueba `las_reservas_canceladas_no_cuentan_ni_aparecen`: con 3 activas y 1 cancelada → 3 en la lista y 17 lugares. **Atiende**: US4-3. **Verificación**: `npm test` en rojo.
-- [ ] T064 [US4] Prueba `una_sesion_sin_lugares_aparece_llena_en_el_horario`: `llena: true` y `lugares_disponibles: 0`. **Atiende**: US4-5. **Verificación**: `npm test` en rojo.
-- [ ] T065 [US4] Prueba `el_detalle_rechaza_fecha_que_no_corresponde_a_la_clase`: 404 si la clase no existe; 400 si la fecha no coincide con `dia_semana`. **Atiende**: FR-002. **Verificación**: `npm test` en rojo.
-- [ ] T066 [US4] Agregar a `backend/tests/classes-permissions.test.js` la prueba `entrenador_y_cliente_no_consultan_horario_ni_reservados`: `GET /classes/schedule`, `GET /classes/:id/sessions/:fecha` y `GET /classes` → 403. **Atiende**: US4-6, FR-011, SC-006. **Verificación**: `npm test` en rojo.
+- [X] T061 [US4] Prueba `el_detalle_de_sesion_muestra_datos_y_quedan_x_de_y_lugares`: `GET /classes/:id/sessions/:fecha` → nombre, instructor, fecha, hora, cupo, `reservas_activas` y `texto_lugares: 'Quedan 17 de 20 lugares'`. **Atiende**: US4-1, FR-008. **Verificación**: `npm test` en rojo.
+- [X] T062 [US4] Prueba `la_lista_de_reservados_esta_ordenada_por_apellido_y_nombre_con_su_asistencia`. **Atiende**: US4-2. **Verificación**: `npm test` en rojo.
+- [X] T063 [US4] Prueba `las_reservas_canceladas_no_cuentan_ni_aparecen`: con 3 activas y 1 cancelada → 3 en la lista y 17 lugares. **Atiende**: US4-3. **Verificación**: `npm test` en rojo.
+- [X] T064 [US4] Prueba `una_sesion_sin_lugares_aparece_llena_en_el_horario`: `llena: true` y `lugares_disponibles: 0`. **Atiende**: US4-5. **Verificación**: `npm test` en rojo.
+- [X] T065 [US4] Prueba `el_detalle_rechaza_fecha_que_no_corresponde_a_la_clase`: 404 si la clase no existe; 400 si la fecha no coincide con `dia_semana`. **Atiende**: FR-002. **Verificación**: `npm test` en rojo.
+- [X] T066 [US4] Agregar a `backend/tests/classes-permissions.test.js` la prueba `entrenador_y_cliente_no_consultan_horario_ni_reservados`: `GET /classes/schedule`, `GET /classes/:id/sessions/:fecha` y `GET /classes` → 403. **Atiende**: US4-6, FR-011, SC-006. **Verificación**: `npm test` en rojo.
 
 ### Implementación de la historia 4
 
-- [ ] T067 [P] [US4] Agregar a `backend/src/validators/classes.validator.js` `scheduleRules` (`desde` opcional con `isValidDate`) y `sessionParams` (`id` entero positivo y `fecha` con `isValidDate`). **Atiende**: FR-002, R-05. **Verificación**: casos 400 de T060 y T065 en verde después de T070.
-- [ ] T068 [US4] Agregar a los modelos:
+- [X] T067 [P] [US4] Agregar a `backend/src/validators/classes.validator.js` `scheduleRules` (`desde` opcional con `isValidDate`) y `sessionParams` (`id` entero positivo y `fecha` con `isValidDate`). **Atiende**: FR-002, R-05. **Verificación**: casos 400 de T060 y T065 en verde después de T070.
+- [X] T068 [US4] Agregar a los modelos:
   - En `backend/src/models/class.model.js`: `listActive(connection)`.
   - En `backend/src/models/reservation.model.js`:
     - `countActiveBySessions(idsClase, desde, hasta, connection)`: devuelve `id_clase`, `fecha_sesion` y `total`, con `IN (?)` parametrizado.
     - `listActiveBySession(idClase, fechaSesion, connection)`: une `clientes`, devuelve `id_cliente`, `nombre` y `apellido` sin datos de contacto, y ordena por `apellido, nombre`.
 
   **Atiende**: FR-008, US4-2, US4-3. **Verificación**: revisión de los parámetros; T060 a T064 en verde después de T070.
-- [ ] T069 [US4] Agregar a `backend/src/services/classes.service.js`:
+- [X] T069 [US4] Agregar a `backend/src/services/classes.service.js`:
   - `getSchedule({ desde })`: genera las sesiones con `sessionDates` sobre `bookingWindow(hoy)` y une los conteos; cada sesión es un `SessionView` con `llena` y `estado_sesion`.
   - `getSessionDetail(idClase, fecha)`: valida el día; devuelve `sesion`, `texto_lugares` ("Quedan X de Y lugares") y `reservas`. Cada reserva lleva `asistencia_mostrada`: "Presente"; "No asistió" si la fecha de la sesión es anterior a hoy y la asistencia está `sin_registrar`; o "Sin registrar" en otro caso.
 
   **Atiende**: US4-1 a US4-5, US5-6, FR-002, FR-008, R-01, R-05. **Verificación**: T060 a T065 en verde después de T070.
-- [ ] T070 [US4] Agregar `schedule` y `sessionDetail` a `backend/src/controllers/classes.controller.js`. Registrar `GET /schedule` y `GET /:id/sessions/:fecha` (administrador y recepcionista) en `backend/src/routes/classes.routes.js`, con `/schedule` declarada antes de `/:id`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T060 a T066 en verde.
-- [ ] T071 [P] [US4] Agregar `getSchedule(desde)` y `getSessionDetail(idClase, fecha)` a `frontend/src/api/classes.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubren T072 y T073.
-- [ ] T072 [P] [US4] Crear `frontend/src/tests/Schedule.test.jsx`, con la API simulada:
+- [X] T070 [US4] Agregar `schedule` y `sessionDetail` a `backend/src/controllers/classes.controller.js`. Registrar `GET /schedule` y `GET /:id/sessions/:fecha` (administrador y recepcionista) en `backend/src/routes/classes.routes.js`, con `/schedule` declarada antes de `/:id`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T060 a T066 en verde.
+- [X] T071 [P] [US4] Agregar `getSchedule(desde)` y `getSessionDetail(idClase, fecha)` a `frontend/src/api/classes.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubren T072 y T073.
+- [X] T072 [P] [US4] Crear `frontend/src/tests/Schedule.test.jsx`, con la API simulada:
   - `agrupa_las_sesiones_por_dia_y_muestra_los_lugares`.
   - `muestra_la_etiqueta_llena_en_texto`.
   - `cada_sesion_enlaza_a_su_detalle`.
 
   **Atiende**: US4-4, US4-5. **Verificación**: `cd frontend && npm test` en rojo hasta T074.
-- [ ] T073 [P] [US4] Crear `frontend/src/tests/SessionDetail.test.jsx`, con la API simulada:
+- [X] T073 [P] [US4] Crear `frontend/src/tests/SessionDetail.test.jsx`, con la API simulada:
   - `muestra_quedan_x_de_y_lugares`.
   - `lista_los_reservados_con_su_asistencia`.
   - `incluye_el_formulario_de_reserva_y_recarga_al_reservar`.
 
   **Atiende**: US4-1, US4-2, US2-1. **Verificación**: `cd frontend && npm test` en rojo hasta T075.
-- [ ] T074 [US4] Crear `frontend/src/pages/Schedule.jsx`:
+- [X] T074 [US4] Crear `frontend/src/pages/Schedule.jsx`:
   - Sesiones agrupadas por día (fecha y nombre del día en español).
   - Cada sesión muestra la hora, la clase, el instructor y "Quedan X de Y lugares", o la etiqueta "Llena" en texto.
   - Cada sesión enlaza a `/schedule/:idClase/:fecha`.
   - Muestra un estado vacío y uno de error.
 
   **Atiende**: US4-4, US4-5, SC-003, principio XIV. **Verificación**: T072 en verde.
-- [ ] T075 [US4] Crear `frontend/src/pages/SessionDetail.jsx`:
+- [X] T075 [US4] Crear `frontend/src/pages/SessionDetail.jsx`:
   - Encabezado de la sesión y `texto_lugares`.
   - Tabla de reservados con `asistencia_mostrada`.
   - `ReservationForm` cuando `estado_sesion` no es `terminada`.
   - Recarga los datos después de cada acción.
 
   **Atiende**: US4-1, US4-2, US2-1, principio XIV. **Verificación**: T073 en verde.
-- [ ] T076 [US4] Agregar en `frontend/src/App.jsx` las rutas `schedule` y `schedule/:idClase/:fecha` bajo `ProtectedRoute roles={FRONT_DESK}`. Agregar `{ to: '/schedule', label: 'Horario' }` a los menús del administrador y de la recepcionista en `frontend/src/components/Navbar.jsx`. Actualizar `frontend/src/tests/Navigation.test.jsx`: el administrador y la recepcionista ven "Horario"; el entrenador y el cliente no. **Atiende**: FR-011. **Verificación**: `cd frontend && npm test` en verde.
-- [ ] T077 [P] [US4] Agregar a `frontend/src/styles/global.css` los estilos del horario (columnas por día y tarjetas de sesión) y de la lista de reservados, reutilizando las variables del tema existente. **Atiende**: principio XIV. **Verificación**: revisión visual (escenario 2 de `quickstart.md`) en escritorio y a 375 px de ancho.
+- [X] T076 [US4] Agregar en `frontend/src/App.jsx` las rutas `schedule` y `schedule/:idClase/:fecha` bajo `ProtectedRoute roles={FRONT_DESK}`. Agregar `{ to: '/schedule', label: 'Horario' }` a los menús del administrador y de la recepcionista en `frontend/src/components/Navbar.jsx`. Actualizar `frontend/src/tests/Navigation.test.jsx`: el administrador y la recepcionista ven "Horario"; el entrenador y el cliente no. **Atiende**: FR-011. **Verificación**: `cd frontend && npm test` en verde.
+- [X] T077 [P] [US4] Agregar a `frontend/src/styles/global.css` los estilos del horario (columnas por día y tarjetas de sesión) y de la lista de reservados, reutilizando las variables del tema existente. **Atiende**: principio XIV. **Verificación**: revisión visual (escenario 2 de `quickstart.md`) en escritorio y a 375 px de ancho.
 
 **Punto de control**: el horario y el detalle de sesión funcionan, y las reservas de US2 ya se
 hacen desde la interfaz.

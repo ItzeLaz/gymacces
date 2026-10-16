@@ -91,3 +91,8 @@ export async function countInstructorOverlaps(idInstructor, diaSemana, inicioMin
   );
   return Number(rows[0].total);
 }
+
+// Clases activas para generar el horario (FR-002, FR-008)
+export async function listActive(connection = pool) {
+  return list({ estado: 'activa' }, connection);
+}

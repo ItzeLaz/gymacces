@@ -19,6 +19,7 @@ const MENU = {
     { to: '/payments', label: 'Pagos' },
     { to: '/access', label: 'Acceso' },
     { to: '/classes', label: 'Clases' },
+    { to: '/schedule', label: 'Horario' },
     { to: '/training', label: 'Entrenamiento' },
   ],
   recepcionista: [
@@ -26,6 +27,7 @@ const MENU = {
     { to: '/clients', label: 'Clientes' },
     { to: '/memberships', label: 'Membresías' },
     { to: '/access', label: 'Acceso' },
+    { to: '/schedule', label: 'Horario' },
   ],
   entrenador: [
     { to: '/', label: 'Inicio' },

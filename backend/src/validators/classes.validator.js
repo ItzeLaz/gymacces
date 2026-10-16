@@ -1,5 +1,6 @@
-import { body, query } from 'express-validator';
-import { forbiddenFields, idParam } from './common.js';
+import { body, param, query } from 'express-validator';
+import { isValidDate } from '../utils/dates.js';
+import { dateQuery, forbiddenFields, idParam } from './common.js';
 
 // Mensajes de contracts/api.md (US1-2, US1-3, US1-4). La regla "termina el mismo día" (US1-14)
 // se valida en el servicio, porque al modificar necesita los valores actuales de la clase.
@@ -100,4 +101,15 @@ export const listClassesRules = [
     .optional()
     .isIn(['activa', 'inactiva'])
     .withMessage('El estado debe ser "activa" o "inactiva".'),
+];
+
+// Horario: "desde" opcional; que caiga dentro de la ventana se valida en el servicio (research R-05)
+export const scheduleRules = [dateQuery('desde', 'La fecha inicial')];
+
+// Detalle de sesión: la coincidencia de la fecha con el día de la clase se valida en el servicio
+export const sessionParams = [
+  idParam(),
+  param('fecha')
+    .custom((value) => isValidDate(value))
+    .withMessage('La fecha de la sesión debe ser una fecha válida con formato AAAA-MM-DD.'),
 ];

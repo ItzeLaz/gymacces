@@ -39,8 +39,29 @@ describe('navegación por módulos', () => {
       '/payments',
       '/access',
       '/classes',
+      '/schedule',
       '/training',
     ]);
+  });
+
+  it('administrador_y_recepcionista_ven_horario_y_los_demas_no', () => {
+    for (const rol of ['administrador', 'recepcionista']) {
+      expect(getMenu(rol), `${rol} debe ver Horario`).toContainEqual({ to: '/schedule', label: 'Horario' });
+    }
+    for (const rol of ['entrenador', 'cliente']) {
+      expect(getMenu(rol).map((item) => item.to), `${rol} no debe ver Horario`).not.toContain('/schedule');
+    }
+  });
+
+  it('recepcionista_abre_el_horario_y_entrenador_ve_acceso_restringido', async () => {
+    auth.user = { nombre: 'Recepción', rol: 'recepcionista' };
+    const { unmount } = renderAt('/schedule');
+    expect(await screen.findByRole('heading', { name: 'Horario' })).toBeInTheDocument();
+    unmount();
+
+    auth.user = { nombre: 'Entrenador', rol: 'entrenador' };
+    renderAt('/schedule/7/2026-10-20');
+    expect(screen.getByText('Acceso restringido')).toBeInTheDocument();
   });
 
   it('solo_el_administrador_ve_la_opcion_clases', () => {

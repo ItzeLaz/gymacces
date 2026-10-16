@@ -23,6 +23,8 @@ import Dashboard from './pages/Dashboard.jsx';
 import Training from './pages/Training.jsx';
 import Classes from './pages/Classes.jsx';
 import ClassForm from './pages/ClassForm.jsx';
+import Schedule from './pages/Schedule.jsx';
+import SessionDetail from './pages/SessionDetail.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
@@ -85,6 +87,8 @@ export default function App() {
             <Route path="clients/:id/memberships/renew" element={<MembershipForm mode="renew" />} />
             <Route path="clients/:id/payments/new" element={<PaymentForm />} />
             <Route path="clients/:id/face" element={<FaceRegister />} />
+            <Route path="schedule" element={<Schedule />} />
+            <Route path="schedule/:idClase/:fecha" element={<SessionDetail />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={TRAINING} />}>

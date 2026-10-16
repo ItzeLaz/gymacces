@@ -98,3 +98,28 @@ export async function countClientOverlaps(idCliente, fechaSesion, inicioMin, fin
   );
   return Number(rows[0].total);
 }
+
+// Reservas activas por sesión de varias clases entre dos fechas (horario, US4-4)
+export async function countActiveBySessions(idsClase, desde, hasta, connection = pool) {
+  if (idsClase.length === 0) return [];
+  const marcas = idsClase.map(() => '?').join(', ');
+  const [rows] = await connection.execute(
+    `SELECT id_clase, DATE_FORMAT(fecha_sesion, '%Y-%m-%d') AS fecha_sesion, COUNT(*) AS total
+     FROM reservas
+     WHERE id_clase IN (${marcas}) AND fecha_sesion BETWEEN ? AND ? AND estado = 'activa'
+     GROUP BY id_clase, fecha_sesion`,
+    [...idsClase, desde, hasta],
+  );
+  return rows.map((row) => ({ ...row, total: Number(row.total) }));
+}
+
+// Reservados de una sesión ordenados por apellido y nombre, sin datos de contacto (US4-2, US4-3)
+export async function listActiveBySession(idClase, fechaSesion, connection = pool) {
+  const [rows] = await connection.execute(
+    `${VIEW_SELECT}
+     WHERE r.id_clase = ? AND r.fecha_sesion = ? AND r.estado = 'activa'
+     ORDER BY cl.apellido, cl.nombre, r.id_reserva`,
+    [idClase, fechaSesion],
+  );
+  return rows;
+}
