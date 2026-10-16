@@ -1,0 +1,458 @@
+Evidencia de la Fase 8 (T100-T103) de specs/004-reservas-clases
+Fecha: 2026-10-16 16:29:20 -0600
+Rama: 004-reservas-clases | Último commit: 5efc699 feat(reservations): US5 marcar y desmarcar asistencia de reservados (T088-T099)
+Node: v24.21.0 | npm: 11.19.0
+
+==================================================================
+T100. Sin NOW()/CURDATE() y sin concatenar valores del usuario
+   Comando: grep -rn "NOW()\|CURDATE()" (modelos, servicios y utilidades nuevos)
+==================================================================
+Código de salida de grep: 1 (1 = sin resultados)
+
+Interpolaciones ${} en los modelos nuevos (revisión manual):
+backend/src/models/class.model.js:12:  const [rows] = await connection.execute(`${VIEW_SELECT} WHERE c.id_clase = ?`, [id]);
+backend/src/models/class.model.js:32:const END_MIN = `(${START_MIN} + c.duracion_minutos)`;
+backend/src/models/class.model.js:49:  const sets = entries.map(([key]) => `${key} = ?`).join(', ');
+backend/src/models/class.model.js:50:  await connection.execute(`UPDATE clases SET ${sets} WHERE id_clase = ?`, [...entries.map(([, value]) => value), id]);
+backend/src/models/class.model.js:61:    `${VIEW_SELECT} ${where} ORDER BY c.dia_semana, c.hora_inicio, c.nombre, c.id_clase`,
+backend/src/models/class.model.js:89:       AND ${START_MIN} < ? AND ? < ${END_MIN}`,
+backend/src/models/reservation.model.js:23:       WHERE r.id_clase = ? AND r.estado = 'activa' AND ${FUTURE_SESSION}
+backend/src/models/reservation.model.js:36:     WHERE r.id_clase = ? AND r.estado = 'activa' AND ${FUTURE_SESSION}`,
+backend/src/models/reservation.model.js:53:  const [rows] = await connection.execute(`${VIEW_SELECT} WHERE r.id_reserva = ?`, [id]);
+backend/src/models/reservation.model.js:109:     WHERE id_clase IN (${marcas}) AND fecha_sesion BETWEEN ? AND ? AND estado = 'activa'
+backend/src/models/reservation.model.js:119:    `${VIEW_SELECT}
+Resultado de la revisión: todas insertan fragmentos SQL constantes (VIEW_SELECT, START_MIN, END_MIN,
+FUTURE_SESSION), marcadores '?' (marcas) o nombres de columna filtrados por la lista blanca UPDATABLE.
+Ningún valor proporcionado por el usuario se concatena: todos viajan como parámetros de execute().
+
+==================================================================
+T101. La API de reservas no expone contacto, datos faciales ni montos
+   Prueba: el_detalle_no_expone_datos_de_contacto (backend/tests/sessions.test.js)
+   Verificación de que detecta una fuga: se agregó temporalmente cl.correo a la respuesta y se restauró.
+==================================================================
+Con la fuga de correo:
+  ✖ el_detalle_no_expone_datos_de_contacto (39.1959ms)
+ℹ pass 0
+ℹ fail 1
+✖ el_detalle_no_expone_datos_de_contacto (39.1959ms)
+Restaurado:
+  ✔ el_detalle_no_expone_datos_de_contacto (84.303ms)
+ℹ pass 1
+ℹ fail 0
+
+==================================================================
+T102. Pruebas completas del backend
+   Comando: npm --prefix C:/Users/Iztel/gymacces/backend test
+==================================================================
+
+> gym-access-backend@1.0.0 test
+> node --import ./tests/helpers/setup-env.js --test --test-concurrency=1 "tests/**/*.test.js"
+
+▶ consulta de accesos
+  ✔ sin_filtros_devuelve_solo_los_accesos_de_hoy (63.4288ms)
+  ✔ filtra_por_cliente_resultado_y_motivo (44.6605ms)
+  ✔ el_rostro_no_identificado_llega_sin_cliente (9.269ms)
+  ✔ solo_el_administrador_recibe_la_similitud (26.572ms)
+  ✔ el_cliente_solo_ve_sus_propios_accesos (21.1943ms)
+  ✔ no_existen_rutas_para_modificar_o_borrar_accesos (16.7072ms)
+  ✔ filtra_los_rechazados_del_dia_rapido_con_diez_mil_registros (530.4648ms)
+✔ consulta de accesos (1996.8685ms)
+▶ identificación facial y validación de acceso
+  ✔ autoriza_al_cliente_identificado_con_membresia_vigente (92.9226ms)
+  ✔ rechaza_con_motivo_membresia_vencida (83.5553ms)
+  ✔ rechaza_con_motivo_membresia_suspendida (83.0632ms)
+  ✔ rechaza_con_motivo_membresia_cancelada (50.4578ms)
+  ✔ rechaza_con_motivo_sin_membresia_vigente (93.7158ms)
+  ✔ rechaza_con_motivo_sin_membresia_vigente_por_iniciar (36.7924ms)
+  ✔ rechaza_con_motivo_cliente_inactivo (62.8566ms)
+  ✔ rechaza_rostro_desconocido_y_captura_sin_descriptor (34.8531ms)
+  ✔ rechaza_como_no_identificado_un_parecido_ambiguo_entre_dos_clientes (36.8222ms)
+  ✔ autoriza_aunque_tenga_saldo_pendiente (40.5977ms)
+  ✔ un_rostro_desactivado_ya_no_identifica (41.7401ms)
+  ✔ no_duplica_el_registro_de_una_misma_presentacion (48.8142ms)
+  ✔ valida_el_descriptor_y_los_permisos (20.8431ms)
+✔ identificación facial y validación de acceso (1876.2766ms)
+▶ asistencia a las clases
+  ✔ marca_presente_a_cliente_con_reserva_en_sesion_iniciada_hoy (122.7553ms)
+  ✔ rechaza_marcar_asistencia_antes_de_la_hora_de_inicio (39.6455ms)
+  ✔ rechaza_marcar_asistencia_despues_del_dia_de_la_sesion (26.465ms)
+  ✔ rechaza_marcar_asistencia_de_reserva_cancelada (75.3168ms)
+  ✔ desmarcar_asistencia_el_mismo_dia_regresa_a_sin_registrar (54.6167ms)
+  ✔ al_terminar_el_dia_las_reservas_sin_asistencia_se_muestran_como_no_asistio (63.9674ms)
+✔ asistencia a las clases (1517.783ms)
+▶ autenticación
+  ✔ inicia_sesion_con_credenciales_validas_y_devuelve_token_y_usuario_sin_password (40.1437ms)
+  ✔ rechaza_contrasena_incorrecta_con_mensaje_generico (10.7461ms)
+  ✔ rechaza_correo_inexistente_con_el_mismo_mensaje_generico (74.7145ms)
+  ✔ rechaza_usuario_inactivo_con_contrasena_correcta (10.151ms)
+  ✔ acepta_correo_con_mayusculas_y_espacios (9.1681ms)
+  ✔ rechaza_login_sin_correo_o_password_con_400 (5.9716ms)
+  ✔ auth_me_devuelve_el_usuario_autenticado (13.9059ms)
+  ✔ auth_me_sin_token_responde_401 (6.7849ms)
+  ✔ token_expirado_o_alterado_responde_401 (10.9565ms)
+  ✔ usuario_desactivado_despues_de_iniciar_sesion_recibe_401 (24.6742ms)
+  ✔ password_guardada_empieza_con_prefijo_bcrypt (3.3851ms)
+✔ autenticación (1320.4768ms)
+▶ los datos biométricos nunca salen del backend
+  ✔ ninguna_respuesta_contiene_descriptores_para_ningun_rol (207.7725ms)
+  ✔ la_auditoria_no_contiene_datos_biometricos (2.1541ms)
+✔ los datos biométricos nunca salen del backend (1342.1265ms)
+▶ clases grupales: permisos por rol
+  ✔ solo_el_administrador_registra_modifica_o_desactiva_clases (94.9932ms)
+  ✔ entrenador_y_cliente_no_consultan_el_catalogo_de_clases (11.3247ms)
+  ✔ entrenador_y_cliente_no_pueden_reservar (28.953ms)
+  ✔ entrenador_y_cliente_no_consultan_horario_ni_reservados (25.1017ms)
+  ✔ entrenador_y_cliente_no_pueden_cancelar_reservas (13.3891ms)
+  ✔ entrenador_y_cliente_no_pueden_marcar_asistencia (9.5732ms)
+  ✔ sin_sesion_las_rutas_de_clases_responden_401 (15.4244ms)
+✔ clases grupales: permisos por rol (1174.7088ms)
+▶ clases grupales: registro del horario semanal
+  ✔ registra_clase_valida_como_activa_con_mensaje_clase_registrada (84.7341ms)
+  ✔ rechaza_clase_sin_datos_obligatorios_indicando_el_campo (55.3122ms)
+  ✔ rechaza_duracion_fuera_de_15_a_240_minutos (58.2081ms)
+  ✔ rechaza_cupo_fuera_de_1_a_100_lugares (45.6387ms)
+  ✔ rechaza_clase_si_el_instructor_tiene_otra_que_se_empalma (77.7735ms)
+  ✔ rechaza_instructor_inexistente_inactivo_o_sin_rol_entrenador (31.7838ms)
+  ✔ lista_de_instructores_solo_incluye_entrenadores_activos (18.8697ms)
+  ✔ modificar_nombre_instructor_o_aumentar_cupo_se_aplica_a_sesiones_futuras (80.5541ms)
+  ✔ rechaza_reducir_cupo_por_debajo_de_las_reservas_existentes (102.2639ms)
+  ✔ rechaza_cambiar_horario_de_clase_con_reservas_activas (79.4289ms)
+  ✔ rechaza_desactivar_clase_con_reservas_activas (47.0115ms)
+  ✔ clase_desactivada_no_aparece_para_recepcion (27.5718ms)
+  ✔ rechaza_clase_que_termina_despues_de_la_medianoche (54.51ms)
+  ✔ registra_auditoria_al_crear_modificar_y_desactivar_clases (71.9086ms)
+  ✔ modificar_clase_cuyo_entrenador_se_desactivo_sin_cambiar_instructor_se_acepta (85.4632ms)
+  ✔ modificar_o_desactivar_una_clase_inexistente_responde_404 (14.5645ms)
+✔ clases grupales: registro del horario semanal (1853.4705ms)
+▶ consulta de clientes por el personal
+  ✔ recepcionista_lista_clientes_con_todos_los_campos_ordenados_por_apellido_y_nombre (49.4219ms)
+  ✔ busca_por_nombre_apellido_o_correo_parcial (31.515ms)
+  ✔ filtra_por_estado (9.0292ms)
+  ✔ busqueda_sin_resultados_devuelve_lista_vacia_con_200 (9.4823ms)
+  ✔ pagina_resultados_con_limit_maximo_100 (22.3897ms)
+  ✔ entrenador_recibe_solo_id_nombre_apellido_y_estado_en_listado_y_detalle (33.8258ms)
+  ✔ detalle_de_cliente_inexistente_responde_404 (6.9994ms)
+  ✔ usuario_cliente_recibe_403_en_listado_y_detalle (9.5168ms)
+✔ consulta de clientes por el personal (1104.1179ms)
+▶ registro y modificación de clientes
+  ✔ recepcionista_registra_cliente_con_fecha_y_estado_activo (46.0913ms)
+  ✔ administrador_registra_cliente_sin_correo_ni_direccion (18.9181ms)
+  ✔ rechaza_cliente_sin_nombre_apellido_o_telefono_indicando_los_campos (15.8943ms)
+  ✔ rechaza_telefono_con_formato_invalido (27.675ms)
+  ✔ rechaza_correo_de_cliente_duplicado_con_409 (9.1186ms)
+  ✔ recorta_espacios_y_guarda_correo_en_minusculas (11.9312ms)
+  ✔ modifica_datos_del_cliente (27.3488ms)
+  ✔ rechaza_cambios_a_fecha_registro_y_estado_en_patch (26.0536ms)
+  ✔ modificar_cliente_inexistente_responde_404 (8.1069ms)
+  ✔ cambia_estado_a_inactivo_sin_borrar_el_registro (35.5281ms)
+  ✔ registrar_cliente_no_crea_cuenta_de_usuario (13.078ms)
+  ✔ entrenador_y_cliente_reciben_403_al_registrar_modificar_o_cambiar_estado (59.4739ms)
+✔ registro y modificación de clientes (1305.5659ms)
+▶ dashboard: periodos y tendencia diaria
+  ✔ periodo_hoy_solo_cuenta_el_dia_de_hoy (64.6711ms)
+  ✔ ultimos_7_dias_tiene_7_entradas_con_ceros_en_los_dias_sin_datos (15.2972ms)
+  ✔ rango_personalizado_incluye_ambos_extremos (14.3853ms)
+  ✔ los_indicadores_sin_periodo_no_cambian_al_cambiar_el_periodo (34.9251ms)
+  ✔ rechaza_periodos_y_rangos_invalidos (32.2019ms)
+✔ dashboard: periodos y tendencia diaria (1402.8897ms)
+▶ seguridad del dashboard
+  ✔ sin_sesion_responde_401 (6.1903ms)
+  ✔ recepcionista_entrenador_y_cliente_reciben_403_con_cualquier_periodo (66.5569ms)
+  ✔ la_respuesta_del_administrador_no_contiene_datos_sensibles (33.7425ms)
+✔ seguridad del dashboard (1268.529ms)
+▶ rendimiento del dashboard con volumen
+  ✔ el_dashboard_del_mes_responde_en_menos_de_3_segundos (74.2166ms)
+  ✔ un_rango_de_366_dias_responde_en_menos_de_3_segundos (43.498ms)
+✔ rendimiento del dashboard con volumen (1854.1947ms)
+▶ dashboard con la base vacía
+  ✔ base_vacia_devuelve_ceros_sin_errores (67.197ms)
+✔ dashboard con la base vacía (1066.0413ms)
+▶ dashboard: resumen general con datos conocidos
+  ✔ por_omision_usa_el_mes_en_curso (0.5545ms)
+  ✔ cuenta_clientes_activos_e_inactivos (0.2316ms)
+  ✔ cuenta_clientes_por_estado_de_membresia_una_sola_vez (0.2085ms)
+  ✔ lista_las_membresias_por_vencer_ordenadas_por_fecha_de_fin (0.2841ms)
+  ✔ suma_pagos_e_ingresos_del_mes_sin_anulados_ni_meses_anteriores (0.2111ms)
+  ✔ el_adeudo_total_coincide_con_la_consulta_de_adeudos (15.3311ms)
+  ✔ cuenta_accesos_del_periodo_y_rechazos_por_motivo (0.4871ms)
+  ✔ lista_los_diez_rechazos_mas_recientes_sin_importar_el_periodo (0.3536ms)
+✔ dashboard: resumen general con datos conocidos (1237.6726ms)
+▶ estructura de la base de datos
+  ✔ existen_las_tablas_de_ambos_sprints_con_innodb_y_utf8mb4 (24.9308ms)
+  ✔ rechaza_membresia_con_cliente_inexistente (6.2911ms)
+  ✔ rechaza_membresia_con_tipo_inexistente (5.1537ms)
+  ✔ rechaza_pago_con_cliente_inexistente (5.5462ms)
+  ✔ rechaza_fecha_fin_anterior_a_fecha_inicio (1.5707ms)
+  ✔ rechaza_monto_cero_o_negativo (1.7114ms)
+  ✔ no_permite_borrar_un_cliente_con_membresias (10.0462ms)
+  ✔ aplicar_migraciones_dos_veces_no_falla (9.7ms)
+  ✔ metodo_de_pago_solo_admite_los_valores_permitidos (1.7486ms)
+  ✔ acceso_rechazado_exige_motivo (10.3345ms)
+  ✔ no_permite_dos_rostros_activos_del_mismo_cliente (31.8259ms)
+  ▶ clases y reservas (migración 006)
+    ✔ la_restriccion_unica_impide_dos_reservas_activas_del_mismo_cliente_en_la_sesion (21.2875ms)
+    ✔ una_reserva_cancelada_no_bloquea_una_nueva_reserva_del_mismo_cliente (29.9386ms)
+    ✔ la_base_rechaza_una_clase_que_termina_despues_de_la_medianoche (12.3973ms)
+  ✔ clases y reservas (migración 006) (86.2763ms)
+✔ estructura de la base de datos (1178.4281ms)
+▶ consulta de pagos y adeudos
+  ✔ historial_general_filtra_y_suma_lo_pagado (96.051ms)
+  ✔ valida_el_rango_de_fechas (19.6462ms)
+  ✔ lista_solo_clientes_con_adeudo_ordenados_de_mayor_a_menor (34.3286ms)
+  ✔ solo_el_administrador_consulta_el_historial_general_y_los_adeudos (25.0056ms)
+  ✔ el_cliente_ve_sus_pagos_y_su_adeudo_y_nunca_los_de_otro (10.81ms)
+✔ consulta de pagos y adeudos (1268.7977ms)
+▶ codificación utf8mb4 de extremo a extremo
+  ✔ todas_las_columnas_de_texto_usan_utf8mb4 (20.832ms)
+  ✔ guarda_y_muestra_nombre_de_usuario_con_acentos_y_enie (139.0735ms)
+  ✔ guarda_y_muestra_cliente_con_acentos_y_enie (27.9794ms)
+  ✔ rechaza_cuerpo_que_no_esta_en_utf8_sin_guardar_nada (68.63ms)
+✔ codificación utf8mb4 de extremo a extremo (1443.0222ms)
+▶ cifrado de la información facial
+  ✔ cifrar_y_descifrar_devuelve_las_mismas_muestras (17.9962ms)
+  ✔ cada_cifrado_usa_un_iv_distinto (2.8408ms)
+  ✔ el_texto_cifrado_no_contiene_las_muestras_legibles (4.9025ms)
+  ✔ detecta_cualquier_alteracion_del_cifrado_iv_o_etiqueta (2.6759ms)
+  ✔ no_se_puede_descifrar_con_otra_llave (1.9257ms)
+✔ cifrado de la información facial (33.4324ms)
+▶ comparación de descriptores faciales
+  ✔ la_similitud_de_un_vector_consigo_mismo_es_uno (1.7734ms)
+  ✔ rostros_distintos_tienen_similitud_baja_y_el_mismo_rostro_alta (1.2981ms)
+  ✔ identifica_al_cliente_que_supera_umbral_y_margen (6.1176ms)
+  ✔ no_identifica_cuando_nadie_alcanza_el_umbral (1.0668ms)
+  ✔ no_identifica_cuando_dos_clientes_quedan_dentro_del_margen (0.969ms)
+  ✔ toma_la_mejor_de_las_muestras_de_cada_cliente (0.9445ms)
+  ✔ valida_longitud_y_numeros_finitos (0.9684ms)
+✔ comparación de descriptores faciales (14.775ms)
+▶ registro de información facial
+  ✔ registra_rostro_con_consentimiento_y_solo_devuelve_el_estado (84.8072ms)
+  ✔ rechaza_sin_consentimiento_con_muestras_incompletas_o_de_longitud_incorrecta (30.8403ms)
+  ✔ rechaza_cliente_inactivo_e_inexistente (25.773ms)
+  ✔ rechaza_un_rostro_ya_registrado_para_otro_cliente_sin_revelar_cual (50.0053ms)
+  ✔ reemplazar_desactiva_el_registro_anterior_y_lo_audita (72.1658ms)
+  ✔ desactivar_deja_al_cliente_sin_registro_activo (61.1397ms)
+  ✔ entrenador_y_cliente_no_acceden_a_la_informacion_facial (31.9306ms)
+  ✔ la_ficha_del_cliente_indica_si_tiene_rostro_solo_al_personal_de_recepcion (44.5153ms)
+✔ registro de información facial (1427.14ms)
+▶ salud de la API
+  ✔ responde_ok_en_health (42.449ms)
+  ✔ ruta_inexistente_responde_404_sin_detalles_internos (7.863ms)
+✔ salud de la API (52.4039ms)
+▶ tipos de membresía
+  ✔ admin_registra_tipo_valido_activo_y_lo_audita (62.4339ms)
+  ✔ rechaza_nombre_duplicado_sin_distinguir_mayusculas (10.9768ms)
+  ✔ rechaza_duracion_cero_y_precio_negativo_indicando_los_campos (7.7367ms)
+  ✔ rechaza_precio_con_mas_de_dos_decimales (9.3149ms)
+  ✔ admin_modifica_el_precio_de_un_tipo (20.6566ms)
+  ✔ admin_desactiva_un_tipo (24.8645ms)
+  ✔ recepcionista_lista_solo_tipos_activos_y_admin_ve_todos (29.619ms)
+  ✔ recepcionista_entrenador_y_cliente_no_pueden_crear_ni_modificar (43.4956ms)
+  ✔ no_existe_borrado_de_tipos (7.9484ms)
+  ✔ modificar_tipo_inexistente_responde_404 (6.9658ms)
+✔ tipos de membresía (1181.5124ms)
+▶ renovación de membresías
+  ✔ renovar_una_vigente_inicia_al_dia_siguiente_de_su_fin_y_se_audita (91.0442ms)
+  ✔ renovar_una_vencida_inicia_hoy_o_en_la_fecha_indicada_nunca_en_el_pasado (81.543ms)
+  ✔ renovar_tras_una_cancelada_funciona_como_asignacion_nueva (32.2509ms)
+  ✔ dos_renovaciones_se_encadenan_al_fin_de_la_ultima (44.9219ms)
+  ✔ renovar_una_suspendida_con_fin_futuro_se_encadena_despues (63.9052ms)
+  ✔ rechaza_tipo_inactivo_y_al_entrenador (28.8983ms)
+✔ renovación de membresías (1482.9563ms)
+▶ asignación y estados de membresías
+  ✔ recepcionista_asigna_membresia_con_fin_calculado_y_monto_del_tipo (86.9087ms)
+  ✔ rechaza_asignacion_que_se_traslapa_e_indica_usar_la_renovacion (45.2434ms)
+  ✔ rechaza_cliente_inactivo_tipo_inactivo_y_fecha_pasada (59.3304ms)
+  ✔ responde_404_para_cliente_o_tipo_inexistente_y_400_para_fecha_invalida (65.4766ms)
+  ✔ calcula_el_estado_efectivo_segun_la_fecha (60.4665ms)
+  ✔ admin_suspende_reactiva_sin_cambiar_fechas_y_cancela_con_motivo (69.7789ms)
+  ✔ rechaza_transiciones_no_permitidas_y_exige_motivo (56.3857ms)
+  ✔ recepcionista_no_puede_cambiar_el_estado_de_una_membresia (30.2965ms)
+  ✔ entrenador_consulta_membresias_sin_datos_financieros_y_no_puede_asignar (41.6579ms)
+  ✔ clientes_incluyen_membresia_actual_y_el_saldo_solo_para_el_personal_autorizado (89.5642ms)
+  ✔ cliente_ve_su_propia_membresia_en_su_perfil (45.1806ms)
+✔ asignación y estados de membresías (1649.4859ms)
+▶ registro y anulación de pagos
+  ✔ registra_un_abono_ligado_al_cliente_de_la_membresia_y_lo_audita (62.3105ms)
+  ✔ un_pago_por_el_saldo_restante_liquida_la_membresia (56.3491ms)
+  ✔ rechaza_un_monto_mayor_al_saldo_indicando_el_saldo (31.8446ms)
+  ✔ rechaza_pagos_sobre_membresia_cancelada_o_liquidada (32.1747ms)
+  ✔ valida_monto_y_metodo_de_pago (41.3704ms)
+  ✔ dos_pagos_simultaneos_nunca_dejan_el_saldo_negativo (28.2364ms)
+  ✔ admin_anula_un_pago_con_motivo_y_el_saldo_se_restaura (73.5501ms)
+  ✔ no_existe_borrado_de_pagos (39.2311ms)
+  ✔ pagos_de_un_cliente_para_admin_y_recepcionista_pero_no_para_el_entrenador (54.7362ms)
+✔ registro y anulación de pagos (1407.3426ms)
+▶ matriz de permisos del Sprint 2
+  ✔ cada_rol_solo_usa_los_endpoints_permitidos_y_el_resto_recibe_403 (651.7463ms)
+  ✔ sin_sesion_todos_los_endpoints_nuevos_responden_401 (59.8807ms)
+  ✔ solo_la_estacion_recibe_descriptores_para_identificar (14.2336ms)
+✔ matriz de permisos del Sprint 2 (1845.762ms)
+▶ información propia del cliente
+  ✔ cliente_sin_membresias_consulta_su_perfil_sin_pagos_ni_adeudo (39.2927ms)
+  ✔ el_perfil_usa_el_id_cliente_del_token_e_ignora_parametros_enviados (12.0751ms)
+  ✔ cliente_recibe_403_al_consultar_otro_cliente_por_id (6.6121ms)
+  ✔ personal_recibe_403_en_clients_me (33.2738ms)
+  ✔ cliente_vinculado_a_cliente_inactivo_puede_consultar_su_perfil (17.5184ms)
+✔ información propia del cliente (1035.9384ms)
+▶ reservas: concurrencia por el último lugar
+  ✔ veinte_reservas_simultaneas_por_el_ultimo_lugar_aceptan_solo_una (295.0912ms)
+✔ reservas: concurrencia por el último lugar (1439.4825ms)
+▶ reservas: reservar un lugar para un cliente
+  ✔ reserva_lugar_para_cliente_con_membresia_activa_y_reduce_los_lugares (83.0985ms)
+  ✔ rechaza_reserva_en_clase_llena (96.8985ms)
+  ✔ rechaza_reserva_si_la_membresia_no_cubre_la_fecha_de_la_sesion (101.2122ms)
+  ✔ rechaza_reserva_de_cliente_inexistente_o_inactivo_y_en_clase_inactiva (90.5071ms)
+  ✔ rechaza_reserva_duplicada_del_mismo_cliente_en_la_sesion (44.9535ms)
+  ✔ rechaza_reserva_que_se_empalma_con_otra_del_cliente_el_mismo_dia (120.5217ms)
+  ✔ rechaza_reserva_en_sesion_terminada_o_fuera_de_la_ventana_de_7_dias (78.5727ms)
+  ✔ reserva_en_sesion_en_curso_queda_con_asistencia_presente (62.5815ms)
+  ✔ registra_auditoria_al_reservar (30.6768ms)
+  ✔ la_reserva_se_conserva_si_la_membresia_se_cancela_despues (100.0484ms)
+  ✔ rechaza_datos_con_formato_invalido (6.2356ms)
+  ✔ la_fabrica_de_reservas_sigue_disponible (49.0583ms)
+  ✔ cancelar_reserva_de_sesion_pendiente_libera_el_lugar_y_la_conserva (82.3474ms)
+  ✔ rechaza_cancelar_reserva_de_clase_que_ya_empezo (133.724ms)
+  ✔ rechaza_cancelar_una_reserva_ya_cancelada (70.255ms)
+  ✔ el_cliente_puede_volver_a_reservar_despues_de_cancelar (90.5301ms)
+✔ reservas: reservar un lugar para un cliente (2235.8976ms)
+▶ sesiones: horario y lista de reservados
+  ✔ el_horario_muestra_las_sesiones_de_la_ventana_con_sus_lugares (72.8936ms)
+  ✔ el_detalle_de_sesion_muestra_datos_y_quedan_x_de_y_lugares (11.0473ms)
+  ✔ la_lista_de_reservados_esta_ordenada_por_apellido_y_nombre_con_su_asistencia (7.8025ms)
+  ✔ las_reservas_canceladas_no_cuentan_ni_aparecen (8.4814ms)
+  ✔ una_sesion_sin_lugares_aparece_llena_en_el_horario (7.849ms)
+  ✔ el_detalle_rechaza_fecha_que_no_corresponde_a_la_clase (17.9084ms)
+  ✔ el_detalle_de_una_sesion_pasada_sigue_disponible (7.0919ms)
+  ✔ el_detalle_no_expone_datos_de_contacto (44.4295ms)
+✔ sesiones: horario y lista de reservados (1153.7529ms)
+▶ utilidades de sesiones de clases
+  ✔ se_empalman_intervalos_que_se_cruzan (0.9632ms)
+  ✔ no_se_empalman_clases_contiguas (0.1535ms)
+  ✔ estado_de_sesion_pendiente_en_curso_y_terminada (0.2016ms)
+  ✔ la_ventana_de_reserva_incluye_hoy_y_hoy_mas_siete (1.3079ms)
+  ✔ rechaza_ayer_y_hoy_mas_ocho (0.1853ms)
+  ✔ fechas_de_sesion_de_una_clase_por_dia_iso (0.3062ms)
+  ✔ termina_el_mismo_dia (0.1993ms)
+  ✔ convierte_hhmm_a_minutos_y_de_regreso (0.2028ms)
+✔ utilidades de sesiones de clases (5.2827ms)
+▶ gestión de usuarios
+  ✔ administrador_crea_usuario_recepcionista_activo (197.6061ms)
+  ✔ rechaza_correo_duplicado_aunque_cambien_mayusculas_con_409 (10.8066ms)
+  ✔ rechaza_password_que_no_cumple_la_politica_con_400 (20.6225ms)
+  ✔ rechaza_rol_inexistente_con_400 (6.5402ms)
+  ✔ rol_cliente_exige_id_cliente_existente_sin_otra_cuenta_y_con_correo (151.6227ms)
+  ✔ rol_no_cliente_con_id_cliente_responde_400 (9.5405ms)
+  ✔ lista_usuarios_paginados_sin_password_y_filtra_por_rol_estado_y_busqueda (38.4605ms)
+  ✔ cambiar_rol_aplica_los_nuevos_permisos_en_la_siguiente_solicitud (40.8488ms)
+  ✔ desactivar_usuario_impide_su_inicio_de_sesion_y_conserva_el_registro (23.7423ms)
+  ✔ no_permite_desactivar_ni_quitar_el_rol_al_ultimo_administrador_activo (47.8093ms)
+  ✔ administrador_no_puede_desactivarse_a_si_mismo (6.9523ms)
+  ✔ recepcionista_entrenador_y_cliente_reciben_403_en_todos_los_endpoints_de_usuarios (77.4165ms)
+  ✔ consulta_usuario_inexistente_responde_404 (5.4784ms)
+✔ gestión de usuarios (1628.9747ms)
+▶ utilidades de fechas
+  ✔ today_devuelve_la_fecha_en_la_zona_del_gimnasio (2.3548ms)
+  ✔ add_days_cruza_fin_de_mes_y_de_anio (1.9267ms)
+  ✔ end_date_for_incluye_el_dia_de_inicio (0.3515ms)
+  ✔ is_valid_date_rechaza_fechas_imposibles (0.4401ms)
+  ✔ now_in_gym_devuelve_fecha_y_minutos_locales (2.4761ms)
+  ✔ now_in_gym_cambia_de_dia_segun_la_zona_del_gimnasio (0.8476ms)
+  ✔ days_between_cuenta_dias_completos (0.3806ms)
+✔ utilidades de fechas (18.318ms)
+▶ utilidades de montos
+  ✔ suma_en_centavos_sin_errores_de_redondeo (0.7078ms)
+  ✔ rechaza_montos_con_mas_de_dos_decimales (0.5265ms)
+  ✔ compara_montos_correctamente (0.3436ms)
+✔ utilidades de montos (2.2212ms)
+ℹ tests 246
+ℹ suites 35
+ℹ pass 246
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66968.9419
+Código de salida: 0
+
+==================================================================
+T102. Pruebas completas del frontend
+   Comando: npm --prefix C:/Users/Iztel/gymacces/frontend test -- --run
+==================================================================
+
+> gym-access-frontend@1.0.0 test
+> vitest run --run
+
+
+ RUN  v3.2.7 C:/Users/Iztel/gymacces/frontend
+
+ ✓ src/tests/Dashboard.test.jsx (6 tests) 671ms
+ ✓ src/tests/ClassForm.test.jsx (5 tests) 1259ms
+   ✓ formulario de clases grupales > muestra_solo_los_entrenadores_activos_en_el_selector  352ms
+   ✓ formulario de clases grupales > valida_duracion_cupo_y_fin_del_dia_sin_llamar_al_servidor  340ms
+ ✓ src/tests/SessionDetail.test.jsx (11 tests) 1270ms
+   ✓ detalle de sesión > muestra_quedan_x_de_y_lugares  361ms
+ ✓ src/tests/Login.test.jsx (4 tests) 657ms
+   ✓ pantalla de inicio de sesión > muestra_error_si_los_campos_estan_vacios  304ms
+ ✓ src/tests/PaymentForm.test.jsx (3 tests) 746ms
+   ✓ formulario de pagos > no_envia_un_monto_mayor_al_saldo  382ms
+ ✓ src/tests/Navigation.test.jsx (12 tests) 701ms
+   ✓ navegación por módulos > recepcionista_abre_el_horario_y_entrenador_ve_acceso_restringido  352ms
+ ✓ src/tests/ReservationForm.test.jsx (4 tests) 517ms
+   ✓ formulario de reserva > busca_cliente_y_envia_la_reserva  307ms
+ ✓ src/tests/ClientForm.test.jsx (3 tests) 497ms
+ ✓ src/tests/Schedule.test.jsx (4 tests) 425ms
+   ✓ horario de clases > agrupa_las_sesiones_por_dia_y_muestra_los_lugares  336ms
+ ✓ src/tests/MembershipTypeForm.test.jsx (3 tests) 871ms
+   ✓ formulario de tipos de membresía > marca_los_campos_obligatorios_sin_llamar_a_la_api  394ms
+ ✓ src/tests/MembershipForm.test.jsx (3 tests) 967ms
+   ✓ formulario de asignación de membresía > solo_ofrece_tipos_activos_y_muestra_la_fecha_de_fin_calculada  574ms
+ ✓ src/tests/AccessStation.test.jsx (4 tests) 555ms
+   ✓ estación de acceso > muestra_el_acceso_autorizado_y_no_repite_mientras_el_rostro_siga_presente  380ms
+ ✓ src/tests/BarChart.test.jsx (3 tests) 490ms
+ ✓ src/tests/Profile.test.jsx (2 tests) 232ms
+ ✓ src/tests/ProtectedRoute.test.jsx (3 tests) 168ms
+ ✓ src/tests/DashboardAccess.test.jsx (3 tests) 66ms
+
+ Test Files  16 passed (16)
+      Tests  73 passed (73)
+   Start at  16:30:36
+   Duration  19.52s (transform 1.54s, setup 7.28s, collect 3.84s, tests 10.09s, environment 22.62s, prepare 3.26s)
+
+Código de salida: 0
+
+==================================================================
+T103 (con desviación). Base de desarrollo gym_access: SOLO db:migrate y db:check-encoding
+   No se ejecutaron db:reset ni db:seed: borrarían los datos de desarrollo (decisión de la autora).
+   db:migrate ya se había ejecutado en esta sesión y aplicó 006_create_clases_reservas.sql;
+   aquí se vuelve a ejecutar para registrar que la base quedó al día.
+==================================================================
+
+> gym-access-database@1.0.0 db:migrate
+> node scripts/migrate.js
+
+La base "gym_access" ya está al día.
+Código de salida: 0
+
+> gym-access-database@1.0.0 db:check-encoding
+> node scripts/check-encoding.js
+
+No hay texto dañado en "gym_access".
+Código de salida: 0
+
+==================================================================
+Datos de la base de desarrollo para la prueba manual (T104), solo lecturas
+==================================================================
+Base: gym_access | Hoy (America/Mexico_City): 2026-10-16
+Migraciones: 001_create_usuarios_clientes.sql, 002_create_membresias_pagos.sql, 003_ajustar_membresias_pagos.sql, 004_create_rostros_accesos_auditoria.sql, 005_indices_dashboard.sql, 006_create_clases_reservas.sql
+Tabla clases: InnoDB, utf8mb4_unicode_ci
+Tabla reservas: InnoDB, utf8mb4_unicode_ci
+Usuarios por rol y estado: administrador/activo=1, recepcionista/activo=1, entrenador/activo=1, cliente/activo=1
+Entrenadores activos: 1 #3 Entrenador Demo
+Clientes activos con membresía vigente hoy: 0
+De ellos, con membresía que cubre hasta hoy + 7: 0
+Clientes activos sin membresía vigente (útiles para probar el rechazo): 1
+Recepcionistas activos: 1
+Clases registradas: 0
+Tipos de membresía: 0 
+Clientes por estado: activo=1
+Membresías por estado: (ninguna)

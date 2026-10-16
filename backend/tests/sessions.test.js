@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import { app } from '../src/app.js';
 import { resetTestDatabase, createUser, createClient, closePool } from './helpers/db.js';
-import { createClass, createReservation, createTrainer } from './helpers/factories.js';
+import { createClass, createMembership, createMembershipType, createReservation, createTrainer } from './helpers/factories.js';
 import { tokenFor, bearer } from './helpers/auth.js';
 
 // Reloj fijo: lunes 2026-10-19 a las 08:00 en America/Mexico_City (14:00 UTC). Ventana: 19 al 26.
@@ -149,5 +149,38 @@ describe('sesiones: horario y lista de reservados', () => {
     assert.equal(response.status, 200, 'se pueden consultar fechas pasadas para revisar la asistencia');
     assert.equal(response.body.data.sesion.estado_sesion, 'terminada');
     assert.equal(response.body.data.texto_lugares, 'Quedan 10 de 10 lugares');
+  });
+
+  // T101: ninguna respuesta de reservas expone contacto, datos faciales ni montos (principio III)
+  it('el_detalle_no_expone_datos_de_contacto', async () => {
+    const PROHIBIDOS = ['correo', 'telefono', 'direccion', 'descriptor', 'similitud', 'monto', 'saldo', 'password'];
+    const buscarProhibidos = (valor, ruta = '') => {
+      if (valor === null || typeof valor !== 'object') return [];
+      return Object.entries(valor).flatMap(([clave, hijo]) => [
+        ...(PROHIBIDOS.some((prohibido) => clave.toLowerCase().includes(prohibido)) ? [`${ruta}${clave}`] : []),
+        ...buscarProhibidos(hijo, `${ruta}${clave}.`),
+      ]);
+    };
+
+    const detalleSesion = await detalle(spinning.id_clase, MARTES, adminToken);
+    assert.equal(detalleSesion.status, 200);
+    assert.deepEqual(buscarProhibidos(detalleSesion.body), [], 'el detalle de sesión no debe exponer datos sensibles');
+
+    const tipo = await createMembershipType();
+    const cliente = await createClient({ correo: 'contacto.privado@prueba.com', telefono: '5599887766' });
+    await createMembership({
+      id_cliente: cliente.id_cliente,
+      id_tipo_membresia: tipo.id_tipo_membresia,
+      fecha_inicio: '2026-10-01',
+      fecha_fin: '2026-11-30',
+    });
+    const reserva = await request(app)
+      .post('/api/reservations')
+      .set(bearer(recepToken))
+      .send({ id_clase: spinning.id_clase, fecha_sesion: MARTES, id_cliente: cliente.id_cliente });
+    assert.equal(reserva.status, 201);
+    assert.deepEqual(buscarProhibidos(reserva.body), [], 'la reserva creada no debe exponer datos sensibles');
+    assert.ok(!JSON.stringify(reserva.body).includes('contacto.privado'), 'el correo no aparece en ningún valor');
+    assert.ok(!JSON.stringify(reserva.body).includes('5599887766'), 'el teléfono no aparece en ningún valor');
   });
 });
