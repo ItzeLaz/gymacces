@@ -123,3 +123,25 @@ export async function listActiveBySession(idClase, fechaSesion, connection = poo
   );
   return rows;
 }
+
+// Bloquea la reserva junto con el horario de su clase para calcular el estado de la sesión (US3, US5)
+export async function lockById(id, connection) {
+  const [rows] = await connection.execute(
+    `SELECT r.id_reserva, r.id_clase, DATE_FORMAT(r.fecha_sesion, '%Y-%m-%d') AS fecha_sesion, r.id_cliente,
+            r.estado, r.asistencia, c.nombre AS clase_nombre,
+            TIME_FORMAT(c.hora_inicio, '%H:%i') AS hora_inicio, c.duracion_minutos
+     FROM reservas r
+     JOIN clases c ON c.id_clase = r.id_clase
+     WHERE r.id_reserva = ? FOR UPDATE`,
+    [id],
+  );
+  return rows[0] ?? null;
+}
+
+// La reserva cancelada se conserva; la fecha llega desde Node (FR-007, research R-05)
+export async function cancel(id, idUsuario, canceladoEn, connection = pool) {
+  await connection.execute(
+    "UPDATE reservas SET estado = 'cancelada', cancelado_por = ?, cancelado_en = ? WHERE id_reserva = ?",
+    [idUsuario, canceladoEn, id],
+  );
+}

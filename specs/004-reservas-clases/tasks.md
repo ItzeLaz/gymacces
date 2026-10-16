@@ -502,20 +502,20 @@ cliente puede reservar.
 
 Todas en `backend/tests/reservations.test.js`.
 
-- [ ] T078 [US3] Prueba `cancelar_reserva_de_sesion_pendiente_libera_el_lugar_y_la_conserva`:
+- [X] T078 [US3] Prueba `cancelar_reserva_de_sesion_pendiente_libera_el_lugar_y_la_conserva`:
   - `PATCH /reservations/:id/cancel` → 200 `estado: 'cancelada'`, con `cancelado_por` y `cancelado_en`.
   - La fila sigue en la base y los lugares suben en 1.
   - Existe una auditoría `reserva.cancelar`.
 
   **Atiende**: US3-1, FR-007, FR-012. **Verificación**: `npm test` en rojo.
-- [ ] T079 [US3] Prueba `rechaza_cancelar_reserva_de_clase_que_ya_empezo`: con la hora en curso o terminada → 422 "No se puede cancelar una reserva de una clase que ya empezó.". **Atiende**: US3-2. **Verificación**: `npm test` en rojo.
-- [ ] T080 [US3] Prueba `rechaza_cancelar_una_reserva_ya_cancelada`: 422 "La reserva ya está cancelada."; si la reserva no existe → 404 "La reserva no existe.". **Atiende**: US3-3. **Verificación**: `npm test` en rojo.
-- [ ] T081 [US3] Prueba `el_cliente_puede_volver_a_reservar_despues_de_cancelar`: `POST /reservations` para el mismo cliente y la misma sesión → 201; la base tiene 1 activa y 1 cancelada. **Atiende**: US3-4, FR-005. **Verificación**: `npm test` en rojo.
+- [X] T079 [US3] Prueba `rechaza_cancelar_reserva_de_clase_que_ya_empezo`: con la hora en curso o terminada → 422 "No se puede cancelar una reserva de una clase que ya empezó.". **Atiende**: US3-2. **Verificación**: `npm test` en rojo.
+- [X] T080 [US3] Prueba `rechaza_cancelar_una_reserva_ya_cancelada`: 422 "La reserva ya está cancelada."; si la reserva no existe → 404 "La reserva no existe.". **Atiende**: US3-3. **Verificación**: `npm test` en rojo.
+- [X] T081 [US3] Prueba `el_cliente_puede_volver_a_reservar_despues_de_cancelar`: `POST /reservations` para el mismo cliente y la misma sesión → 201; la base tiene 1 activa y 1 cancelada. **Atiende**: US3-4, FR-005. **Verificación**: `npm test` en rojo.
 
 ### Implementación de la historia 3
 
-- [ ] T082 [US3] Agregar a `backend/src/models/reservation.model.js` `lockById(id, connection)` (`FOR UPDATE`, con los datos de la clase para calcular el estado de la sesión) y `cancel(id, idUsuario, connection)`, que guarda `estado = 'cancelada'`, `cancelado_por` y `cancelado_en`. `cancelado_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05; hallazgo U2). **Atiende**: FR-007. **Verificación**: revisión; T078 a T081 en verde después de T084.
-- [ ] T083 [US3] Agregar `cancelReservation(id, user)` a `backend/src/services/reservations.service.js`, dentro de `withTransaction`. Pasos:
+- [X] T082 [US3] Agregar a `backend/src/models/reservation.model.js` `lockById(id, connection)` (`FOR UPDATE`, con los datos de la clase para calcular el estado de la sesión) y `cancel(id, idUsuario, connection)`, que guarda `estado = 'cancelada'`, `cancelado_por` y `cancelado_en`. `cancelado_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05; hallazgo U2). **Atiende**: FR-007. **Verificación**: revisión; T078 a T081 en verde después de T084.
+- [X] T083 [US3] Agregar `cancelReservation(id, user)` a `backend/src/services/reservations.service.js`, dentro de `withTransaction`. Pasos:
   1. `lockById`; si no existe → 404.
   2. Si está cancelada → 422.
   3. Si `sessionState` no es `pendiente` → 422.
@@ -523,10 +523,10 @@ Todas en `backend/tests/reservations.test.js`.
   5. Registrar la auditoría `reserva.cancelar`.
 
   **Atiende**: US3-1 a US3-3, FR-007, FR-012. **Verificación**: T078 a T080 en verde después de T084.
-- [ ] T084 [US3] Agregar `cancel` a `backend/src/controllers/reservations.controller.js`. Registrar `PATCH /:id/cancel` (administrador y recepcionista) con `reservationIdParam` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T078 a T081 en verde.
-- [ ] T085 [P] [US3] Agregar `cancelReservation(id)` a `frontend/src/api/reservations.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T086.
-- [ ] T086 [US3] Agregar a `frontend/src/tests/SessionDetail.test.jsx` las pruebas `cancelar_pide_confirmacion_y_recarga_la_lista` y `muestra_el_mensaje_si_la_clase_ya_empezo`. **Atiende**: US3-1, US3-2. **Verificación**: `cd frontend && npm test` en rojo hasta T087.
-- [ ] T087 [US3] Agregar en `frontend/src/pages/SessionDetail.jsx` el botón "Cancelar reserva" por cliente. Solo aparece cuando `estado_sesion` es `pendiente`, pide confirmación con `ConfirmDialog` y muestra el mensaje de éxito o de error. **Atiende**: US3-1, principio XIV. **Verificación**: T086 en verde.
+- [X] T084 [US3] Agregar `cancel` a `backend/src/controllers/reservations.controller.js`. Registrar `PATCH /:id/cancel` (administrador y recepcionista) con `reservationIdParam` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T078 a T081 en verde.
+- [X] T085 [P] [US3] Agregar `cancelReservation(id)` a `frontend/src/api/reservations.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T086.
+- [X] T086 [US3] Agregar a `frontend/src/tests/SessionDetail.test.jsx` las pruebas `cancelar_pide_confirmacion_y_recarga_la_lista` y `muestra_el_mensaje_si_la_clase_ya_empezo`. **Atiende**: US3-1, US3-2. **Verificación**: `cd frontend && npm test` en rojo hasta T087.
+- [X] T087 [US3] Agregar en `frontend/src/pages/SessionDetail.jsx` el botón "Cancelar reserva" por cliente. Solo aparece cuando `estado_sesion` es `pendiente`, pide confirmación con `ConfirmDialog` y muestra el mensaje de éxito o de error. **Atiende**: US3-1, principio XIV. **Verificación**: T086 en verde.
 
 **Punto de control**: la cancelación libera lugares y respeta el inicio de la clase.
 

@@ -31,10 +31,11 @@ const detalle = (estadoSesion = 'pendiente', reservas = [
 const respuesta = (status, body) => ({ ok: status >= 200 && status < 300, status, json: () => Promise.resolve(body) });
 
 // La API simulada: detalle de la sesión, búsqueda de clientes y POST de reserva
-function mockApi(estadoSesion = 'pendiente') {
+function mockApi(estadoSesion = 'pendiente', cancelacion = respuesta(200, { data: { id_reserva: 2, estado: 'cancelada' } })) {
   globalThis.fetch = vi.fn((url, options = {}) => {
     const ruta = String(url);
     if (options.method === 'POST') return Promise.resolve(respuesta(201, { data: { id_reserva: 3 } }));
+    if (options.method === 'PATCH') return Promise.resolve(cancelacion);
     if (ruta.includes('/sessions/')) return Promise.resolve(respuesta(200, { data: detalle(estadoSesion) }));
     if (ruta.includes('/clients')) {
       return Promise.resolve(
@@ -102,5 +103,41 @@ describe('detalle de sesión', () => {
     await screen.findByText('Quedan 18 de 20 lugares');
     expect(screen.queryByRole('heading', { name: 'Reservar un lugar' })).not.toBeInTheDocument();
     expect(screen.getByText('La clase ya terminó.')).toBeInTheDocument();
+  });
+
+  // Historia 3: cancelar la reserva de un cliente
+  it('cancelar_pide_confirmacion_y_recarga_la_lista', async () => {
+    mockApi();
+    renderDetail();
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancelar reserva de Luis Méndez' }));
+
+    const dialogo = screen.getByRole('dialog');
+    expect(within(dialogo).getByText(/Luis Méndez/)).toBeInTheDocument();
+    expect(globalThis.fetch.mock.calls.some(([, opciones]) => opciones?.method === 'PATCH')).toBe(false);
+
+    fireEvent.click(within(dialogo).getByRole('button', { name: 'Confirmar' }));
+    expect(await screen.findByText('Reserva cancelada.')).toBeInTheDocument();
+    const [url] = globalThis.fetch.mock.calls.find(([, opciones]) => opciones?.method === 'PATCH');
+    expect(String(url)).toContain('/reservations/2/cancel');
+    await waitFor(() => expect(llamadasAlDetalle()).toBe(2));
+  });
+
+  it('muestra_el_mensaje_si_la_clase_ya_empezo', async () => {
+    mockApi(
+      'pendiente',
+      respuesta(422, { error: { code: 'BUSINESS_RULE', message: 'No se puede cancelar una reserva de una clase que ya empezó.' } }),
+    );
+    renderDetail();
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancelar reserva de Ana Álvarez' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirmar' }));
+
+    expect(await screen.findByText('No se puede cancelar una reserva de una clase que ya empezó.')).toBeInTheDocument();
+  });
+
+  it('solo_ofrece_cancelar_si_la_sesion_no_ha_empezado', async () => {
+    mockApi('en_curso');
+    renderDetail();
+    await screen.findByText('Quedan 18 de 20 lugares');
+    expect(screen.queryByRole('button', { name: /^Cancelar reserva de/ })).not.toBeInTheDocument();
   });
 });

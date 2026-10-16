@@ -291,4 +291,97 @@ describe('reservas: reservar un lugar para un cliente', () => {
     const response = await reservar({ id_clase: spinning.id_clase, fecha_sesion: MARTES, id_cliente: cliente.id_cliente });
     assert.equal(response.body.error?.message, CLASE_LLENA);
   });
+
+  // Historia 3: cancelar la reserva de un cliente (spec.md, criterios US3-1 a US3-4)
+  const cancelar = (idReserva, token = recepToken) =>
+    request(app).patch(`/api/reservations/${idReserva}/cancel`).set(bearer(token));
+
+  it('cancelar_reserva_de_sesion_pendiente_libera_el_lugar_y_la_conserva', async () => {
+    const spinning = await clase({ cupo_maximo: 1 });
+    const cliente = await clienteConMembresia();
+    const reserva = await reservar({ id_clase: spinning.id_clase, fecha_sesion: MARTES, id_cliente: cliente.id_cliente });
+    assert.equal(await activasEnSesion(spinning.id_clase, MARTES), 1, 'la sesión empieza llena');
+
+    const response = await cancelar(reserva.body.data.id_reserva);
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data.estado, 'cancelada');
+
+    const [rows] = await pool.execute(
+      'SELECT estado, cancelado_por, cancelado_en FROM reservas WHERE id_reserva = ?',
+      [reserva.body.data.id_reserva],
+    );
+    assert.equal(rows.length, 1, 'la reserva cancelada se conserva en el historial');
+    assert.equal(rows[0].estado, 'cancelada');
+    assert.equal(rows[0].cancelado_por, recepcion.id_usuario);
+    assert.equal(rows[0].cancelado_en.getTime(), AHORA, 'la fecha de cancelación viene del reloj de Node');
+    assert.equal(await activasEnSesion(spinning.id_clase, MARTES), 0, 'el lugar se libera');
+
+    const otro = await clienteConMembresia();
+    const nueva = await reservar({ id_clase: spinning.id_clase, fecha_sesion: MARTES, id_cliente: otro.id_cliente });
+    assert.equal(nueva.status, 201, 'otro cliente puede tomar el lugar liberado');
+
+    const [audit] = await pool.execute(
+      "SELECT accion, id_usuario FROM auditoria WHERE entidad = 'reservas' AND id_registro = ? ORDER BY id_auditoria",
+      [reserva.body.data.id_reserva],
+    );
+    assert.deepEqual(audit.map((fila) => fila.accion), ['reserva.registrar', 'reserva.cancelar']);
+    assert.equal(audit[1].id_usuario, recepcion.id_usuario);
+  });
+
+  it('rechaza_cancelar_reserva_de_clase_que_ya_empezo', async () => {
+    const mensaje = 'No se puede cancelar una reserva de una clase que ya empezó.';
+    const enCurso = await clase({ dia_semana: 1, hora_inicio: '07:30', duracion_minutos: 60 });
+    const terminada = await clase({ dia_semana: 1, hora_inicio: '06:00', duracion_minutos: 60 });
+    for (const [caso, sesion] of [['en curso', enCurso], ['terminada', terminada]]) {
+      const cliente = await clienteConMembresia();
+      const reserva = await createReservation({
+        id_clase: sesion.id_clase,
+        fecha_sesion: HOY,
+        id_cliente: cliente.id_cliente,
+        registrado_por: admin.id_usuario,
+      });
+      const response = await cancelar(reserva.id_reserva);
+      assert.equal(response.status, 422, `una sesión ${caso} no se puede cancelar`);
+      assert.equal(response.body.error.message, mensaje);
+      const [rows] = await pool.execute('SELECT estado FROM reservas WHERE id_reserva = ?', [reserva.id_reserva]);
+      assert.equal(rows[0].estado, 'activa', 'la reserva no cambia');
+    }
+  });
+
+  it('rechaza_cancelar_una_reserva_ya_cancelada', async () => {
+    const spinning = await clase();
+    const cliente = await clienteConMembresia();
+    const reserva = await reservar({ id_clase: spinning.id_clase, fecha_sesion: MARTES, id_cliente: cliente.id_cliente });
+    assert.equal((await cancelar(reserva.body.data.id_reserva)).status, 200);
+
+    const otraVez = await cancelar(reserva.body.data.id_reserva);
+    assert.equal(otraVez.status, 422);
+    assert.equal(otraVez.body.error.message, 'La reserva ya está cancelada.');
+
+    const inexistente = await cancelar(999999);
+    assert.equal(inexistente.status, 404);
+    assert.equal(inexistente.body.error.message, 'La reserva no existe.');
+
+    const invalida = await cancelar('abc');
+    assert.equal(invalida.status, 400);
+  });
+
+  it('el_cliente_puede_volver_a_reservar_despues_de_cancelar', async () => {
+    const spinning = await clase();
+    const cliente = await clienteConMembresia();
+    const datos = { id_clase: spinning.id_clase, fecha_sesion: MARTES, id_cliente: cliente.id_cliente };
+    const primera = await reservar(datos);
+    await cancelar(primera.body.data.id_reserva);
+
+    const segunda = await reservar(datos);
+    assert.equal(segunda.status, 201, 'después de cancelar puede volver a reservar');
+    const [rows] = await pool.execute(
+      'SELECT estado, COUNT(*) AS total FROM reservas WHERE id_clase = ? AND id_cliente = ? GROUP BY estado ORDER BY estado',
+      [spinning.id_clase, cliente.id_cliente],
+    );
+    assert.deepEqual(
+      rows.map((row) => [row.estado, Number(row.total)]),
+      [['activa', 1], ['cancelada', 1]],
+    );
+  });
 });

@@ -78,6 +78,14 @@ describe('clases grupales: permisos por rol', () => {
     }
   });
 
+  it('entrenador_y_cliente_no_pueden_cancelar_reservas', async () => {
+    for (const rol of ['entrenador', 'cliente']) {
+      const response = await request(app).patch('/api/reservations/1/cancel').set(bearer(tokens[rol]));
+      assert.equal(response.status, 403, `${rol} debe recibir 403 al cancelar`);
+      assert.equal(response.body.error.message, FORBIDDEN);
+    }
+  });
+
   it('sin_sesion_las_rutas_de_clases_responden_401', async () => {
     for (const [ruta, enviar] of escrituras()) {
       const response = await enviar(undefined);

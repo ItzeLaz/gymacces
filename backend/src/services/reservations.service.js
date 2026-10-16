@@ -17,6 +17,9 @@ const NO_MEMBERSHIP = 'El cliente no tiene una membresía vigente para la fecha 
 const DUPLICATE = 'El cliente ya tiene una reserva en esta clase.';
 const CLIENT_OVERLAP = 'El cliente ya tiene una reserva en una clase que se empalma con este horario.';
 const FULL = 'Clase llena.';
+const RESERVATION_NOT_FOUND = 'La reserva no existe.';
+const ALREADY_CANCELLED = 'La reserva ya está cancelada.';
+const ALREADY_STARTED = 'No se puede cancelar una reserva de una clase que ya empezó.';
 
 // "No asistió": reserva activa sin asistencia de una sesión de un día anterior (US5, criterio 6)
 export function attendanceLabel(fila, hoy) {
@@ -107,4 +110,39 @@ export async function createReservation({ id_clase, fecha_sesion, id_cliente }, 
     if (error.code === 'ER_DUP_ENTRY') throw conflict(DUPLICATE);
     throw error;
   }
+}
+
+// Bloquea la reserva o responde 404 (US3, US5)
+async function lockReservationOrFail(id, connection) {
+  const reserva = await reservationModel.lockById(id, connection);
+  if (!reserva) throw notFound(RESERVATION_NOT_FOUND);
+  return reserva;
+}
+
+// Estado de la sesión de una reserva bloqueada, con la hora del gimnasio
+function stateOf(reserva, ahora) {
+  const inicio = toMinutes(reserva.hora_inicio);
+  return sessionState(reserva.fecha_sesion, inicio, inicio + reserva.duracion_minutos, ahora);
+}
+
+// Cancela solo antes de que empiece la clase; el lugar se libera y la reserva se conserva (US3)
+export async function cancelReservation(id, user) {
+  const ahora = new Date();
+  const hoy = nowInGym(ahora);
+  return withTransaction(async (connection) => {
+    const reserva = await lockReservationOrFail(id, connection);
+    if (reserva.estado === 'cancelada') throw businessRule(ALREADY_CANCELLED);
+    if (stateOf(reserva, hoy) !== 'pendiente') throw businessRule(ALREADY_STARTED);
+
+    await reservationModel.cancel(id, user.id_usuario, ahora, connection);
+    await record(
+      connection,
+      user,
+      AUDIT_ACTIONS.RESERVATION_CANCEL,
+      'reservas',
+      id,
+      `${reserva.clase_nombre} ${reserva.fecha_sesion} ${reserva.hora_inicio}, cliente ${reserva.id_cliente}`,
+    );
+    return toView(await reservationModel.findById(id, connection), hoy.fecha);
+  });
 }
