@@ -182,11 +182,16 @@ Una clase inactiva desaparece del horario y de `GET /classes` para recepción (U
 ### `GET /classes/schedule?desde=AAAA-MM-DD` (administrador, recepcionista)
 
 Sesiones de las clases activas entre `desde` (por omisión hoy) y hoy + 7 días, ordenadas por
-fecha y hora (US4, criterio 4; research R-05). Si `desde` es anterior a hoy o posterior a hoy + 7:
-400.
+fecha y hora (US4, criterio 4; research R-05). Incluye las sesiones de hoy que ya terminaron, con
+`estado_sesion: "terminada"`.
 
 200 → `{ "data": [SessionView, ...] }`. Las sesiones llenas tienen `llena: true` y la interfaz
 muestra la etiqueta "Llena" (US4, criterio 5).
+
+| HTTP | Cuándo | `message` / detalle | Criterio |
+|------|--------|---------------------|----------|
+| 400 | `desde` no es una fecha válida | En `details` de `desde`: "La fecha inicial debe ser una fecha válida con formato AAAA-MM-DD." | — |
+| 400 | `desde` es anterior a hoy o posterior a hoy + 7 | En `details` de `desde`: "La fecha inicial debe estar entre hoy y los próximos 7 días." | US4-4 |
 
 ### `GET /classes/:id/sessions/:fecha` (administrador, recepcionista)
 
@@ -206,9 +211,13 @@ Detalle de una sesión con su lista de reservados (US4, criterios 1 a 3).
 
 - `reservas` incluye solo las activas, ordenadas por `apellido` y `nombre` del cliente (US4,
   criterio 2). Las canceladas no aparecen ni cuentan (US4, criterio 3).
-- 404 si la clase no existe. 400 si `:fecha` no es una fecha válida o no corresponde a
-  `dia_semana`.
 - Se permiten fechas pasadas para consultar la asistencia ("No asistió").
+
+| HTTP | Cuándo | `message` / detalle | Criterio |
+|------|--------|---------------------|----------|
+| 400 | `:fecha` no es una fecha válida | En `details` de `fecha`: "La fecha de la sesión debe ser una fecha válida con formato AAAA-MM-DD." | — |
+| 400 | `:fecha` no corresponde a `dia_semana` de la clase | En `details` de `fecha`: "La fecha no corresponde al día de la clase." | FR-002 |
+| 404 | La clase no existe | "La clase no existe." | — |
 
 ## Reservas
 
@@ -224,7 +233,8 @@ Errores, en el orden en que se evalúan:
 
 | HTTP | Cuándo | `message` | Criterio |
 |------|--------|-----------|----------|
-| 400 | Formato inválido o la fecha no coincide con el día de la clase | Un elemento de `details` por campo, por ejemplo `[{ "field": "fecha_sesion", "message": "…" }]` | FR-002 |
+| 400 | Formato inválido | Un elemento de `details` por campo, por ejemplo `[{ "field": "fecha_sesion", "message": "La fecha de la sesión debe ser una fecha válida con formato AAAA-MM-DD." }]` | — |
+| 400 | `fecha_sesion` no corresponde a `dia_semana` de la clase | En `details` de `fecha_sesion`: "La fecha no corresponde al día de la clase." | FR-002 |
 | 404 | La clase no existe | "La clase no existe." | — |
 | 422 | La clase está inactiva | "La clase está inactiva." | US1-12 |
 | 422 | La sesión terminó o la fecha está fuera de `[hoy, hoy + 7]` | "Solo se puede reservar en clases que no han terminado y dentro de los próximos 7 días." | US2-7 |
@@ -265,7 +275,7 @@ Cuerpo: `{ "presente": true }` para marcar o `{ "presente": false }` para desmar
 | `/classes` | `Classes.jsx` | Administrador | Catálogo de clases: registrar, modificar y desactivar |
 | `/classes/new`, `/classes/:id` | `ClassForm.jsx` | Administrador | Formulario de clase con la lista de entrenadores activos |
 | `/schedule` | `Schedule.jsx` | Administrador, recepcionista | Horario de los próximos días con lugares disponibles y la etiqueta "Llena" |
-| `/schedule/:idClase/:fecha` | `SessionDetail.jsx` | Administrador, recepcionista | Lista de reservados, "Quedan X de Y lugares", reservar (búsqueda de cliente), cancelar con confirmación y marcar asistencia |
+| `/schedule/:idClase/:fecha` | `SessionDetail.jsx` | Administrador, recepcionista | Lista de reservados, "Quedan X de Y lugares", reservar (búsqueda de cliente), cancelar con confirmación y marcar asistencia. Si `estado_sesion` es `terminada`, en lugar del formulario de reserva muestra el estado "La clase ya terminó." |
 
 El menú agrega "Clases" para el administrador y "Horario" para el administrador y la
 recepcionista. El entrenador y el cliente no ven estas opciones y, si escriben la ruta,
