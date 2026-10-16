@@ -121,7 +121,9 @@ Restricción adicional:
 Sin `UNIQUE` sobre `nombre`: puede haber "Spinning" el lunes y el miércoles.
 
 **Reglas que valida el servicio** (no las puede expresar la base):
-- El instructor existe, está activo y tiene rol `entrenador` (US1, criterio 6).
+- El instructor existe, está activo y tiene rol `entrenador` (US1, criterio 6). Se valida solo al
+  registrar la clase o al cambiar `id_instructor`; las clases de un entrenador desactivado después
+  se conservan y se pueden editar sin cambiar de instructor (Supuestos del spec).
 - No hay otra clase activa del mismo instructor y el mismo día cuyo horario se empalme (US1,
   criterio 5; research R-03).
 - No se reduce `cupo_maximo` por debajo del mayor número de reservas activas de una sesión futura
@@ -175,7 +177,7 @@ Lugar apartado para un cliente en una sesión.
 | `registrada_en_curso` | `TINYINT(1)` | NO | `DEFAULT 0`; `CHECK (registrada_en_curso IN (0, 1))`. Vale 1 si se registró con la sesión en curso | FR-006 |
 | `clave_activa` | `TINYINT UNSIGNED` | SÍ | Columna generada `AS (IF(estado = 'activa', 1, NULL)) STORED`; participa en el índice único | FR-005 |
 | `registrado_por` | `INT UNSIGNED` | NO | **FK** → `usuarios(id_usuario)` | FR-012 |
-| `creado_en` | `DATETIME` | NO | `DEFAULT CURRENT_TIMESTAMP` | FR-012 |
+| `creado_en` | `DATETIME` | NO | `DEFAULT CURRENT_TIMESTAMP` solo como respaldo: el servicio lo envía desde Node con `new Date()`, igual que `cancelado_en` y `asistencia_en`, para que las tres fechas usen el mismo reloj (research R-05) | FR-012 |
 | `cancelado_por` | `INT UNSIGNED` | SÍ | **FK** → `usuarios(id_usuario)` | FR-007, FR-012 |
 | `cancelado_en` | `DATETIME` | SÍ | — | FR-007, FR-012 |
 | `asistencia_por` | `INT UNSIGNED` | SÍ | **FK** → `usuarios(id_usuario)` | FR-009 |

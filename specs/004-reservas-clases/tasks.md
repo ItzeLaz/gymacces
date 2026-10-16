@@ -389,7 +389,7 @@ se fija con `mock.timers.enable({ apis: ['Date'], now })` de `node:test`.
   7. Rechazar duplicados con `existsActive` (409).
   8. Rechazar empalmes con `countClientOverlaps`.
   9. Validar el cupo con `countActiveBySession`.
-  10. Insertar. Si la sesión está `en_curso`, insertar con `asistencia: 'presente'`, `asistencia_por`, `asistencia_en` y `registrada_en_curso: 1`. `asistencia_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05).
+  10. Insertar. Si la sesión está `en_curso`, insertar con `asistencia: 'presente'`, `asistencia_por`, `asistencia_en` y `registrada_en_curso: 1`. `asistencia_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05). `creado_en` también se genera en Node con el mismo `new Date()` y se pasa como parámetro, para que todas las fechas de la reserva usen el mismo reloj (hallazgo I5).
   11. Registrar la auditoría `reserva.registrar`.
 
   Traducir `ER_DUP_ENTRY` a 409 "El cliente ya tiene una reserva en esta clase.". **Atiende**: US2-1 a US2-9, FR-003 a FR-006, FR-012, R-02, R-07. **Verificación**: T042 a T051 en verde después de T056.

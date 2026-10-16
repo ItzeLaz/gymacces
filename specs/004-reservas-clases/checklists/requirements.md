@@ -37,4 +37,9 @@
   posterior al MVP; la desviación se documentará en la "Verificación de la constitución" del plan.
 - Segunda validación (2026-10-16): pasan los 16 puntos; la nueva sección no agrega detalles de
   implementación ni requisitos sin criterios de aceptación.
+- Tercera validación (2026-10-16), después de `/speckit-clarify` (instructor y reservas durante la
+  clase), del criterio 14 de la historia 1 (R-06) y de las correcciones de `/speckit-analyze`
+  (término "Sesión futura", mensaje "La clase está inactiva", punto final en FR-013 y supuesto del
+  entrenador desactivado): pasan los 16 puntos. Los criterios nuevos están en EARS y se pueden
+  probar, y no agregan detalles de implementación.
 - Los puntos sin marcar requieren actualizar el spec antes de `/speckit-clarify` o `/speckit-plan`.

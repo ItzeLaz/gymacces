@@ -142,6 +142,11 @@ Errores adicionales:
 | 422 | El nuevo cupo es menor que las reservas activas de una sesión futura | "El cupo no puede ser menor que las reservas existentes (N)." | US1-9 |
 | 422 | Cambia `dia_semana`, `hora_inicio` o `duracion_minutos` y hay reservas activas futuras | "No se puede cambiar el horario de una clase con reservas activas." | US1-10 |
 | 422 | El nuevo instructor o el nuevo horario se empalman | "El instructor ya tiene una clase en ese horario." | US1-5 |
+| 422 | El cuerpo cambia `id_instructor` y el nuevo instructor no existe, está inactivo o no es entrenador | "El instructor debe ser un entrenador activo." | US1-6 |
+
+La regla de entrenador activo solo se valida al registrar la clase o al cambiar `id_instructor`.
+Si el entrenador actual se desactivó después, la clase se puede modificar sin cambiar de instructor
+(Supuestos del spec).
 
 ### `PATCH /classes/:id/status` (administrador)
 
