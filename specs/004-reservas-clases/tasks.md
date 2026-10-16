@@ -330,56 +330,56 @@ queda con la asistencia marcada.
 Todas en `backend/tests/reservations.test.js`, salvo la de concurrencia y la de permisos. La hora
 se fija con `mock.timers.enable({ apis: ['Date'], now })` de `node:test`.
 
-- [ ] T042 [US2] Prueba `reserva_lugar_para_cliente_con_membresia_activa_y_reduce_los_lugares`: `POST /reservations` → 201, `estado: 'activa'`, `asistencia: 'sin_registrar'`; `countActiveBySession` sube en 1. **Atiende**: US2-1, FR-003. **Verificación**: `npm test` en rojo.
-- [ ] T043 [US2] Prueba `rechaza_reserva_en_clase_llena`: con el cupo ocupado → 422 "Clase llena.". **Atiende**: US2-2, FR-004. **Verificación**: `npm test` en rojo.
-- [ ] T044 [US2] Prueba `rechaza_reserva_si_la_membresia_no_cubre_la_fecha_de_la_sesion`: cinco casos (sin membresía, vencida, suspendida, cancelada, y activa hoy pero que vence antes de la sesión) → 422 "El cliente no tiene una membresía vigente para la fecha de la clase.". **Atiende**: US2-3, FR-003, R-07. **Verificación**: `npm test` en rojo.
-- [ ] T045 [US2] Prueba `rechaza_reserva_de_cliente_inexistente_o_inactivo_y_en_clase_inactiva`:
+- [X] T042 [US2] Prueba `reserva_lugar_para_cliente_con_membresia_activa_y_reduce_los_lugares`: `POST /reservations` → 201, `estado: 'activa'`, `asistencia: 'sin_registrar'`; `countActiveBySession` sube en 1. **Atiende**: US2-1, FR-003. **Verificación**: `npm test` en rojo.
+- [X] T043 [US2] Prueba `rechaza_reserva_en_clase_llena`: con el cupo ocupado → 422 "Clase llena.". **Atiende**: US2-2, FR-004. **Verificación**: `npm test` en rojo.
+- [X] T044 [US2] Prueba `rechaza_reserva_si_la_membresia_no_cubre_la_fecha_de_la_sesion`: cinco casos (sin membresía, vencida, suspendida, cancelada, y activa hoy pero que vence antes de la sesión) → 422 "El cliente no tiene una membresía vigente para la fecha de la clase.". **Atiende**: US2-3, FR-003, R-07. **Verificación**: `npm test` en rojo.
+- [X] T045 [US2] Prueba `rechaza_reserva_de_cliente_inexistente_o_inactivo_y_en_clase_inactiva`:
   - Cliente inexistente o inactivo → 422 "Cliente no encontrado o inactivo.".
   - Clase inactiva → 422 "La clase está inactiva.".
 
   **Atiende**: US2-4, US1-12. **Verificación**: `npm test` en rojo.
-- [ ] T046 [US2] Prueba `rechaza_reserva_duplicada_del_mismo_cliente_en_la_sesion`: segunda reserva → 409 "El cliente ya tiene una reserva en esta clase.". **Atiende**: US2-5, FR-005. **Verificación**: `npm test` en rojo.
-- [ ] T047 [US2] Prueba `rechaza_reserva_que_se_empalma_con_otra_del_cliente_el_mismo_dia`:
+- [X] T046 [US2] Prueba `rechaza_reserva_duplicada_del_mismo_cliente_en_la_sesion`: segunda reserva → 409 "El cliente ya tiene una reserva en esta clase.". **Atiende**: US2-5, FR-005. **Verificación**: `npm test` en rojo.
+- [X] T047 [US2] Prueba `rechaza_reserva_que_se_empalma_con_otra_del_cliente_el_mismo_dia`:
   - 07:30 contra 07:00–07:45 → 422 "El cliente ya tiene una reserva en una clase que se empalma con este horario.".
   - Una clase contigua (07:45) y otra en distinta fecha sí se aceptan.
 
   **Atiende**: US2-6, FR-005, R-03. **Verificación**: `npm test` en rojo.
-- [ ] T048 [US2] Prueba `rechaza_reserva_en_sesion_terminada_o_fuera_de_la_ventana_de_7_dias`:
+- [X] T048 [US2] Prueba `rechaza_reserva_en_sesion_terminada_o_fuera_de_la_ventana_de_7_dias`:
   - Sesión terminada y sesión en hoy + 8 → 422 "Solo se puede reservar en clases que no han terminado y dentro de los próximos 7 días.".
   - La sesión de hoy + 7 se acepta.
   - Una fecha que no coincide con `dia_semana` → 400.
 
   **Atiende**: US2-7, FR-006, FR-002. **Verificación**: `npm test` en rojo.
-- [ ] T049 [US2] Prueba `reserva_en_sesion_en_curso_queda_con_asistencia_presente`:
+- [X] T049 [US2] Prueba `reserva_en_sesion_en_curso_queda_con_asistencia_presente`:
   - Con la hora fijada a la mitad de la clase → 201 con `asistencia: 'presente'` y `registrada_en_curso: true`.
   - En curso pero llena → "Clase llena.".
 
   **Atiende**: US2-8, FR-006. **Verificación**: `npm test` en rojo.
-- [ ] T050 [US2] Prueba `registra_auditoria_al_reservar`: existe una fila `reserva.registrar` con `id_registro` igual a `id_reserva` y el usuario que reservó. **Atiende**: FR-012. **Verificación**: `npm test` en rojo.
-- [ ] T107 [US2] Agregar a `backend/tests/reservations.test.js` la prueba `la_reserva_se_conserva_si_la_membresia_se_cancela_despues`: con una reserva activa, cambiar la membresía del cliente a `cancelada` (y en otro caso a `suspendida`) con `PATCH /memberships/:id/status`; la reserva sigue `activa` y ocupa su lugar. **Atiende**: caso límite "Membresía que cambia después de reservar" (hallazgo G2). **Verificación**: `npm test` en verde después de T056; no requiere código nuevo, porque ningún proceso cancela reservas automáticamente.
-- [ ] T051 [P] [US2] Crear `backend/tests/reservations-concurrency.test.js` con la prueba `veinte_reservas_simultaneas_por_el_ultimo_lugar_aceptan_solo_una`:
+- [X] T050 [US2] Prueba `registra_auditoria_al_reservar`: existe una fila `reserva.registrar` con `id_registro` igual a `id_reserva` y el usuario que reservó. **Atiende**: FR-012. **Verificación**: `npm test` en rojo.
+- [X] T107 [US2] Agregar a `backend/tests/reservations.test.js` la prueba `la_reserva_se_conserva_si_la_membresia_se_cancela_despues`: con una reserva activa, cambiar la membresía del cliente a `cancelada` (y en otro caso a `suspendida`) con `PATCH /memberships/:id/status`; la reserva sigue `activa` y ocupa su lugar. **Atiende**: caso límite "Membresía que cambia después de reservar" (hallazgo G2). **Verificación**: `npm test` en verde después de T056; no requiere código nuevo, porque ningún proceso cancela reservas automáticamente.
+- [X] T051 [P] [US2] Crear `backend/tests/reservations-concurrency.test.js` con la prueba `veinte_reservas_simultaneas_por_el_ultimo_lugar_aceptan_solo_una`:
   - Una clase con cupo 1 y 20 clientes con membresía vigente.
   - `Promise.all` de 20 `POST /reservations`.
   - Exactamente un 201; 19 respuestas 422 "Clase llena."; en la base hay 1 reserva activa.
 
   **Atiende**: US2-9, FR-004, SC-001, R-02. **Verificación**: `npm test` en rojo.
-- [ ] T052 [US2] Agregar a `backend/tests/classes-permissions.test.js` la prueba `entrenador_y_cliente_no_pueden_reservar`: `POST /reservations` → 403 "No tienes permiso para realizar esta acción.". **Atiende**: US2-10, FR-011, SC-006. **Verificación**: `npm test` en rojo.
+- [X] T052 [US2] Agregar a `backend/tests/classes-permissions.test.js` la prueba `entrenador_y_cliente_no_pueden_reservar`: `POST /reservations` → 403 "No tienes permiso para realizar esta acción.". **Atiende**: US2-10, FR-011, SC-006. **Verificación**: `npm test` en rojo.
 
 ### Implementación de la historia 2
 
-- [ ] T053 [P] [US2] Crear `backend/src/validators/reservations.validator.js` con:
+- [X] T053 [P] [US2] Crear `backend/src/validators/reservations.validator.js` con:
   - `createReservationRules`: `id_clase` e `id_cliente` enteros positivos; `fecha_sesion` con `isValidDate`.
   - `reservationIdParam`.
 
   **Atiende**: FR-002, FR-003. **Verificación**: casos 400 de T048 en verde después de T056.
-- [ ] T054 [US2] Ampliar `backend/src/models/reservation.model.js` con:
+- [X] T054 [US2] Ampliar `backend/src/models/reservation.model.js` con:
   - `create(datos, connection)`.
   - `findById(id, connection)`, que une la clase y el cliente y devuelve `ReservationView`.
   - `existsActive(idClase, fechaSesion, idCliente, connection)`.
   - `countClientOverlaps(idCliente, fechaSesion, inicioMin, finMin, connection)`: une `clases` y aplica `inicio_existente < fin_nuevo AND inicio_nuevo < fin_existente` sobre reservas activas.
 
   **Atiende**: FR-003, FR-005, R-03. **Verificación**: revisión de los parámetros; pruebas de US2 en verde después de T056.
-- [ ] T055 [US2] Crear `backend/src/services/reservations.service.js` con `createReservation({ id_clase, fecha_sesion, id_cliente }, user)` dentro de `withTransaction`. Pasos, en el orden de evaluación de `contracts/api.md`:
+- [X] T055 [US2] Crear `backend/src/services/reservations.service.js` con `createReservation({ id_clase, fecha_sesion, id_cliente }, user)` dentro de `withTransaction`. Pasos, en el orden de evaluación de `contracts/api.md`:
   1. Bloquear el cliente con `clientModel.lockById`.
   2. Bloquear la clase con `classModel.lockById`. Si no existe → 404; si está inactiva → 422.
   3. Validar que la fecha coincide con `dia_semana` (400).
@@ -393,15 +393,15 @@ se fija con `mock.timers.enable({ apis: ['Date'], now })` de `node:test`.
   11. Registrar la auditoría `reserva.registrar`.
 
   Traducir `ER_DUP_ENTRY` a 409 "El cliente ya tiene una reserva en esta clase.". **Atiende**: US2-1 a US2-9, FR-003 a FR-006, FR-012, R-02, R-07. **Verificación**: T042 a T051 en verde después de T056.
-- [ ] T056 [US2] Crear `backend/src/controllers/reservations.controller.js` con `create` (201). Registrar `POST /` con `authorize(ROLES.ADMIN, ROLES.RECEPTIONIST)` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T042 a T052 en verde.
-- [ ] T057 [P] [US2] Crear `frontend/src/api/reservations.js` con `createReservation(datos)`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T058.
-- [ ] T058 [P] [US2] Crear `frontend/src/tests/ReservationForm.test.jsx`, con la API simulada:
+- [X] T056 [US2] Crear `backend/src/controllers/reservations.controller.js` con `create` (201). Registrar `POST /` con `authorize(ROLES.ADMIN, ROLES.RECEPTIONIST)` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T042 a T052 en verde.
+- [X] T057 [P] [US2] Crear `frontend/src/api/reservations.js` con `createReservation(datos)`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T058.
+- [X] T058 [P] [US2] Crear `frontend/src/tests/ReservationForm.test.jsx`, con la API simulada:
   - `busca_cliente_y_envia_la_reserva`.
   - `muestra_clase_llena_cuando_el_servidor_la_rechaza`.
   - `muestra_el_mensaje_de_membresia_no_vigente`.
 
   **Atiende**: US2-1, US2-2, US2-3. **Verificación**: `cd frontend && npm test` en rojo hasta T059.
-- [ ] T059 [US2] Crear `frontend/src/components/ReservationForm.jsx`:
+- [X] T059 [US2] Crear `frontend/src/components/ReservationForm.jsx`:
   - Busca clientes con `listClients({ search })` de `frontend/src/api/clients.js`.
   - Envía `createReservation` con `id_clase` y `fecha_sesion` recibidos por props.
   - Muestra el mensaje del servidor con `Message`.

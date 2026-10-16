@@ -54,6 +54,19 @@ describe('clases grupales: permisos por rol', () => {
     }
   });
 
+  it('entrenador_y_cliente_no_pueden_reservar', async () => {
+    for (const rol of ['entrenador', 'cliente']) {
+      const response = await request(app)
+        .post('/api/reservations')
+        .set(bearer(tokens[rol]))
+        .send({ id_clase: clase.id_clase, fecha_sesion: '2026-10-20', id_cliente: 1 });
+      assert.equal(response.status, 403, `${rol} debe recibir 403 en POST /reservations`);
+      assert.equal(response.body.error.message, FORBIDDEN);
+    }
+    const sinSesion = await request(app).post('/api/reservations').send({});
+    assert.equal(sinSesion.status, 401);
+  });
+
   it('sin_sesion_las_rutas_de_clases_responden_401', async () => {
     for (const [ruta, enviar] of escrituras()) {
       const response = await enviar(undefined);

@@ -949,3 +949,34 @@ section + .card {
     animation: none;
   }
 }
+
+/* Reservas de clases grupales: formulario de reserva (US2) */
+.form-inline {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  max-width: 640px;
+}
+
+.result-list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.result-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+}
+
+@media (max-width: 480px) {
+  .form-inline {
+    grid-template-columns: 1fr;
+  }
+}
