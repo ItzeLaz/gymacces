@@ -18,6 +18,26 @@ Base: `http://localhost:3000/api`. Se mantienen las convenciones de los Sprints 
 **Mensajes**: todo `message` está en español y termina en punto (research R-08). Las pruebas
 comparan el texto exacto.
 
+**Errores de validación (400)**: `details` es un arreglo con un elemento por campo inválido, en el
+formato `[{ "field", "message" }]` que genera `backend/src/middlewares/validate.js`. El `message`
+general es "Revisa los datos marcados.":
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Revisa los datos marcados.",
+    "details": [
+      { "field": "nombre", "message": "El nombre es obligatorio." },
+      { "field": "duracion_minutos", "message": "La duración debe estar entre 15 y 240 minutos." }
+    ]
+  }
+}
+```
+
+En las tablas de errores, "en `details` de `campo`" significa el elemento de `details` cuyo `field`
+es ese campo.
+
 ## Matriz de permisos
 
 | Endpoint | Admin | Recep. | Entren. | Cliente |
@@ -122,10 +142,10 @@ Errores:
 
 | HTTP | Cuándo | `message` / detalle | Criterio |
 |------|--------|---------------------|----------|
-| 400 | Falta un campo o tiene un formato inválido | `details` por campo, por ejemplo `{ "nombre": "El nombre es obligatorio." }` | US1-2 |
-| 400 | `duracion_minutos` fuera de 15–240 | "La duración debe estar entre 15 y 240 minutos." | US1-3 |
-| 400 | `cupo_maximo` fuera de 1–100 | "El cupo debe estar entre 1 y 100 lugares." | US1-4 |
-| 400 | Termina después de la medianoche | "La clase debe terminar el mismo día." | US1-14 |
+| 400 | Falta un campo o tiene un formato inválido | Un elemento de `details` por campo, por ejemplo `[{ "field": "nombre", "message": "El nombre es obligatorio." }]` | US1-2 |
+| 400 | `duracion_minutos` fuera de 15–240 | En `details` de `duracion_minutos`: "La duración debe estar entre 15 y 240 minutos." | US1-3 |
+| 400 | `cupo_maximo` fuera de 1–100 | En `details` de `cupo_maximo`: "El cupo debe estar entre 1 y 100 lugares." | US1-4 |
+| 400 | Termina después de la medianoche (al registrar o al modificar) | En `details` de `duracion_minutos`: "La clase debe terminar el mismo día." | US1-14 |
 | 422 | El instructor no existe, está inactivo o no es entrenador | "El instructor debe ser un entrenador activo." | US1-6 |
 | 422 | El instructor tiene otra clase activa que se empalma ese día | "El instructor ya tiene una clase en ese horario." | US1-5 |
 
@@ -154,7 +174,7 @@ Cuerpo: `{ "estado": "inactiva" }`. 200 → `ClassView` con `estado: "inactiva"`
 
 | HTTP | Cuándo | `message` | Criterio |
 |------|--------|-----------|----------|
-| 400 | `estado` distinto de `inactiva` | `details.estado` | FR-001 |
+| 400 | `estado` distinto de `inactiva` | En `details` de `estado`: `El estado solo puede cambiar a "inactiva".` | FR-001 |
 | 422 | Tiene reservas activas en sesiones futuras | "No se puede desactivar una clase con reservas activas." | US1-11 |
 
 Una clase inactiva desaparece del horario y de `GET /classes` para recepción (US1, criterio 12).
@@ -204,7 +224,7 @@ Errores, en el orden en que se evalúan:
 
 | HTTP | Cuándo | `message` | Criterio |
 |------|--------|-----------|----------|
-| 400 | Formato inválido o la fecha no coincide con el día de la clase | `details` por campo | FR-002 |
+| 400 | Formato inválido o la fecha no coincide con el día de la clase | Un elemento de `details` por campo, por ejemplo `[{ "field": "fecha_sesion", "message": "…" }]` | FR-002 |
 | 404 | La clase no existe | "La clase no existe." | — |
 | 422 | La clase está inactiva | "La clase está inactiva." | US1-12 |
 | 422 | La sesión terminó o la fecha está fuera de `[hoy, hoy + 7]` | "Solo se puede reservar en clases que no han terminado y dentro de los próximos 7 días." | US2-7 |
@@ -232,7 +252,7 @@ Cuerpo: `{ "presente": true }` para marcar o `{ "presente": false }` para desmar
 
 | HTTP | Cuándo | `message` | Criterio |
 |------|--------|-----------|----------|
-| 400 | `presente` no es booleano | `details.presente` | — |
+| 400 | `presente` no es booleano | En `details` de `presente` | — |
 | 404 | La reserva no existe | "La reserva no existe." | — |
 | 422 | La reserva está cancelada | "El cliente no tiene una reserva activa en esta clase." | US5-4 |
 | 422 | Es antes de `hora_inicio` del día de la sesión | "La asistencia solo se puede registrar a partir de la hora de inicio de la clase." | US5-2 |
