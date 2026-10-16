@@ -18,6 +18,12 @@ controlar quién asiste ni evitar sobrecupo. Usuarios: administrador y recepció
   fecha y hora únicas? → A: Como clase semanal que se repite (por ejemplo, Spinning cada lunes a
   las 07:00); cada fecha es una sesión que se reserva por separado, con hasta 7 días de
   anticipación.
+- Q: ¿El instructor de una clase debe ser un usuario registrado con rol entrenador o basta con
+  escribir su nombre como texto? → A: Un usuario registrado, activo y con rol entrenador, que se
+  elige de una lista.
+- Q: Si un cliente sin reserva llega cuando la clase ya empezó y hay lugares, ¿recepción puede
+  registrarlo? → A: Sí, mientras la sesión está en curso y hay lugares; la reserva se crea con la
+  asistencia ya marcada como presente.
 
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
@@ -57,23 +63,28 @@ sistema lo rechaza.
 4. SI el cupo máximo es menor a 1 o mayor a 100, ENTONCES el sistema DEBE rechazar el registro y
    mostrar el mensaje "El cupo debe estar entre 1 y 100 lugares".
 5. SI el instructor ya tiene otra clase activa el mismo día de la semana cuyo horario se empalma
-   con el de la nueva clase, ENTONCES el sistema DEBE rechazar el registro y mostrar el mensaje
-   "El instructor ya tiene una clase en ese horario".
-6. CUANDO el administrador modifique el nombre, el instructor o aumente el cupo de una clase, el
+   con el de la clase que se registra o modifica, ENTONCES el sistema DEBE rechazar la operación y
+   mostrar el mensaje "El instructor ya tiene una clase en ese horario".
+6. SI el instructor elegido no existe, está inactivo o no tiene rol entrenador, ENTONCES el
+   sistema DEBE rechazar la operación y mostrar el mensaje "El instructor debe ser un entrenador
+   activo".
+7. CUANDO el administrador registre o modifique una clase, el sistema DEBE ofrecer como
+   instructores solo a los usuarios activos con rol entrenador.
+8. CUANDO el administrador modifique el nombre, el instructor o aumente el cupo de una clase, el
    sistema DEBE guardar el cambio y aplicarlo a todas las sesiones futuras.
-7. SI el administrador intenta reducir el cupo de una clase por debajo del número de reservas
+9. SI el administrador intenta reducir el cupo de una clase por debajo del número de reservas
    activas de alguna de sus sesiones futuras, ENTONCES el sistema DEBE rechazar el cambio y mostrar
    el mensaje "El cupo no puede ser menor que las reservas existentes (N)", donde N es el mayor
    número de reservas activas en una sesión futura.
-8. SI el administrador intenta cambiar el día, la hora de inicio o la duración de una clase que
+10. SI el administrador intenta cambiar el día, la hora de inicio o la duración de una clase que
    tiene reservas activas en sesiones futuras, ENTONCES el sistema DEBE rechazar el cambio y
    mostrar el mensaje "No se puede cambiar el horario de una clase con reservas activas".
-9. SI el administrador intenta desactivar una clase que tiene reservas activas en sesiones futuras,
+11. SI el administrador intenta desactivar una clase que tiene reservas activas en sesiones futuras,
    ENTONCES el sistema DEBE rechazar la desactivación y mostrar el mensaje "No se puede desactivar
    una clase con reservas activas".
-10. MIENTRAS una clase esté desactivada, el sistema DEBE excluirla del horario semanal y rechazar
+12. MIENTRAS una clase esté desactivada, el sistema DEBE excluirla del horario semanal y rechazar
     nuevas reservas en sus sesiones.
-11. SI un usuario con rol recepcionista, entrenador o cliente intenta registrar, modificar o
+13. SI un usuario con rol recepcionista, entrenador o cliente intenta registrar, modificar o
     desactivar una clase, ENTONCES el sistema DEBE rechazar la operación y mostrar el mensaje "No
     tienes permiso para realizar esta acción".
 
@@ -107,12 +118,16 @@ llena".
 6. SI el cliente ya tiene una reserva activa en otra sesión de la misma fecha cuyo horario se
    empalma con el de la sesión elegida, ENTONCES el sistema DEBE rechazar la reserva y mostrar el
    mensaje "El cliente ya tiene una reserva en una clase que se empalma con este horario".
-7. SI la sesión ya empezó o su fecha está a más de 7 días de la fecha actual, ENTONCES el sistema
+7. SI la sesión ya terminó o su fecha está a más de 7 días de la fecha actual, ENTONCES el sistema
    DEBE rechazar la reserva y mostrar el mensaje "Solo se puede reservar en clases que no han
-   empezado y dentro de los próximos 7 días".
-8. CUANDO dos reservas para el último lugar disponible de una sesión se registren al mismo tiempo,
+   terminado y dentro de los próximos 7 días".
+8. CUANDO recepción reserve un lugar para un cliente en una sesión en curso (entre su hora de
+   inicio y su hora de fin) que tenga lugares disponibles, el sistema DEBE registrar la reserva con
+   la asistencia ya marcada como presente y reducir en uno los lugares disponibles, aplicando las
+   mismas reglas de membresía, cliente, reserva duplicada y empalme que antes de la clase.
+9. CUANDO dos reservas para el último lugar disponible de una sesión se registren al mismo tiempo,
    el sistema DEBE aceptar solo una y rechazar la otra con el mensaje "Clase llena".
-9. SI un usuario con rol entrenador o cliente intenta registrar una reserva, ENTONCES el sistema
+10. SI un usuario con rol entrenador o cliente intenta registrar una reserva, ENTONCES el sistema
    DEBE rechazar la operación y mostrar el mensaje "No tienes permiso para realizar esta acción".
 
 ---
@@ -205,7 +220,7 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 ### Casos límite
 
 - **Clase llena**: la reserva se rechaza con "Clase llena" (US2, criterio 2), incluso cuando dos
-  personas intentan tomar el último lugar al mismo tiempo (US2, criterio 8).
+  personas intentan tomar el último lugar al mismo tiempo (US2, criterio 9).
 - **Membresía vencida o inexistente**: la reserva se rechaza si la membresía no está activa o no
   cubre la fecha de la sesión, aunque esté activa el día en que se hace la reserva (US2,
   criterio 3).
@@ -214,11 +229,14 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 - **Clases que se empalman**: dos sesiones se empalman si sus intervalos [inicio, inicio + duración)
   se cruzan; una clase que termina a las 08:00 y otra que empieza a las 08:00 no se empalman (US2,
   criterio 6).
-- **Cancelar una clase que ya empezó**: se rechaza (US3, criterio 2).
+- **Cancelar una reserva de una clase que ya empezó**: se rechaza (US3, criterio 2).
+- **Cliente que llega sin reserva a una clase en curso**: si hay lugares, recepción lo registra y
+  la reserva queda con la asistencia marcada; si la clase está llena o ya terminó, se rechaza (US2,
+  criterios 2, 7 y 8).
 - **Reducir el cupo por debajo de las reservas**: se rechaza indicando el número de reservas
-  existentes (US1, criterio 7).
+  existentes (US1, criterio 9).
 - **Cambiar el horario o desactivar una clase con reservas futuras**: se rechaza para no dejar
-  reservas en un horario distinto al que eligió el cliente (US1, criterios 8 y 9).
+  reservas en un horario distinto al que eligió el cliente (US1, criterios 10 y 11).
 - **Membresía que cambia después de reservar**: una reserva hecha cuando la membresía cubría la
   fecha de la sesión se conserva aunque después la membresía se suspenda o se cancele; recepción
   decide si cancela la reserva.
@@ -228,7 +246,7 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 ### Requisitos funcionales
 
 - **FR-001**: El sistema DEBE permitir que solo el administrador registre, modifique y desactive
-  clases con nombre, instructor, día de la semana, hora de inicio, duración (15 a 240 minutos) y
+  clases con nombre, instructor (usuario activo con rol entrenador), día de la semana, hora de inicio, duración (15 a 240 minutos) y
   cupo máximo (1 a 100 lugares).
 - **FR-002**: El sistema DEBE generar las sesiones de cada clase activa a partir de su día de la
   semana y hora, y DEBE controlar reservas, cupo y asistencia por sesión.
@@ -238,8 +256,9 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
   máximo, incluso con solicitudes simultáneas.
 - **FR-005**: El sistema DEBE impedir que un cliente tenga dos reservas activas en la misma sesión o
   en sesiones de la misma fecha cuyos horarios se empalmen.
-- **FR-006**: El sistema DEBE aceptar reservas solo para sesiones que no han empezado y que ocurren
-  dentro de los próximos 7 días.
+- **FR-006**: El sistema DEBE aceptar reservas solo para sesiones que no han terminado y que
+  ocurren dentro de los próximos 7 días; las reservas hechas durante una sesión en curso DEBEN
+  registrarse con la asistencia marcada como presente.
 - **FR-007**: El sistema DEBE permitir que el administrador y recepción cancelen reservas activas
   de sesiones que no han empezado, conservando la reserva cancelada en el historial.
 - **FR-008**: El sistema DEBE mostrar, para cada sesión, la lista de clientes con reserva activa,
@@ -259,7 +278,7 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 - **FR-013**: El sistema DEBE mostrar todos los mensajes de éxito y de rechazo en español con los
   textos definidos en los criterios de aceptación, sin revelar información técnica.
 - **FR-014**: El sistema DEBE usar la zona horaria del gimnasio para determinar fechas de sesión,
-  si una sesión ya empezó y el fin del día.
+  si una sesión ya empezó o terminó, y el fin del día.
 
 ### Entidades clave
 
@@ -269,8 +288,8 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 - **Sesión**: ocurrencia de una clase en una fecha concreta; se identifica por la clase y la fecha.
   Sus lugares disponibles son el cupo máximo menos las reservas activas.
 - **Reserva**: lugar apartado para un cliente en una sesión. Atributos: cliente, clase, fecha de la
-  sesión, estado (activa o cancelada), asistencia (sin registrar o presente), usuario y fecha de
-  registro, y usuario y fecha de cancelación o de asistencia cuando correspondan.
+  sesión, estado (activa o cancelada), asistencia (sin registrar o presente), si se registró
+  durante la sesión en curso, usuario y fecha de registro, y usuario y fecha de cancelación o de asistencia cuando correspondan.
 - **Cliente** y **Membresía**: entidades existentes de los Sprints 1 y 2; se consultan para validar
   que el cliente esté activo y tenga una membresía vigente en la fecha de la sesión.
 
@@ -294,7 +313,8 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 
 - La feature amplía el alcance del MVP; la justificación y el tratamiento de esa desviación están
   en la sección "Justificación de alcance".
-- El instructor es un usuario existente con rol entrenador y estado activo.
+- Los entrenadores que imparten clases se dan de alta con la gestión de usuarios existente (rol
+  entrenador); esta feature no les da acceso a ninguna función nueva.
 - Una membresía cubre una sesión si su estado es activa y la fecha de la sesión está entre su fecha
   de inicio y su fecha de fin, ambas incluidas. Un adeudo pendiente no impide reservar, igual que no
   impide el acceso (decisión del Sprint 2).
