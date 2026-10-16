@@ -20,8 +20,16 @@ Aplica a todos los archivos que producen los comandos `/speckit.constitution`, `
   - "Implementation Plan" → "Plan de implementación"
   - "Technical Context" → "Contexto técnico"
   - "Phase" → "Fase"
+  - "Acceptance Criteria (EARS)" → "Criterios de aceptación (EARS)"
 - Redacta las historias de usuario como "Como [rol], quiero [acción] para [beneficio]".
-- Redacta los escenarios de aceptación con "Dado / Cuando / Entonces" en lugar de "Given / When / Then".
+- Redacta los criterios de aceptación con los patrones EARS en español (principio VI de la constitución), no con "Dado / Cuando / Entonces" ni "Given / When / Then":
+  - Ubicuo: "El sistema DEBE [respuesta]."
+  - Cuando (evento): "Cuando [disparador], el sistema DEBE [respuesta]."
+  - Mientras (estado): "Mientras [estado], el sistema DEBE [respuesta]."
+  - Si... entonces (comportamiento no deseado): "Si [condición no deseada], entonces el sistema DEBE [respuesta]."
+  - Donde (característica opcional): "Donde [característica incluida], el sistema DEBE [respuesta]."
+- Cada criterio de aceptación describe un único comportamiento observable y verificable con una prueba.
+- Los specs anteriores a la constitución v2.1.0 (001-003) no se reescriben salvo que se modifiquen.
 - Escribe en español las preguntas de `/speckit.clarify`, sus opciones de respuesta y las recomendaciones.
 - No traduzcas estos marcadores estructurales, porque los comandos y scripts los buscan tal cual:
   - `[NEEDS CLARIFICATION]`, `[P]`, `[US1]`, `[US2]`, etc.

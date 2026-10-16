@@ -31,10 +31,20 @@
 
 **Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
 
-**Acceptance Scenarios**:
+**Acceptance Criteria (EARS)**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+<!--
+  Escribe cada criterio con un patrón EARS en español (principio VI de la constitución).
+  Un criterio = un comportamiento observable y verificable con una prueba.
+  - Ubicuo: "El sistema DEBE [respuesta]."
+  - Cuando (evento): "Cuando [disparador], el sistema DEBE [respuesta]."
+  - Mientras (estado): "Mientras [estado], el sistema DEBE [respuesta]."
+  - Si... entonces (no deseado): "Si [condición no deseada], entonces el sistema DEBE [respuesta]."
+  - Donde (opcional): "Donde [característica incluida], el sistema DEBE [respuesta]."
+-->
+
+1. Cuando [disparador], el sistema DEBE [respuesta esperada].
+2. Si [condición no deseada], entonces el sistema DEBE [respuesta esperada].
 
 ---
 
@@ -46,9 +56,9 @@
 
 **Independent Test**: [Describe how this can be tested independently]
 
-**Acceptance Scenarios**:
+**Acceptance Criteria (EARS)**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. Cuando [disparador], el sistema DEBE [respuesta esperada].
 
 ---
 
@@ -60,9 +70,9 @@
 
 **Independent Test**: [Describe how this can be tested independently]
 
-**Acceptance Scenarios**:
+**Acceptance Criteria (EARS)**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. Cuando [disparador], el sistema DEBE [respuesta esperada].
 
 ---
 
