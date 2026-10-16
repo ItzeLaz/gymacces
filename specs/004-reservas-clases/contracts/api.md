@@ -125,7 +125,7 @@ Errores:
 | 400 | Falta un campo o tiene un formato inválido | `details` por campo, por ejemplo `{ "nombre": "El nombre es obligatorio." }` | US1-2 |
 | 400 | `duracion_minutos` fuera de 15–240 | "La duración debe estar entre 15 y 240 minutos." | US1-3 |
 | 400 | `cupo_maximo` fuera de 1–100 | "El cupo debe estar entre 1 y 100 lugares." | US1-4 |
-| 400 | Termina después de la medianoche | "La clase debe terminar el mismo día." | research R-06 |
+| 400 | Termina después de la medianoche | "La clase debe terminar el mismo día." | US1-14 |
 | 422 | El instructor no existe, está inactivo o no es entrenador | "El instructor debe ser un entrenador activo." | US1-6 |
 | 422 | El instructor tiene otra clase activa que se empalma ese día | "El instructor ya tiene una clase en ese horario." | US1-5 |
 

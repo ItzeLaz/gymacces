@@ -87,6 +87,9 @@ sistema lo rechaza.
 13. SI un usuario con rol recepcionista, entrenador o cliente intenta registrar, modificar o
     desactivar una clase, ENTONCES el sistema DEBE rechazar la operación y mostrar el mensaje "No
     tienes permiso para realizar esta acción".
+14. SI la hora de inicio más la duración de una clase que se registra o modifica termina después de
+    las 24:00, ENTONCES el sistema DEBE rechazar la operación y mostrar el mensaje "La clase debe
+    terminar el mismo día".
 
 ---
 
@@ -246,8 +249,9 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 ### Requisitos funcionales
 
 - **FR-001**: El sistema DEBE permitir que solo el administrador registre, modifique y desactive
-  clases con nombre, instructor (usuario activo con rol entrenador), día de la semana, hora de inicio, duración (15 a 240 minutos) y
-  cupo máximo (1 a 100 lugares).
+  clases con nombre, instructor (usuario activo con rol entrenador), día de la semana, hora de
+  inicio, duración (15 a 240 minutos) y cupo máximo (1 a 100 lugares), y DEBE exigir que cada clase
+  termine el mismo día en que empieza (hora de inicio más duración hasta las 24:00).
 - **FR-002**: El sistema DEBE generar las sesiones de cada clase activa a partir de su día de la
   semana y hora, y DEBE controlar reservas, cupo y asistencia por sesión.
 - **FR-003**: El sistema DEBE permitir que el administrador y recepción registren reservas para

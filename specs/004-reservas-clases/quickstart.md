@@ -40,7 +40,7 @@ Resultado esperado: todas las pruebas en verde, incluidas las nuevas:
 | Archivo | Qué comprueba |
 |---------|---------------|
 | `backend/tests/sessions.unit.test.js` | Empalme semiabierto, estado de la sesión, ventana `[hoy, hoy + 7]`, fechas de sesión por día ISO |
-| `backend/tests/classes.test.js` | US1, criterios 1 a 12 |
+| `backend/tests/classes.test.js` | US1, criterios 1 a 12 y 14 |
 | `backend/tests/reservations.test.js` | US2, criterios 1 a 8, y US3, criterios 1 a 4 |
 | `backend/tests/reservations-concurrency.test.js` | US2, criterio 9, y SC-001: 20 solicitudes simultáneas por el último lugar → exactamente 1 aceptada |
 | `backend/tests/sessions.test.js` | US4, criterios 1 a 5 (lista, "Quedan X de Y lugares", canceladas excluidas, horario y "Llena") |

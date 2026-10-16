@@ -129,9 +129,9 @@ violaciones sin justificar.
 - El contrato sigue las convenciones existentes.
 - La estructura no crea carpetas nuevas en la raíz.
 
-El resultado se mantiene: aprobada con la desviación justificada del principio VIII. Queda una
-observación: la regla "la clase debe terminar el mismo día" (research R-06) no tiene criterio EARS
-en el spec. Se recomienda agregarla a la historia 1 antes de `/speckit-tasks` (principio VI).
+El resultado se mantiene: aprobada con la desviación justificada del principio VIII. La regla "la
+clase debe terminar el mismo día" (research R-06) ya tiene su criterio EARS en el spec (US1,
+criterio 14), como pide el principio VI.
 
 ## Estructura del proyecto
 

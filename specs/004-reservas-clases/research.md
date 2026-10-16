@@ -189,8 +189,7 @@ una sola fecha. Un gimnasio no programa clases grupales después de la medianoch
 **Alternativas descartadas**: permitir clases que crucen la medianoche obligaría a comparar
 intervalos entre dos fechas y a redefinir "el mismo día" de la asistencia.
 
-**Pendiente**: este rechazo no aparece en los criterios de aceptación del spec. Se recomienda
-agregarlo a la historia 1 como criterio EARS antes de `/speckit-tasks`.
+**Criterio de aceptación**: US1, criterio 14 del spec (agregado el 2026-10-16).
 
 ---
 

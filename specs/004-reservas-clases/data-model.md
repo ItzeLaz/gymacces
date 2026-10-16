@@ -108,7 +108,7 @@ Actividad grupal que se repite cada semana.
 
 Restricción adicional:
 - `chk_clases_mismo_dia`: `CHECK (TIME_TO_SEC(hora_inicio) + duracion_minutos * 60 <= 86400)`.
-  La clase termina el mismo día (research R-06).
+  La clase termina el mismo día (US1, criterio 14; research R-06).
 
 Índices:
 - `PRIMARY KEY (id_clase)`
