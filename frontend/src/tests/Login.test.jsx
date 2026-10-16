@@ -34,7 +34,7 @@ describe('pantalla de inicio de sesión', () => {
   it('muestra_error_si_los_campos_estan_vacios', async () => {
     mockFetch(200, {});
     renderLogin();
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     expect(await screen.findByText('El correo es obligatorio.')).toBeInTheDocument();
     expect(screen.getByText('La contraseña es obligatoria.')).toBeInTheDocument();
@@ -46,9 +46,9 @@ describe('pantalla de inicio de sesión', () => {
       error: { code: 'INVALID_CREDENTIALS', message: 'Correo o contraseña incorrectos.' },
     });
     renderLogin();
-    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'a@b.com' } });
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), { target: { value: 'a@b.com' } });
     fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'Mala1234' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Correo o contraseña incorrectos.');
   });
@@ -62,11 +62,24 @@ describe('pantalla de inicio de sesión', () => {
       },
     });
     renderLogin();
-    fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 'ana@gym.local' } });
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), { target: { value: 'ana@gym.local' } });
     fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'Clave2026' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     expect(await screen.findByText('Página de inicio')).toBeInTheDocument();
     expect(sessionStorage.getItem('gym_token')).toBe('token-de-prueba');
+  });
+
+  it('permite_mostrar_y_ocultar_la_contrasena', () => {
+    mockFetch(200, {});
+    renderLogin();
+    const input = screen.getByLabelText('Contraseña');
+    expect(input).toHaveAttribute('type', 'password');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar contraseña' }));
+    expect(input).toHaveAttribute('type', 'text');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar contraseña' }));
+    expect(input).toHaveAttribute('type', 'password');
   });
 });
