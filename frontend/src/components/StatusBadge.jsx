@@ -3,6 +3,7 @@ const LABELS = {
   activo: 'Activo',
   inactivo: 'Inactivo',
   activa: 'Activa',
+  inactiva: 'Inactiva',
   vencida: 'Vencida',
   suspendida: 'Suspendida',
   cancelada: 'Cancelada',

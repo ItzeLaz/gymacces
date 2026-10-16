@@ -445,7 +445,8 @@ section + .card {
   color: var(--color-success-text);
 }
 
-.badge-inactivo {
+.badge-inactivo,
+.badge-inactiva {
   background: var(--color-inactive-bg);
   color: var(--color-inactive-text);
 }

@@ -21,6 +21,8 @@ import Debts from './pages/Debts.jsx';
 import Accesses from './pages/Accesses.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Training from './pages/Training.jsx';
+import Classes from './pages/Classes.jsx';
+import ClassForm from './pages/ClassForm.jsx';
 
 const ADMIN = ['administrador'];
 const CLIENT_WRITERS = ['administrador', 'recepcionista'];
@@ -70,6 +72,9 @@ export default function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="payments" element={<Payments />} />
             <Route path="debts" element={<Debts />} />
+            <Route path="classes" element={<Classes />} />
+            <Route path="classes/new" element={<ClassForm />} />
+            <Route path="classes/:id" element={<ClassForm />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={FRONT_DESK} />}>

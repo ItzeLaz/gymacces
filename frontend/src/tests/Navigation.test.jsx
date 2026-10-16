@@ -38,8 +38,28 @@ describe('navegación por módulos', () => {
       '/memberships',
       '/payments',
       '/access',
+      '/classes',
       '/training',
     ]);
+  });
+
+  it('solo_el_administrador_ve_la_opcion_clases', () => {
+    expect(getMenu('administrador')).toContainEqual({ to: '/classes', label: 'Clases' });
+    for (const rol of ['recepcionista', 'entrenador', 'cliente']) {
+      expect(getMenu(rol).map((item) => item.to), `${rol} no debe ver Clases`).not.toContain('/classes');
+    }
+  });
+
+  it('recepcionista_que_abre_classes_ve_acceso_restringido', () => {
+    auth.user = { nombre: 'Recepción', rol: 'recepcionista' };
+    renderAt('/classes');
+    expect(screen.getByText('Acceso restringido')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Clases' })).not.toBeInTheDocument();
+  });
+
+  it('el_administrador_abre_el_catalogo_de_clases', async () => {
+    renderAt('/classes');
+    expect(await screen.findByRole('heading', { name: 'Clases' })).toBeInTheDocument();
   });
 
   it('ningun_rol_que_no_sea_administrador_ve_usuarios_pagos_ni_dashboard', () => {

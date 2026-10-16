@@ -18,6 +18,7 @@ const MENU = {
     { to: '/memberships', label: 'Membresías' },
     { to: '/payments', label: 'Pagos' },
     { to: '/access', label: 'Acceso' },
+    { to: '/classes', label: 'Clases' },
     { to: '/training', label: 'Entrenamiento' },
   ],
   recepcionista: [

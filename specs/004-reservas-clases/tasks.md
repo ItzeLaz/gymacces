@@ -209,35 +209,35 @@ activo, sin empalmes ni cupos inválidos.
 
 Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por criterio EARS.
 
-- [ ] T017 [US1] Prueba `registra_clase_valida_como_activa_con_mensaje_clase_registrada`: `POST /classes` → 201, `estado: 'activa'`, `message: 'Clase registrada.'`, y la clase aparece en `GET /classes`. **Atiende**: US1-1, FR-001. **Verificación**: `npm test` en rojo.
-- [ ] T018 [US1] Prueba `rechaza_clase_sin_datos_obligatorios_indicando_el_campo`: un caso por campo faltante; 400 con `details.<campo>`. **Atiende**: US1-2. **Verificación**: `npm test` en rojo.
-- [ ] T019 [US1] Prueba `rechaza_duracion_fuera_de_15_a_240_minutos`: 14 y 241 → 400 "La duración debe estar entre 15 y 240 minutos."; 15 y 240 se aceptan. **Atiende**: US1-3. **Verificación**: `npm test` en rojo.
-- [ ] T020 [US1] Prueba `rechaza_cupo_fuera_de_1_a_100_lugares`: 0 y 101 → 400 "El cupo debe estar entre 1 y 100 lugares."; 1 y 100 se aceptan. **Atiende**: US1-4. **Verificación**: `npm test` en rojo.
-- [ ] T021 [US1] Prueba `rechaza_clase_si_el_instructor_tiene_otra_que_se_empalma`:
+- [X] T017 [US1] Prueba `registra_clase_valida_como_activa_con_mensaje_clase_registrada`: `POST /classes` → 201, `estado: 'activa'`, `message: 'Clase registrada.'`, y la clase aparece en `GET /classes`. **Atiende**: US1-1, FR-001. **Verificación**: `npm test` en rojo.
+- [X] T018 [US1] Prueba `rechaza_clase_sin_datos_obligatorios_indicando_el_campo`: un caso por campo faltante; 400 con `details.<campo>`. **Atiende**: US1-2. **Verificación**: `npm test` en rojo.
+- [X] T019 [US1] Prueba `rechaza_duracion_fuera_de_15_a_240_minutos`: 14 y 241 → 400 "La duración debe estar entre 15 y 240 minutos."; 15 y 240 se aceptan. **Atiende**: US1-3. **Verificación**: `npm test` en rojo.
+- [X] T020 [US1] Prueba `rechaza_cupo_fuera_de_1_a_100_lugares`: 0 y 101 → 400 "El cupo debe estar entre 1 y 100 lugares."; 1 y 100 se aceptan. **Atiende**: US1-4. **Verificación**: `npm test` en rojo.
+- [X] T021 [US1] Prueba `rechaza_clase_si_el_instructor_tiene_otra_que_se_empalma`:
   - Al registrar, 07:30 contra 07:00–07:45 → 422 "El instructor ya tiene una clase en ese horario.".
   - Al modificar, mover otra clase a ese horario → mismo error.
   - Una clase contigua (07:45) sí se acepta.
 
   **Atiende**: US1-5, R-03. **Verificación**: `npm test` en rojo.
-- [ ] T022 [US1] Prueba `rechaza_instructor_inexistente_inactivo_o_sin_rol_entrenador`: tres casos → 422 "El instructor debe ser un entrenador activo.". **Atiende**: US1-6. **Verificación**: `npm test` en rojo.
-- [ ] T023 [US1] Prueba `lista_de_instructores_solo_incluye_entrenadores_activos`: `GET /classes/instructors` no incluye administradores, recepcionistas ni entrenadores inactivos. **Atiende**: US1-7. **Verificación**: `npm test` en rojo.
-- [ ] T024 [US1] Prueba `modificar_nombre_instructor_o_aumentar_cupo_se_aplica_a_sesiones_futuras`: `PATCH /classes/:id` → 200 con los valores nuevos, aunque la clase tenga reservas futuras. **Atiende**: US1-8. **Verificación**: `npm test` en rojo.
-- [ ] T025 [US1] Prueba `rechaza_reducir_cupo_por_debajo_de_las_reservas_existentes`:
+- [X] T022 [US1] Prueba `rechaza_instructor_inexistente_inactivo_o_sin_rol_entrenador`: tres casos → 422 "El instructor debe ser un entrenador activo.". **Atiende**: US1-6. **Verificación**: `npm test` en rojo.
+- [X] T023 [US1] Prueba `lista_de_instructores_solo_incluye_entrenadores_activos`: `GET /classes/instructors` no incluye administradores, recepcionistas ni entrenadores inactivos. **Atiende**: US1-7. **Verificación**: `npm test` en rojo.
+- [X] T024 [US1] Prueba `modificar_nombre_instructor_o_aumentar_cupo_se_aplica_a_sesiones_futuras`: `PATCH /classes/:id` → 200 con los valores nuevos, aunque la clase tenga reservas futuras. **Atiende**: US1-8. **Verificación**: `npm test` en rojo.
+- [X] T025 [US1] Prueba `rechaza_reducir_cupo_por_debajo_de_las_reservas_existentes`:
   - Con 2 reservas activas en una sesión futura, el cupo 1 → 422 "El cupo no puede ser menor que las reservas existentes (2).".
   - Las reservas canceladas y las de sesiones pasadas no cuentan.
 
   **Atiende**: US1-9, FR-010. **Verificación**: `npm test` en rojo.
-- [ ] T026 [US1] Prueba `rechaza_cambiar_horario_de_clase_con_reservas_activas`: cambiar `dia_semana`, `hora_inicio` o `duracion_minutos` → 422 "No se puede cambiar el horario de una clase con reservas activas."; sin reservas activas futuras, el cambio se acepta. **Atiende**: US1-10, FR-010. **Verificación**: `npm test` en rojo.
-- [ ] T027 [US1] Prueba `rechaza_desactivar_clase_con_reservas_activas`: `PATCH /classes/:id/status` → 422 "No se puede desactivar una clase con reservas activas."; sin reservas futuras → 200 `estado: 'inactiva'`. **Atiende**: US1-11, FR-010. **Verificación**: `npm test` en rojo.
-- [ ] T028 [US1] Prueba `clase_desactivada_no_aparece_para_recepcion`: `GET /classes` como recepcionista no la incluye; el administrador la ve con `?estado=inactiva`. **Atiende**: US1-12 (las partes del horario y de la reserva se comprueban en T060 y T045). **Verificación**: `npm test` en rojo.
-- [ ] T029 [US1] Prueba `rechaza_clase_que_termina_despues_de_la_medianoche`: 23:30 + 45 min → 400 "La clase debe terminar el mismo día."; 23:00 + 60 min se acepta. **Atiende**: US1-14, R-06. **Verificación**: `npm test` en rojo.
-- [ ] T030 [P] [US1] Crear `backend/tests/classes-permissions.test.js` con la prueba `solo_el_administrador_registra_modifica_o_desactiva_clases`: recepcionista, entrenador y cliente → 403 "No tienes permiso para realizar esta acción." en `POST /classes`, `PATCH /classes/:id`, `PATCH /classes/:id/status` y `GET /classes/instructors`; sin token → 401. **Atiende**: US1-13, FR-011. **Verificación**: `npm test` en rojo.
-- [ ] T106 [US1] Agregar a `backend/tests/classes.test.js` la prueba `registra_auditoria_al_crear_modificar_y_desactivar_clases`: después de `POST /classes`, `PATCH /classes/:id` y `PATCH /classes/:id/status`, la tabla `auditoria` tiene una fila `clase.crear`, una `clase.modificar` (con la descripción de los campos con su valor anterior y el nuevo) y una `clase.desactivar`, con `entidad = 'clases'`, `id_registro` igual a `id_clase` e `id_usuario` del administrador. **Atiende**: FR-012 (hallazgo G1). **Verificación**: `npm test` en rojo.
-- [ ] T108 [US1] Agregar a `backend/tests/classes.test.js` la prueba `modificar_clase_cuyo_entrenador_se_desactivo_sin_cambiar_instructor_se_acepta`: con la clase creada y su entrenador desactivado después, `PATCH /classes/:id` con solo `nombre` → 200; cambiar a otro instructor activo → 200; cambiar a un instructor inactivo → 422 "El instructor debe ser un entrenador activo.". **Atiende**: supuesto del spec sobre entrenadores desactivados, US1-6 (hallazgo U3). **Verificación**: `npm test` en rojo.
+- [X] T026 [US1] Prueba `rechaza_cambiar_horario_de_clase_con_reservas_activas`: cambiar `dia_semana`, `hora_inicio` o `duracion_minutos` → 422 "No se puede cambiar el horario de una clase con reservas activas."; sin reservas activas futuras, el cambio se acepta. **Atiende**: US1-10, FR-010. **Verificación**: `npm test` en rojo.
+- [X] T027 [US1] Prueba `rechaza_desactivar_clase_con_reservas_activas`: `PATCH /classes/:id/status` → 422 "No se puede desactivar una clase con reservas activas."; sin reservas futuras → 200 `estado: 'inactiva'`. **Atiende**: US1-11, FR-010. **Verificación**: `npm test` en rojo.
+- [X] T028 [US1] Prueba `clase_desactivada_no_aparece_para_recepcion`: `GET /classes` como recepcionista no la incluye; el administrador la ve con `?estado=inactiva`. **Atiende**: US1-12 (las partes del horario y de la reserva se comprueban en T060 y T045). **Verificación**: `npm test` en rojo.
+- [X] T029 [US1] Prueba `rechaza_clase_que_termina_despues_de_la_medianoche`: 23:30 + 45 min → 400 "La clase debe terminar el mismo día."; 23:00 + 60 min se acepta. **Atiende**: US1-14, R-06. **Verificación**: `npm test` en rojo.
+- [X] T030 [P] [US1] Crear `backend/tests/classes-permissions.test.js` con la prueba `solo_el_administrador_registra_modifica_o_desactiva_clases`: recepcionista, entrenador y cliente → 403 "No tienes permiso para realizar esta acción." en `POST /classes`, `PATCH /classes/:id`, `PATCH /classes/:id/status` y `GET /classes/instructors`; sin token → 401. **Atiende**: US1-13, FR-011. **Verificación**: `npm test` en rojo.
+- [X] T106 [US1] Agregar a `backend/tests/classes.test.js` la prueba `registra_auditoria_al_crear_modificar_y_desactivar_clases`: después de `POST /classes`, `PATCH /classes/:id` y `PATCH /classes/:id/status`, la tabla `auditoria` tiene una fila `clase.crear`, una `clase.modificar` (con la descripción de los campos con su valor anterior y el nuevo) y una `clase.desactivar`, con `entidad = 'clases'`, `id_registro` igual a `id_clase` e `id_usuario` del administrador. **Atiende**: FR-012 (hallazgo G1). **Verificación**: `npm test` en rojo.
+- [X] T108 [US1] Agregar a `backend/tests/classes.test.js` la prueba `modificar_clase_cuyo_entrenador_se_desactivo_sin_cambiar_instructor_se_acepta`: con la clase creada y su entrenador desactivado después, `PATCH /classes/:id` con solo `nombre` → 200; cambiar a otro instructor activo → 200; cambiar a un instructor inactivo → 422 "El instructor debe ser un entrenador activo.". **Atiende**: supuesto del spec sobre entrenadores desactivados, US1-6 (hallazgo U3). **Verificación**: `npm test` en rojo.
 
 ### Implementación de la historia 1
 
-- [ ] T031 [P] [US1] Crear `backend/src/validators/classes.validator.js` siguiendo `validators/common.js`. Exporta:
+- [X] T031 [P] [US1] Crear `backend/src/validators/classes.validator.js` siguiendo `validators/common.js`. Exporta:
   - `createClassRules`:
     - `nombre`: obligatorio, sin espacios sobrantes, 1 a 80 caracteres.
     - `id_instructor`: entero positivo.
@@ -251,7 +251,7 @@ Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por c
   - `classIdParam`.
 
   **Atiende**: US1-2, US1-3, US1-4, US1-14, R-06. **Verificación**: T018, T019, T020 y T029 en verde después de T035.
-- [ ] T032 [US1] Ampliar `backend/src/models/class.model.js` con:
+- [X] T032 [US1] Ampliar `backend/src/models/class.model.js` con:
   - `create(datos, connection)` y `update(id, campos, connection)`.
   - `list({ estado }, connection)`, ordenada por `dia_semana`, `hora_inicio` y `nombre`.
   - `listActiveTrainers(connection)`: solo `rol = 'entrenador' AND estado = 'activo'`, ordenados por nombre.
@@ -259,12 +259,12 @@ Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por c
   - `countInstructorOverlaps(idInstructor, diaSemana, inicioMin, finMin, excluirId, connection)`: clases activas que cumplen `inicio_existente < fin_nuevo AND inicio_nuevo < fin_existente`.
 
   **Atiende**: FR-001, US1-5, US1-6, US1-7, R-03. **Verificación**: revisión de los parámetros (sin concatenar valores); pruebas de US1 en verde después de T035.
-- [ ] T033 [US1] Agregar a `backend/src/models/reservation.model.js` dos funciones. Las dos reciben `hoy` y `minutosAhora` como parámetros, sin `NOW()`. Una sesión futura es `fecha_sesion > hoy`, o `fecha_sesion = hoy` con `hora_inicio + duracion` mayor que `minutosAhora`:
+- [X] T033 [US1] Agregar a `backend/src/models/reservation.model.js` dos funciones. Las dos reciben `hoy` y `minutosAhora` como parámetros, sin `NOW()`. Una sesión futura es `fecha_sesion > hoy`, o `fecha_sesion = hoy` con `hora_inicio + duracion` mayor que `minutosAhora`:
   - `maxActiveInFutureSessions(idClase, hoy, minutosAhora, connection)`: el mayor `COUNT(*)` de reservas activas agrupando por `fecha_sesion` entre las sesiones futuras.
   - `countActiveInFutureSessions(idClase, hoy, minutosAhora, connection)`.
 
   **Atiende**: US1-9, US1-10, US1-11, FR-010, R-05. **Verificación**: T025, T026 y T027 en verde después de T035.
-- [ ] T034 [US1] Crear `backend/src/services/classes.service.js` con:
+- [X] T034 [US1] Crear `backend/src/services/classes.service.js` con:
   - `listClasses(filtros, user)`: el recepcionista solo recibe las activas.
   - `listInstructors()`.
   - `createClass(datos, user)`.
@@ -281,34 +281,34 @@ Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por c
   7. Registrar la auditoría con `clase.crear`, `clase.modificar` (campos con su valor anterior y el nuevo) o `clase.desactivar`.
 
   Devuelve un `ClassView` con `hora_fin` calculada. **Atiende**: US1-1 a US1-12, US1-14, FR-001, FR-010, FR-012. **Verificación**: pruebas de US1 (incluidas T106 y T108) en verde después de T035.
-- [ ] T035 [US1] Crear `backend/src/controllers/classes.controller.js`, con `list`, `instructors`, `create` (201 con `message: 'Clase registrada.'`), `update` y `deactivate`. Registrar las rutas en `backend/src/routes/classes.routes.js`:
+- [X] T035 [US1] Crear `backend/src/controllers/classes.controller.js`, con `list`, `instructors`, `create` (201 con `message: 'Clase registrada.'`), `update` y `deactivate`. Registrar las rutas en `backend/src/routes/classes.routes.js`:
   - `GET /` (administrador y recepcionista).
   - `GET /instructors` (administrador), declarada antes de `/:id`.
   - `POST /`, `PATCH /:id` y `PATCH /:id/status` (administrador).
 
   **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T017 a T030, T106 y T108 en verde.
-- [ ] T036 [P] [US1] Crear `frontend/src/api/classes.js` con `listClasses(estado)`, `listInstructors()`, `createClass(datos)`, `updateClass(id, datos)` y `deactivateClass(id)`, siguiendo el patrón de `frontend/src/api/membershipTypes.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T037.
-- [ ] T037 [P] [US1] Crear `frontend/src/tests/ClassForm.test.jsx`, con la API simulada:
+- [X] T036 [P] [US1] Crear `frontend/src/api/classes.js` con `listClasses(estado)`, `listInstructors()`, `createClass(datos)`, `updateClass(id, datos)` y `deactivateClass(id)`, siguiendo el patrón de `frontend/src/api/membershipTypes.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T037.
+- [X] T037 [P] [US1] Crear `frontend/src/tests/ClassForm.test.jsx`, con la API simulada:
   - `muestra_solo_los_entrenadores_activos_en_el_selector`.
   - `envia_la_clase_y_muestra_clase_registrada`.
   - `muestra_el_mensaje_de_error_del_servidor` (por ejemplo, "El instructor ya tiene una clase en ese horario.").
   - `muestra_los_dias_en_espanol`.
 
   **Atiende**: US1-1, US1-5, US1-7. **Verificación**: `cd frontend && npm test` en rojo hasta T038.
-- [ ] T038 [US1] Crear `frontend/src/pages/ClassForm.jsx`, para alta y edición:
+- [X] T038 [US1] Crear `frontend/src/pages/ClassForm.jsx`, para alta y edición:
   - Campos: nombre, selector de instructor, día de la semana (lunes a domingo, con valor 1 a 7), hora de inicio, duración y cupo.
   - Muestra los mensajes con `Message`.
   - En modo edición, carga la clase.
 
   **Atiende**: US1-1, US1-8, principio XIV. **Verificación**: T037 en verde.
-- [ ] T039 [P] [US1] Crear `frontend/src/pages/Classes.jsx`:
+- [X] T039 [P] [US1] Crear `frontend/src/pages/Classes.jsx`:
   - Lista con día, hora de inicio y de fin, instructor, cupo y estado (`StatusBadge`).
   - Filtro por estado.
   - Botones "Editar" y "Desactivar"; este último pide confirmación con `ConfirmDialog` y muestra el mensaje del servidor si se rechaza.
 
   **Atiende**: US1-11, US1-12, principio XIV. **Verificación**: revisión manual (escenario 1 de `quickstart.md`).
-- [ ] T040 [US1] Agregar las rutas `classes`, `classes/new` y `classes/:id` bajo `ProtectedRoute roles={ADMIN}` en `frontend/src/App.jsx`. Agregar `{ to: '/classes', label: 'Clases' }` solo al menú del administrador en `frontend/src/components/Navbar.jsx`. **Atiende**: FR-011. **Verificación**: `cd frontend && npm test` en verde.
-- [ ] T041 [US1] Actualizar `frontend/src/tests/Navigation.test.jsx`: el menú del administrador incluye "Clases"; recepcionista, entrenador y cliente no la ven. **Atiende**: FR-011. **Verificación**: `cd frontend && npm test` en verde.
+- [X] T040 [US1] Agregar las rutas `classes`, `classes/new` y `classes/:id` bajo `ProtectedRoute roles={ADMIN}` en `frontend/src/App.jsx`. Agregar `{ to: '/classes', label: 'Clases' }` solo al menú del administrador en `frontend/src/components/Navbar.jsx`. **Atiende**: FR-011. **Verificación**: `cd frontend && npm test` en verde.
+- [X] T041 [US1] Actualizar `frontend/src/tests/Navigation.test.jsx`: el menú del administrador incluye "Clases"; recepcionista, entrenador y cliente no la ven. **Atiende**: FR-011. **Verificación**: `cd frontend && npm test` en verde.
 
 **Punto de control**: la historia 1 funciona sola: el horario semanal se registra, se modifica y se
 desactiva con todas sus reglas.

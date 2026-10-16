@@ -24,7 +24,7 @@ export function getStoredToken() {
   }
 }
 
-// Envía una solicitud a la API y devuelve { data, meta }
+// Envía una solicitud a la API y devuelve { data, meta, message }
 export async function apiRequest(path, { method = 'GET', body, token = getStoredToken(), query } = {}) {
   const url = new URL(`${API_URL}${path}`);
   if (query) {
@@ -64,7 +64,7 @@ export async function apiRequest(path, { method = 'GET', body, token = getStored
     throw apiError;
   }
 
-  return { data: payload?.data, meta: payload?.meta };
+  return { data: payload?.data, meta: payload?.meta, message: payload?.message };
 }
 
 // Convierte los detalles de validación en { campo: mensaje }
