@@ -9,3 +9,11 @@ export const createReservationRules = [
 ];
 
 export const reservationIdParam = [idParam()];
+
+// Marcar (true) o desmarcar (false) la asistencia; solo se acepta un booleano JSON (FR-009)
+export const attendanceRules = [
+  idParam(),
+  body('presente')
+    .custom((value) => typeof value === 'boolean')
+    .withMessage('Indica si el cliente está presente con true o false.'),
+];

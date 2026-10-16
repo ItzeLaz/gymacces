@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getSessionDetail } from '../api/classes.js';
-import { cancelReservation } from '../api/reservations.js';
+import { cancelReservation, setAttendance } from '../api/reservations.js';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import Message from '../components/Message.jsx';
 import ReservationForm from '../components/ReservationForm.jsx';
-import { formatWeekdayDay } from '../utils/dates.js';
+import { formatWeekdayDay, todayIso } from '../utils/dates.js';
 
-// Detalle de una sesión: lugares, reservados, reserva (US2), cancelación (US3) y consulta (US4)
+// Detalle de una sesión: lugares, reservados, reserva (US2), cancelación (US3), consulta (US4) y
+// asistencia (US5)
 export default function SessionDetail() {
   const { idClase, fecha } = useParams();
   const [detail, setDetail] = useState(null);
@@ -44,6 +45,20 @@ export default function SessionDetail() {
     }
   };
 
+  // Un clic por cliente marca o desmarca su asistencia (US5, criterios 1 y 5; SC-005)
+  const toggleAttendance = async (reserva) => {
+    setBusy(true);
+    try {
+      await setAttendance(reserva.id_reserva, reserva.asistencia !== 'presente');
+      setMessage({ type: 'success', text: '' });
+      await load();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (!detail) {
     return (
       <section>
@@ -58,6 +73,12 @@ export default function SessionDetail() {
   const terminada = sesion.estado_sesion === 'terminada';
   // Solo se cancela antes de que empiece la clase (US3, criterio 2)
   const cancelable = sesion.estado_sesion === 'pendiente';
+  // La asistencia se marca el mismo día de la sesión, desde su hora de inicio (US5, criterios 2 y 3)
+  const hoy = todayIso();
+  const asistenciaAbierta = sesion.fecha_sesion === hoy && sesion.estado_sesion !== 'pendiente';
+  let avisoAsistencia = '';
+  if (sesion.fecha_sesion < hoy) avisoAsistencia = 'La asistencia solo se puede registrar el mismo día de la clase.';
+  else if (!asistenciaAbierta) avisoAsistencia = `La asistencia se podrá marcar a partir de las ${sesion.hora_inicio}.`;
 
   return (
     <section>
@@ -86,6 +107,7 @@ export default function SessionDetail() {
       )}
 
       <h2>Reservados</h2>
+      {avisoAsistencia && reservas.length > 0 && <p className="field-hint">{avisoAsistencia}</p>}
       {reservas.length === 0 ? (
         <p role="status">Todavía no hay reservas en esta sesión.</p>
       ) : (
@@ -94,6 +116,7 @@ export default function SessionDetail() {
             <tr>
               <th scope="col">Cliente</th>
               <th scope="col">Asistencia</th>
+              <th scope="col">Presente</th>
               {cancelable && <th scope="col">Acciones</th>}
             </tr>
           </thead>
@@ -104,6 +127,15 @@ export default function SessionDetail() {
                   {reserva.cliente.apellido}, {reserva.cliente.nombre}
                 </td>
                 <td>{reserva.asistencia_mostrada}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    aria-label={`Presente: ${reserva.cliente.nombre} ${reserva.cliente.apellido}`}
+                    checked={reserva.asistencia === 'presente'}
+                    disabled={!asistenciaAbierta || busy}
+                    onChange={() => toggleAttendance(reserva)}
+                  />
+                </td>
                 {cancelable && (
                   <td className="actions">
                     <button

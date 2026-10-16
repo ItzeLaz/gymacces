@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import SessionDetail from '../pages/SessionDetail.jsx';
@@ -31,12 +31,18 @@ const detalle = (estadoSesion = 'pendiente', reservas = [
 const respuesta = (status, body) => ({ ok: status >= 200 && status < 300, status, json: () => Promise.resolve(body) });
 
 // La API simulada: detalle de la sesión, búsqueda de clientes y POST de reserva
-function mockApi(estadoSesion = 'pendiente', cancelacion = respuesta(200, { data: { id_reserva: 2, estado: 'cancelada' } })) {
+function mockApi(
+  estadoSesion = 'pendiente',
+  cancelacion = respuesta(200, { data: { id_reserva: 2, estado: 'cancelada' } }),
+  asistencia = respuesta(200, { data: { id_reserva: 2, asistencia: 'presente' } }),
+  reservas = undefined,
+) {
   globalThis.fetch = vi.fn((url, options = {}) => {
     const ruta = String(url);
     if (options.method === 'POST') return Promise.resolve(respuesta(201, { data: { id_reserva: 3 } }));
+    if (options.method === 'PATCH' && ruta.includes('/attendance')) return Promise.resolve(asistencia);
     if (options.method === 'PATCH') return Promise.resolve(cancelacion);
-    if (ruta.includes('/sessions/')) return Promise.resolve(respuesta(200, { data: detalle(estadoSesion) }));
+    if (ruta.includes('/sessions/')) return Promise.resolve(respuesta(200, { data: detalle(estadoSesion, reservas) }));
     if (ruta.includes('/clients')) {
       return Promise.resolve(
         respuesta(200, { data: [{ id_cliente: 50, nombre: 'Zoe', apellido: 'Méndez' }], meta: { page: 1, limit: 10, total: 1 } }),
@@ -61,6 +67,7 @@ const llamadasAlDetalle = () =>
 
 describe('detalle de sesión', () => {
   beforeEach(() => vi.restoreAllMocks());
+  afterEach(() => vi.useRealTimers());
 
   it('muestra_quedan_x_de_y_lugares', async () => {
     mockApi();
@@ -139,5 +146,58 @@ describe('detalle de sesión', () => {
     renderDetail();
     await screen.findByText('Quedan 18 de 20 lugares');
     expect(screen.queryByRole('button', { name: /^Cancelar reserva de/ })).not.toBeInTheDocument();
+  });
+
+  // Historia 5: asistencia. Solo se finge la fecha del navegador; los temporizadores siguen reales.
+  const fijarFecha = (iso) => vi.useFakeTimers({ toFake: ['Date'], now: new Date(iso) });
+
+  it('marcar_asistencia_con_un_clic_por_cliente', async () => {
+    fijarFecha('2026-10-20T18:20:00');
+    mockApi('en_curso');
+    renderDetail();
+    const casilla = await screen.findByRole('checkbox', { name: 'Presente: Luis Méndez' });
+    expect(casilla).not.toBeChecked();
+    expect(casilla).toBeEnabled();
+    expect(screen.getByRole('checkbox', { name: 'Presente: Ana Álvarez' })).toBeChecked();
+
+    fireEvent.click(casilla);
+    await waitFor(() => expect(llamadasAlDetalle()).toBe(2));
+    const [url, options] = globalThis.fetch.mock.calls.find(([ruta]) => String(ruta).includes('/attendance'));
+    expect(String(url)).toContain('/reservations/2/attendance');
+    expect(JSON.parse(options.body)).toEqual({ presente: true });
+  });
+
+  it('muestra_no_asistio_en_sesiones_de_dias_anteriores', async () => {
+    fijarFecha('2026-10-21T09:00:00');
+    mockApi('terminada', undefined, undefined, [
+      reserva(1, 'Ana', 'Álvarez', 'presente', 'Presente'),
+      reserva(2, 'Luis', 'Méndez', 'sin_registrar', 'No asistió'),
+    ]);
+    renderDetail();
+    expect(await screen.findByText('No asistió')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Presente: Luis Méndez' })).toBeDisabled();
+    expect(screen.getByText('La asistencia solo se puede registrar el mismo día de la clase.')).toBeInTheDocument();
+  });
+
+  it('muestra_el_mensaje_si_la_clase_no_ha_empezado', async () => {
+    fijarFecha('2026-10-20T10:00:00');
+    mockApi('pendiente');
+    renderDetail();
+    expect(await screen.findByRole('checkbox', { name: 'Presente: Luis Méndez' })).toBeDisabled();
+    expect(
+      screen.getByText('La asistencia se podrá marcar a partir de las 18:00.'),
+    ).toBeInTheDocument();
+  });
+
+  it('muestra_el_mensaje_del_servidor_si_rechaza_la_asistencia', async () => {
+    fijarFecha('2026-10-20T18:20:00');
+    mockApi(
+      'en_curso',
+      undefined,
+      respuesta(422, { error: { code: 'BUSINESS_RULE', message: 'El cliente no tiene una reserva activa en esta clase.' } }),
+    );
+    renderDetail();
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Presente: Luis Méndez' }));
+    expect(await screen.findByText('El cliente no tiene una reserva activa en esta clase.')).toBeInTheDocument();
   });
 });

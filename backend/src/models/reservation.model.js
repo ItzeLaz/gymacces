@@ -145,3 +145,11 @@ export async function cancel(id, idUsuario, canceladoEn, connection = pool) {
     [idUsuario, canceladoEn, id],
   );
 }
+
+// Marca (presente) o desmarca la asistencia; la fecha llega desde Node (FR-009, research R-05)
+export async function setAttendance(id, presente, idUsuario, fechaHora, connection = pool) {
+  await connection.execute(
+    'UPDATE reservas SET asistencia = ?, asistencia_por = ?, asistencia_en = ? WHERE id_reserva = ?',
+    presente ? ['presente', idUsuario, fechaHora, id] : ['sin_registrar', null, null, id],
+  );
+}

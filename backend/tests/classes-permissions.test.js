@@ -86,6 +86,17 @@ describe('clases grupales: permisos por rol', () => {
     }
   });
 
+  it('entrenador_y_cliente_no_pueden_marcar_asistencia', async () => {
+    for (const rol of ['entrenador', 'cliente']) {
+      const response = await request(app)
+        .patch('/api/reservations/1/attendance')
+        .set(bearer(tokens[rol]))
+        .send({ presente: true });
+      assert.equal(response.status, 403, `${rol} debe recibir 403 al marcar asistencia`);
+      assert.equal(response.body.error.message, FORBIDDEN);
+    }
+  });
+
   it('sin_sesion_las_rutas_de_clases_responden_401', async () => {
     for (const [ruta, enviar] of escrituras()) {
       const response = await enviar(undefined);

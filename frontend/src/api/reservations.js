@@ -11,3 +11,9 @@ export async function cancelReservation(id) {
   const { data } = await apiRequest(`/reservations/${id}/cancel`, { method: 'PATCH' });
   return data;
 }
+
+// Marca (true) o desmarca (false) la asistencia el día de la clase (US5)
+export async function setAttendance(id, presente) {
+  const { data } = await apiRequest(`/reservations/${id}/attendance`, { method: 'PATCH', body: { presente } });
+  return data;
+}

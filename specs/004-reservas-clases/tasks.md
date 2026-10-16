@@ -544,17 +544,17 @@ siguiente, el tercero aparece como "No asistió".
 
 Todas en `backend/tests/attendance.test.js`, con la hora fijada mediante `mock.timers`.
 
-- [ ] T088 [P] [US5] Crear `backend/tests/attendance.test.js` con la prueba `marca_presente_a_cliente_con_reserva_en_sesion_iniciada_hoy`: `PATCH /reservations/:id/attendance` con `{ presente: true }` → 200, con `asistencia: 'presente'`, `asistencia_por` (el usuario) y `asistencia_en`. **Atiende**: US5-1, FR-009. **Verificación**: `npm test` en rojo.
-- [ ] T089 [US5] Prueba `rechaza_marcar_asistencia_antes_de_la_hora_de_inicio`: 422 "La asistencia solo se puede registrar a partir de la hora de inicio de la clase.". **Atiende**: US5-2. **Verificación**: `npm test` en rojo.
-- [ ] T090 [US5] Prueba `rechaza_marcar_asistencia_despues_del_dia_de_la_sesion`: 422 "La asistencia solo se puede registrar el mismo día de la clase.". **Atiende**: US5-3. **Verificación**: `npm test` en rojo.
-- [ ] T091 [US5] Prueba `rechaza_marcar_asistencia_de_reserva_cancelada`: 422 "El cliente no tiene una reserva activa en esta clase."; `presente` no booleano → 400. **Atiende**: US5-4. **Verificación**: `npm test` en rojo.
-- [ ] T092 [US5] Prueba `desmarcar_asistencia_el_mismo_dia_regresa_a_sin_registrar`: `{ presente: false }` → `asistencia: 'sin_registrar'`, con `asistencia_por` y `asistencia_en` en `NULL`. **Atiende**: US5-5. **Verificación**: `npm test` en rojo.
-- [ ] T093 [US5] Prueba `al_terminar_el_dia_las_reservas_sin_asistencia_se_muestran_como_no_asistio`: con la hora fijada al día siguiente, `GET /classes/:id/sessions/:fecha` → `asistencia_mostrada: 'No asistió'` para la reserva sin marcar y "Presente" para las marcadas. **Atiende**: US5-6. **Verificación**: `npm test`; si ya pasa en verde gracias a T069, comprobar que falla al quitar temporalmente el cálculo de "No asistió".
+- [X] T088 [P] [US5] Crear `backend/tests/attendance.test.js` con la prueba `marca_presente_a_cliente_con_reserva_en_sesion_iniciada_hoy`: `PATCH /reservations/:id/attendance` con `{ presente: true }` → 200, con `asistencia: 'presente'`, `asistencia_por` (el usuario) y `asistencia_en`. **Atiende**: US5-1, FR-009. **Verificación**: `npm test` en rojo.
+- [X] T089 [US5] Prueba `rechaza_marcar_asistencia_antes_de_la_hora_de_inicio`: 422 "La asistencia solo se puede registrar a partir de la hora de inicio de la clase.". **Atiende**: US5-2. **Verificación**: `npm test` en rojo.
+- [X] T090 [US5] Prueba `rechaza_marcar_asistencia_despues_del_dia_de_la_sesion`: 422 "La asistencia solo se puede registrar el mismo día de la clase.". **Atiende**: US5-3. **Verificación**: `npm test` en rojo.
+- [X] T091 [US5] Prueba `rechaza_marcar_asistencia_de_reserva_cancelada`: 422 "El cliente no tiene una reserva activa en esta clase."; `presente` no booleano → 400. **Atiende**: US5-4. **Verificación**: `npm test` en rojo.
+- [X] T092 [US5] Prueba `desmarcar_asistencia_el_mismo_dia_regresa_a_sin_registrar`: `{ presente: false }` → `asistencia: 'sin_registrar'`, con `asistencia_por` y `asistencia_en` en `NULL`. **Atiende**: US5-5. **Verificación**: `npm test` en rojo.
+- [X] T093 [US5] Prueba `al_terminar_el_dia_las_reservas_sin_asistencia_se_muestran_como_no_asistio`: con la hora fijada al día siguiente, `GET /classes/:id/sessions/:fecha` → `asistencia_mostrada: 'No asistió'` para la reserva sin marcar y "Presente" para las marcadas. **Atiende**: US5-6. **Verificación**: `npm test`; si ya pasa en verde gracias a T069, comprobar que falla al quitar temporalmente el cálculo de "No asistió".
 
 ### Implementación de la historia 5
 
-- [ ] T094 [P] [US5] Agregar a `backend/src/validators/reservations.validator.js` `attendanceRules`: `presente` booleano, con mensaje en español. **Atiende**: FR-009. **Verificación**: caso 400 de T091 en verde después de T096.
-- [ ] T095 [US5] Agregar `setAttendance(id, presente, idUsuario, connection)` a `backend/src/models/reservation.model.js`. Con `presente = true`, asigna `asistencia = 'presente'`, `asistencia_por` y `asistencia_en`; con `presente = false`, asigna `asistencia = 'sin_registrar'` y pone ambos campos en `NULL`. Agregar `setAttendance(id, presente, user)` a `backend/src/services/reservations.service.js`. Sus pasos, dentro de `withTransaction`:
+- [X] T094 [P] [US5] Agregar a `backend/src/validators/reservations.validator.js` `attendanceRules`: `presente` booleano, con mensaje en español. **Atiende**: FR-009. **Verificación**: caso 400 de T091 en verde después de T096.
+- [X] T095 [US5] Agregar `setAttendance(id, presente, idUsuario, connection)` a `backend/src/models/reservation.model.js`. Con `presente = true`, asigna `asistencia = 'presente'`, `asistencia_por` y `asistencia_en`; con `presente = false`, asigna `asistencia = 'sin_registrar'` y pone ambos campos en `NULL`. Agregar `setAttendance(id, presente, user)` a `backend/src/services/reservations.service.js`. Sus pasos, dentro de `withTransaction`:
   1. `lockById`; si no existe → 404.
   2. Si está cancelada → 422.
   3. Si la fecha de la sesión es posterior a hoy, o es hoy y `minutos` es menor que la hora de inicio → 422 (antes del inicio).
@@ -562,10 +562,10 @@ Todas en `backend/tests/attendance.test.js`, con la hora fijada mediante `mock.t
   5. Guardar con `setAttendance`. `asistencia_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05; hallazgo U2).
 
   Los pasos 3 y 4 usan `nowInGym()`. **Atiende**: US5-1 a US5-5, FR-009, FR-014. **Verificación**: T088 a T092 en verde después de T096.
-- [ ] T096 [US5] Agregar `attendance` a `backend/src/controllers/reservations.controller.js`. Registrar `PATCH /:id/attendance` (administrador y recepcionista) con `reservationIdParam` y `attendanceRules` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T088 a T093 en verde.
-- [ ] T097 [P] [US5] Agregar `setAttendance(id, presente)` a `frontend/src/api/reservations.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T098.
-- [ ] T098 [US5] Agregar a `frontend/src/tests/SessionDetail.test.jsx` las pruebas `marcar_asistencia_con_un_clic_por_cliente`, `muestra_no_asistio_en_sesiones_de_dias_anteriores` y `muestra_el_mensaje_si_la_clase_no_ha_empezado`. **Atiende**: US5-1, US5-6, SC-005. **Verificación**: `cd frontend && npm test` en rojo hasta T099.
-- [ ] T099 [US5] Agregar en `frontend/src/pages/SessionDetail.jsx` una casilla "Presente" por reserva activa. Se habilita solo si la fecha de la sesión es hoy y `estado_sesion` no es `pendiente`, y cada clic llama a `setAttendance`. Mostrar `asistencia_mostrada` en texto. **Atiende**: US5-1, US5-5, US5-6, SC-005, principio XIV. **Verificación**: T098 en verde.
+- [X] T096 [US5] Agregar `attendance` a `backend/src/controllers/reservations.controller.js`. Registrar `PATCH /:id/attendance` (administrador y recepcionista) con `reservationIdParam` y `attendanceRules` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T088 a T093 en verde.
+- [X] T097 [P] [US5] Agregar `setAttendance(id, presente)` a `frontend/src/api/reservations.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T098.
+- [X] T098 [US5] Agregar a `frontend/src/tests/SessionDetail.test.jsx` las pruebas `marcar_asistencia_con_un_clic_por_cliente`, `muestra_no_asistio_en_sesiones_de_dias_anteriores` y `muestra_el_mensaje_si_la_clase_no_ha_empezado`. **Atiende**: US5-1, US5-6, SC-005. **Verificación**: `cd frontend && npm test` en rojo hasta T099.
+- [X] T099 [US5] Agregar en `frontend/src/pages/SessionDetail.jsx` una casilla "Presente" por reserva activa. Se habilita solo si la fecha de la sesión es hoy y `estado_sesion` no es `pendiente`, y cada clic llama a `setAttendance`. Mostrar `asistencia_mostrada` en texto. **Atiende**: US5-1, US5-5, US5-6, SC-005, principio XIV. **Verificación**: T098 en verde.
 
 **Punto de control**: todas las historias funcionan de forma independiente.
 

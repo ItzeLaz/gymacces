@@ -20,6 +20,9 @@ const FULL = 'Clase llena.';
 const RESERVATION_NOT_FOUND = 'La reserva no existe.';
 const ALREADY_CANCELLED = 'La reserva ya está cancelada.';
 const ALREADY_STARTED = 'No se puede cancelar una reserva de una clase que ya empezó.';
+const NOT_STARTED = 'La asistencia solo se puede registrar a partir de la hora de inicio de la clase.';
+const DAY_OVER = 'La asistencia solo se puede registrar el mismo día de la clase.';
+const NOT_ACTIVE = 'El cliente no tiene una reserva activa en esta clase.';
 
 // "No asistió": reserva activa sin asistencia de una sesión de un día anterior (US5, criterio 6)
 export function attendanceLabel(fila, hoy) {
@@ -143,6 +146,24 @@ export async function cancelReservation(id, user) {
       id,
       `${reserva.clase_nombre} ${reserva.fecha_sesion} ${reserva.hora_inicio}, cliente ${reserva.id_cliente}`,
     );
+    return toView(await reservationModel.findById(id, connection), hoy.fecha);
+  });
+}
+
+// Marca o desmarca la asistencia el día de la sesión, desde su hora de inicio (US5, criterios 1 a 5)
+export async function setAttendance(id, presente, user) {
+  const ahora = new Date();
+  const hoy = nowInGym(ahora);
+  return withTransaction(async (connection) => {
+    const reserva = await lockReservationOrFail(id, connection);
+    if (reserva.estado !== 'activa') throw businessRule(NOT_ACTIVE);
+    const inicio = toMinutes(reserva.hora_inicio);
+    if (reserva.fecha_sesion > hoy.fecha || (reserva.fecha_sesion === hoy.fecha && hoy.minutos < inicio)) {
+      throw businessRule(NOT_STARTED);
+    }
+    if (reserva.fecha_sesion < hoy.fecha) throw businessRule(DAY_OVER);
+
+    await reservationModel.setAttendance(id, presente, user.id_usuario, ahora, connection);
     return toView(await reservationModel.findById(id, connection), hoy.fecha);
   });
 }
