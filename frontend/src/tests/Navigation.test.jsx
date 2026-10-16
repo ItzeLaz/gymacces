@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../App.jsx';
 import Navbar, { getMenu } from '../components/Navbar.jsx';
+import Layout from '../components/Layout.jsx';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+// Vitest no procesa CSS y se ejecuta desde frontend/: la hoja se lee como texto para revisar sus reglas
+const css = readFileSync(path.resolve(process.cwd(), 'src/styles/global.css'), 'utf8');
 
 const auth = { user: null };
 
@@ -125,5 +131,38 @@ describe('navegación por módulos', () => {
     auth.user = null;
     renderAt('/login');
     expect(screen.queryByRole('navigation', { name: 'Menú principal' })).not.toBeInTheDocument();
+  });
+
+  // Hallazgo de T104 (captura 11): con 9 opciones el menú del administrador se desplazaba en
+  // horizontal sin barra visible y ocultaba "Dashboard", "Horario" y "Entrenamiento".
+  it('el_menu_pasa_a_otra_linea_en_lugar_de_ocultar_opciones', () => {
+    const bloque = css.match(/^\.navbar-links \{([^}]*)\}/m)[1];
+    expect(bloque).toMatch(/flex-wrap:\s*wrap/);
+    expect(bloque).not.toMatch(/overflow-x:\s*auto/);
+    expect(getMenu('administrador')).toHaveLength(9);
+  });
+
+  it('el_contenido_se_desplaza_segun_la_altura_real_del_menu', () => {
+    let notificar;
+    const observar = vi.fn();
+    globalThis.ResizeObserver = vi.fn(function ResizeObserver(callback) {
+      notificar = callback;
+      this.observe = observar;
+      this.disconnect = vi.fn();
+    });
+    render(
+      <MemoryRouter>
+        <Layout />
+      </MemoryRouter>,
+    );
+    const barra = document.querySelector('.navbar');
+    expect(observar).toHaveBeenCalledWith(barra);
+
+    // El menú ocupa dos líneas: su borde inferior queda en 130 px
+    barra.getBoundingClientRect = () => ({ bottom: 130 });
+    act(() => notificar());
+    expect(document.documentElement.style.getPropertyValue('--navbar-offset')).toBe('146px');
+    delete globalThis.ResizeObserver;
+    document.documentElement.style.removeProperty('--navbar-offset');
   });
 });
