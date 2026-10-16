@@ -1,4 +1,7 @@
 import { pool } from '../../src/config/db.js';
+import { addDays, today } from '../../src/utils/dates.js';
+import { isoWeekday } from '../../src/utils/sessions.js';
+import { createUser } from './db.js';
 
 let counter = 0;
 const unique = () => `${Date.now().toString(36)}${(counter += 1)}`;
@@ -89,4 +92,68 @@ export function nearDescriptor(base, noise = 0.3, seed = 99) {
 export function sampleSet(seed) {
   const base = syntheticDescriptor(seed);
   return [nearDescriptor(base, 0.2, seed + 1), nearDescriptor(base, 0.2, seed + 2), nearDescriptor(base, 0.2, seed + 3)];
+}
+
+// Usuario con rol entrenador para impartir clases (feature 004)
+export async function createTrainer(datos = {}) {
+  return createUser({ nombre: `Entrenador ${unique()}`, rol: 'entrenador', ...datos });
+}
+
+// Inserción directa de una clase; por omisión se imparte el día de mañana a las 07:00
+export async function createClass({ id_instructor, creado_por, ...datos }) {
+  const clase = {
+    nombre: 'Spinning',
+    dia_semana: isoWeekday(addDays(today(), 1)),
+    hora_inicio: '07:00',
+    duracion_minutos: 45,
+    cupo_maximo: 20,
+    estado: 'activa',
+    ...datos,
+  };
+  const [result] = await pool.execute(
+    `INSERT INTO clases (nombre, id_instructor, dia_semana, hora_inicio, duracion_minutos, cupo_maximo, estado, creado_por)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      clase.nombre,
+      id_instructor,
+      clase.dia_semana,
+      clase.hora_inicio,
+      clase.duracion_minutos,
+      clase.cupo_maximo,
+      clase.estado,
+      creado_por ?? id_instructor,
+    ],
+  );
+  return { ...clase, id_instructor, id_clase: result.insertId };
+}
+
+// Inserción directa de una reserva, sin las validaciones del servicio (para preparar escenarios)
+export async function createReservation({ id_clase, fecha_sesion, id_cliente, registrado_por, ...datos }) {
+  const cancelada = datos.estado === 'cancelada';
+  const presente = datos.asistencia === 'presente';
+  const reserva = {
+    estado: 'activa',
+    asistencia: 'sin_registrar',
+    registrada_en_curso: 0,
+    ...datos,
+  };
+  const [result] = await pool.execute(
+    `INSERT INTO reservas (id_clase, fecha_sesion, id_cliente, estado, asistencia, registrada_en_curso,
+       registrado_por, cancelado_por, cancelado_en, asistencia_por, asistencia_en)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id_clase,
+      fecha_sesion,
+      id_cliente,
+      reserva.estado,
+      reserva.asistencia,
+      reserva.registrada_en_curso,
+      registrado_por,
+      cancelada ? registrado_por : null,
+      cancelada ? new Date() : null,
+      presente ? registrado_por : null,
+      presente ? new Date() : null,
+    ],
+  );
+  return { ...reserva, id_clase, fecha_sesion, id_cliente, id_reserva: result.insertId };
 }

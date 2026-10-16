@@ -119,7 +119,8 @@ Constitución v2.1.0.
 - **Aprobación**: la decisión de incluir esta ampliación la tomó la autora de la rama
   `004-reservas-clases` para su reporte individual. Todavía no la aprueba el equipo: queda
   pendiente presentarla para su aprobación formal, como exige la gobernanza de la constitución.
-  Este estado se registra en T004 y no bloquea la implementación.
+  Este estado se registra en T004 (también en la sección 8 de `docs/sprint-4.md`, 2026-10-16) y no
+  bloquea la implementación.
 - **Pendiente operativo**: actualizar `docs/` (contexto del proyecto y sprints) para incluir las
   clases grupales antes de cerrar el sprint. Se incluirá como tarea en `tasks.md`.
 

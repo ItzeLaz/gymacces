@@ -1,6 +1,6 @@
 import * as auditModel from '../models/audit.model.js';
 
-// Catálogo de acciones auditadas en el Sprint 2 (FR-042)
+// Catálogo de acciones auditadas: Sprint 2 (FR-042) y clases grupales (feature 004, FR-012)
 export const AUDIT_ACTIONS = Object.freeze({
   TYPE_CREATE: 'tipo_membresia.crear',
   TYPE_UPDATE: 'tipo_membresia.modificar',
@@ -15,6 +15,11 @@ export const AUDIT_ACTIONS = Object.freeze({
   FACE_REGISTER: 'rostro.registrar',
   FACE_REPLACE: 'rostro.reemplazar',
   FACE_DEACTIVATE: 'rostro.desactivar',
+  CLASS_CREATE: 'clase.crear',
+  CLASS_UPDATE: 'clase.modificar',
+  CLASS_DEACTIVATE: 'clase.desactivar',
+  RESERVATION_CREATE: 'reserva.registrar',
+  RESERVATION_CANCEL: 'reserva.cancelar',
 });
 
 const VALID_ACTIONS = new Set(Object.values(AUDIT_ACTIONS));

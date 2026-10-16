@@ -30,10 +30,17 @@ vez no duplica nada.
 | `003_ajustar_membresias_pagos.sql` | Monto, motivo y trazabilidad en `membresias`; métodos de pago (`efectivo`, `tarjeta`, `transferencia`), estados (`pagado`, `cancelado`) y datos de anulación en `pagos` | 2 |
 | `004_create_rostros_accesos_auditoria.sql` | `rostros`, `accesos`, `auditoria` | 2 |
 | `005_indices_dashboard.sql` | Índices por fecha en `pagos` y `membresias` para el dashboard | 3 |
+| `006_create_clases_reservas.sql` | `clases` (horario semanal con cupo) y `reservas` (lugar de un cliente en una sesión, cancelación y asistencia) | 4 |
 
 `rostros` guarda los descriptores faciales **cifrados** con la llave `FACE_DATA_KEY` del backend.
 Una copia de la base no sirve para identificar a nadie sin esa misma llave: si la llave se pierde o
 se cambia, hay que volver a registrar los rostros. Nunca se guardan fotografías.
+
+Las clases grupales no guardan sesiones: una sesión es el par `(id_clase, fecha_sesion)` y se
+calcula al consultar. El índice único `uq_reservas_sesion_cliente_activa` usa la columna generada
+`clave_activa` (1 si la reserva está activa, `NULL` si está cancelada) para impedir dos reservas
+activas del mismo cliente en la misma sesión sin bloquear las canceladas. El cupo se controla en el
+backend con una transacción que bloquea la fila de la clase.
 
 Todas las llaves foráneas usan `ON DELETE RESTRICT ON UPDATE RESTRICT`: no se pueden borrar
 clientes con información relacionada.

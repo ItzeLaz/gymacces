@@ -67,14 +67,14 @@ cancelación (US3) y la asistencia (US5).
 
 **Propósito**: confirmar el punto de partida y documentar la ampliación de alcance.
 
-- [ ] T001 Confirmar que la rama es `004-reservas-clases`, que `git status` está limpio y que `npm test` pasa en `backend/` y `frontend/` antes de tocar código (línea base). **Atiende**: principio II. **Verificación**: comandos `git branch --show-current`, `git status` y `npm test` en ambas carpetas sin fallos.
-- [ ] T002 [P] Actualizar `docs/project-context.md`:
+- [X] T001 Confirmar que la rama es `004-reservas-clases`, que `git status` está limpio y que `npm test` pasa en `backend/` y `frontend/` antes de tocar código (línea base). **Atiende**: principio II. **Verificación**: comandos `git branch --show-current`, `git status` y `npm test` en ambas carpetas sin fallos.
+- [X] T002 [P] Actualizar `docs/project-context.md`:
   - En la sección 4 (Alcance), agregar "Clases grupales y reservas" como ampliación posterior al MVP.
   - Agregar la sección "7.11 Clases grupales y reservas" con las funciones de US1 a US5.
-  - Agregar las reglas RN-18 (cupo máximo por sesión), RN-19 (membresía vigente en la fecha de la sesión), RN-20 (sin reservas duplicadas ni empalmadas), RN-21 (cancelación solo antes del inicio) y RN-22 (asistencia el mismo día desde la hora de inicio).
+  - Agregar las reglas RN-19 (cupo máximo por sesión), RN-20 (membresía vigente en la fecha de la sesión), RN-21 (sin reservas duplicadas ni empalmadas), RN-22 (cancelación solo antes del inicio) y RN-23 (asistencia el mismo día desde la hora de inicio). Se numeran desde RN-19 porque RN-18 ("Sin periodo de tolerancia") ya existía.
 
   **Atiende**: principio VIII, "Justificación de alcance" del spec. **Verificación**: revisión contra `spec.md`; ninguna regla contradice los criterios EARS.
-- [ ] T003 [P] Crear `docs/sprint-4.md` con el mismo formato de `docs/sprint-3.md`:
+- [X] T003 [P] Crear `docs/sprint-4.md` con el mismo formato de `docs/sprint-3.md`:
   - Objetivo.
   - Historias US1 a US5 con su prioridad.
   - Tablas nuevas `clases` y `reservas`.
@@ -82,7 +82,7 @@ cancelación (US3) y la asistencia (US5).
   - Sección "Fuera de alcance", copiada de los Supuestos del spec.
 
   **Atiende**: principio VIII. **Verificación**: revisión; el documento enlaza a `specs/004-reservas-clases/spec.md`.
-- [ ] T004 Documentar el estado de la ampliación de alcance en `docs/sprint-4.md` (sección "Aprobación") y en el punto "Aprobación" de la sección "Ampliación de alcance" de `specs/004-reservas-clases/plan.md`: la decisión la tomó la autora de la rama para su reporte individual y la aprobación formal del equipo queda pendiente. Esta tarea **no bloquea** la implementación. **Atiende**: principio VIII y gobernanza (hallazgo C1 de `/speckit-analyze`). **Verificación**: revisión; `docs/sprint-4.md`, el punto "Aprobación" y la fila VIII de la Verificación de la constitución dicen lo mismo.
+- [X] T004 Documentar el estado de la ampliación de alcance en `docs/sprint-4.md` (sección "Aprobación") y en el punto "Aprobación" de la sección "Ampliación de alcance" de `specs/004-reservas-clases/plan.md`: la decisión la tomó la autora de la rama para su reporte individual y la aprobación formal del equipo queda pendiente. Esta tarea **no bloquea** la implementación. **Atiende**: principio VIII y gobernanza (hallazgo C1 de `/speckit-analyze`). **Verificación**: revisión; `docs/sprint-4.md`, el punto "Aprobación" y la fila VIII de la Verificación de la constitución dicen lo mismo.
 
 ---
 
@@ -93,13 +93,13 @@ vacíos.
 
 **⚠️ CRÍTICO**: ninguna historia puede empezar hasta terminar esta fase.
 
-- [ ] T005 Actualizar `backend/tests/database.test.js`: agregar `'clases'` y `'reservas'` a `SPRINT_TABLES` en orden alfabético (después de `'auditoria'` y después de `'pagos'`, respectivamente). Agregar estas pruebas:
+- [X] T005 Actualizar `backend/tests/database.test.js`: agregar `'clases'` y `'reservas'` a `SPRINT_TABLES` en orden alfabético (después de `'auditoria'` y después de `'pagos'`, respectivamente). Agregar estas pruebas:
   - `la_restriccion_unica_impide_dos_reservas_activas_del_mismo_cliente_en_la_sesion`.
   - `una_reserva_cancelada_no_bloquea_una_nueva_reserva_del_mismo_cliente`.
   - `la_base_rechaza_una_clase_que_termina_despues_de_la_medianoche`.
 
   Usar `expectRejected`. **Atiende**: R-02, R-06, FR-005, principio IV. **Verificación**: `npm test` falla (en rojo) hasta terminar T006.
-- [ ] T006 Crear `database/migrations/006_create_clases_reservas.sql` sin modificar las migraciones 001 a 005. Todas las tablas con `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci` y llaves foráneas `ON DELETE RESTRICT ON UPDATE RESTRICT`.
+- [X] T006 Crear `database/migrations/006_create_clases_reservas.sql` sin modificar las migraciones 001 a 005. Todas las tablas con `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci` y llaves foráneas `ON DELETE RESTRICT ON UPDATE RESTRICT`.
 
   **Tabla `clases`**:
   - Columnas:
@@ -152,10 +152,10 @@ vacíos.
   - `cd database && npm run db:migrate && npm run db:check-encoding` sin errores.
   - `SHOW CREATE TABLE reservas` muestra el índice único.
   - `cd backend && npm test` pone T005 en verde.
-- [ ] T007 [P] Documentar las tablas `clases` y `reservas` y la migración 006 en `database/README.md`. **Atiende**: principio IV. **Verificación**: revisión.
-- [ ] T008 [P] Agregar en `backend/tests/utils.unit.test.js` las pruebas `now_in_gym_devuelve_fecha_y_minutos_locales` (por ejemplo, `2026-10-19T13:05:00Z` → `{ fecha: '2026-10-19', minutos: 425 }` en `America/Mexico_City`) y `now_in_gym_cambia_de_dia_segun_la_zona_del_gimnasio`. **Atiende**: R-05, FR-014. **Verificación**: `npm test` en rojo hasta T009.
-- [ ] T009 Implementar `nowInGym(date = new Date())` en `backend/src/utils/dates.js` con `Intl.DateTimeFormat` y `env.timezone`. Devuelve `{ fecha: 'AAAA-MM-DD', minutos }`, donde `minutos` son los minutos desde la medianoche local. **Atiende**: R-05, FR-014. **Verificación**: T008 en verde.
-- [ ] T010 [P] Crear `backend/tests/sessions.unit.test.js` con pruebas de las funciones puras de `utils/sessions.js`:
+- [X] T007 [P] Documentar las tablas `clases` y `reservas` y la migración 006 en `database/README.md`. **Atiende**: principio IV. **Verificación**: revisión.
+- [X] T008 [P] Agregar en `backend/tests/utils.unit.test.js` las pruebas `now_in_gym_devuelve_fecha_y_minutos_locales` (por ejemplo, `2026-10-19T13:05:00Z` → `{ fecha: '2026-10-19', minutos: 425 }` en `America/Mexico_City`) y `now_in_gym_cambia_de_dia_segun_la_zona_del_gimnasio`. **Atiende**: R-05, FR-014. **Verificación**: `npm test` en rojo hasta T009.
+- [X] T009 Implementar `nowInGym(date = new Date())` en `backend/src/utils/dates.js` con `Intl.DateTimeFormat` y `env.timezone`. Devuelve `{ fecha: 'AAAA-MM-DD', minutos }`, donde `minutos` son los minutos desde la medianoche local. **Atiende**: R-05, FR-014. **Verificación**: T008 en verde.
+- [X] T010 [P] Crear `backend/tests/sessions.unit.test.js` con pruebas de las funciones puras de `utils/sessions.js`:
   - `se_empalman_intervalos_que_se_cruzan` y `no_se_empalman_clases_contiguas` (08:00–09:00 y 09:00–10:00).
   - `estado_de_sesion_pendiente_en_curso_y_terminada`.
   - `la_ventana_de_reserva_incluye_hoy_y_hoy_mas_siete` y `rechaza_ayer_y_hoy_mas_ocho`.
@@ -164,7 +164,7 @@ vacíos.
   - `convierte_hhmm_a_minutos_y_de_regreso`.
 
   **Atiende**: R-03, R-05, R-06. **Verificación**: `npm test` en rojo hasta T011.
-- [ ] T011 Crear `backend/src/utils/sessions.js` con estas funciones puras, sin acceso a la base:
+- [X] T011 Crear `backend/src/utils/sessions.js` con estas funciones puras, sin acceso a la base:
   - `toMinutes(hhmm)` y `toHHMM(minutos)`.
   - `overlaps(inicioA, finA, inicioB, finB)`, con intervalos semiabiertos.
   - `endsSameDay(inicioMin, duracion)`.
@@ -174,21 +174,21 @@ vacíos.
   - `sessionState(fechaSesion, inicioMin, finMin, ahora)`, que devuelve `pendiente`, `en_curso` o `terminada`.
 
   Usar `addDays` de `utils/dates.js`. **Atiende**: R-01, R-03, R-05, R-06. **Verificación**: T010 en verde.
-- [ ] T012 [P] Agregar a `AUDIT_ACTIONS` de `backend/src/services/audit.service.js` las acciones `CLASS_CREATE: 'clase.crear'`, `CLASS_UPDATE: 'clase.modificar'`, `CLASS_DEACTIVATE: 'clase.desactivar'`, `RESERVATION_CREATE: 'reserva.registrar'` y `RESERVATION_CANCEL: 'reserva.cancelar'`. **Atiende**: FR-012. **Verificación**: `npm test` sigue en verde; revisión del catálogo.
-- [ ] T013 [P] Agregar a `backend/tests/helpers/factories.js`:
+- [X] T012 [P] Agregar a `AUDIT_ACTIONS` de `backend/src/services/audit.service.js` las acciones `CLASS_CREATE: 'clase.crear'`, `CLASS_UPDATE: 'clase.modificar'`, `CLASS_DEACTIVATE: 'clase.desactivar'`, `RESERVATION_CREATE: 'reserva.registrar'` y `RESERVATION_CANCEL: 'reserva.cancelar'`. **Atiende**: FR-012. **Verificación**: `npm test` sigue en verde; revisión del catálogo.
+- [X] T013 [P] Agregar a `backend/tests/helpers/factories.js`:
   - `createTrainer(datos)`: usa `createUser` con `rol: 'entrenador'`.
   - `createClass({ id_instructor, creado_por, ...datos })`: inserta con SQL directo. Valores por omisión: `nombre 'Spinning'`, `dia_semana` del día de mañana, `hora_inicio '07:00'`, `duracion_minutos 45`, `cupo_maximo 20`.
   - `createReservation({ id_clase, fecha_sesion, id_cliente, registrado_por, ...datos })`: inserta con SQL directo.
 
   **Atiende**: R-10. **Verificación**: `node --check backend/tests/helpers/factories.js` sin errores; lo usan las pruebas de las fases siguientes.
-- [ ] T014 [P] Crear `backend/src/models/class.model.js` con:
+- [X] T014 [P] Crear `backend/src/models/class.model.js` con:
   - Un `VIEW_SELECT` que una `clases` con `usuarios` para obtener el nombre del instructor y devuelva `hora_inicio` como `HH:MM`.
   - `findById(id, connection = pool)`.
   - `lockById(id, connection)`, con `SELECT ... FOR UPDATE`.
 
   **Atiende**: R-02, FR-002. **Verificación**: revisión; lo cubren las pruebas de US1 y US2.
-- [ ] T015 [P] Crear `backend/src/models/reservation.model.js` con `countActiveBySession(idClase, fechaSesion, connection = pool)` (`COUNT(*)` con `estado = 'activa'`). **Atiende**: FR-004, FR-008. **Verificación**: revisión; lo cubren las pruebas de US1 y US2.
-- [ ] T016 Crear los routers `backend/src/routes/classes.routes.js` (`classesRouter`) y `backend/src/routes/reservations.routes.js` (`reservationsRouter`), ambos con `router.use(authenticate)` y todavía sin rutas. Montarlos en `backend/src/routes/index.js` como `apiRouter.use('/classes', classesRouter)` y `apiRouter.use('/reservations', reservationsRouter)`. **Atiende**: R-04, FR-011. **Verificación**: `npm test` en verde; `curl http://localhost:3000/api/classes` sin token responde 401.
+- [X] T015 [P] Crear `backend/src/models/reservation.model.js` con `countActiveBySession(idClase, fechaSesion, connection = pool)` (`COUNT(*)` con `estado = 'activa'`). **Atiende**: FR-004, FR-008. **Verificación**: revisión; lo cubren las pruebas de US1 y US2.
+- [X] T016 Crear los routers `backend/src/routes/classes.routes.js` (`classesRouter`) y `backend/src/routes/reservations.routes.js` (`reservationsRouter`), ambos con `router.use(authenticate)` y todavía sin rutas. Montarlos en `backend/src/routes/index.js` como `apiRouter.use('/classes', classesRouter)` y `apiRouter.use('/reservations', reservationsRouter)`. **Atiende**: R-04, FR-011. **Verificación**: `npm test` en verde; `curl http://localhost:3000/api/classes` sin token responde 401.
 
 **Punto de control**: migración aplicada, utilidades probadas y routers montados. Las historias
 pueden comenzar.

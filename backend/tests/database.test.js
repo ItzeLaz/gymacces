@@ -8,9 +8,11 @@ import { runMigrations } from '../../database/scripts/migrate.js';
 const SPRINT_TABLES = [
   'accesos',
   'auditoria',
+  'clases',
   'clientes',
   'membresias',
   'pagos',
+  'reservas',
   'rostros',
   'tipos_membresia',
   'usuarios',
@@ -137,5 +139,67 @@ describe('estructura de la base de datos', () => {
     await assert.rejects(insertar(), 'el segundo registro activo debe rechazarse');
     await pool.execute("UPDATE rostros SET estado = 'inactivo' WHERE id_cliente = ?", [cliente.id_cliente]);
     await insertar();
+  });
+
+  describe('clases y reservas (migración 006)', () => {
+    let entrenador;
+    let idClase;
+
+    before(async () => {
+      entrenador = await createUser({ rol: 'entrenador' });
+      const [result] = await pool.execute(
+        "INSERT INTO clases (nombre, id_instructor, dia_semana, hora_inicio, duracion_minutos, cupo_maximo, creado_por) VALUES ('Spinning', ?, 1, '07:00', 45, 20, ?)",
+        [entrenador.id_usuario, entrenador.id_usuario],
+      );
+      idClase = result.insertId;
+    });
+
+    const reservar = (idCliente, estado = 'activa') =>
+      pool.execute(
+        `INSERT INTO reservas (id_clase, fecha_sesion, id_cliente, estado, registrado_por, cancelado_por, cancelado_en)
+         VALUES (?, '2026-10-19', ?, ?, ?, ?, ?)`,
+        [
+          idClase,
+          idCliente,
+          estado,
+          entrenador.id_usuario,
+          estado === 'cancelada' ? entrenador.id_usuario : null,
+          estado === 'cancelada' ? '2026-10-18 10:00:00' : null,
+        ],
+      );
+
+    it('la_restriccion_unica_impide_dos_reservas_activas_del_mismo_cliente_en_la_sesion', async () => {
+      const otroCliente = await createClient();
+      await reservar(otroCliente.id_cliente);
+      await assert.rejects(reservar(otroCliente.id_cliente), 'la segunda reserva activa en la misma sesión debe rechazarse');
+    });
+
+    it('una_reserva_cancelada_no_bloquea_una_nueva_reserva_del_mismo_cliente', async () => {
+      const otroCliente = await createClient();
+      await reservar(otroCliente.id_cliente, 'cancelada');
+      await reservar(otroCliente.id_cliente, 'cancelada');
+      await reservar(otroCliente.id_cliente);
+      const [rows] = await pool.execute(
+        "SELECT estado, COUNT(*) AS total FROM reservas WHERE id_cliente = ? GROUP BY estado ORDER BY estado",
+        [otroCliente.id_cliente],
+      );
+      assert.deepEqual(
+        rows.map((row) => [row.estado, Number(row.total)]),
+        [['activa', 1], ['cancelada', 2]],
+        'deben convivir una reserva activa y las canceladas',
+      );
+    });
+
+    it('la_base_rechaza_una_clase_que_termina_despues_de_la_medianoche', async () => {
+      await expectRejected(
+        "INSERT INTO clases (nombre, id_instructor, dia_semana, hora_inicio, duracion_minutos, cupo_maximo, creado_por) VALUES ('Yoga', ?, 2, '23:30', 45, 10, ?)",
+        [entrenador.id_usuario, entrenador.id_usuario],
+        'una clase de 23:30 con 45 minutos debe rechazarse',
+      );
+      await pool.execute(
+        "INSERT INTO clases (nombre, id_instructor, dia_semana, hora_inicio, duracion_minutos, cupo_maximo, creado_por) VALUES ('Yoga', ?, 2, '23:00', 60, 10, ?)",
+        [entrenador.id_usuario, entrenador.id_usuario],
+      );
+    });
   });
 });

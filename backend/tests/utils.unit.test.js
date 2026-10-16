@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { addDays, endDateFor, isValidDate, today, daysBetween } from '../src/utils/dates.js';
+import { addDays, endDateFor, isValidDate, nowInGym, today, daysBetween } from '../src/utils/dates.js';
 import { compareAmounts, fromCents, isValidAmount, toCents } from '../src/utils/money.js';
 
 describe('utilidades de fechas', () => {
@@ -25,6 +25,20 @@ describe('utilidades de fechas', () => {
     assert.equal(isValidDate('2026-02-29'), false, '2026 no es bisiesto');
     assert.equal(isValidDate('2028-02-29'), true);
     assert.equal(isValidDate('12/10/2026'), false);
+  });
+
+  it('now_in_gym_devuelve_fecha_y_minutos_locales', () => {
+    // 13:05 UTC son las 07:05 en Ciudad de México (UTC-6)
+    assert.deepEqual(nowInGym(new Date('2026-10-19T13:05:00Z')), { fecha: '2026-10-19', minutos: 425 });
+    assert.deepEqual(nowInGym(new Date('2026-10-19T06:00:00Z')), { fecha: '2026-10-19', minutos: 0 });
+  });
+
+  it('now_in_gym_cambia_de_dia_segun_la_zona_del_gimnasio', () => {
+    // 05:30 UTC del día 20 todavía son las 23:30 del día 19 en el gimnasio
+    assert.deepEqual(nowInGym(new Date('2026-10-20T05:30:00Z')), { fecha: '2026-10-19', minutos: 1410 });
+    const ahora = nowInGym();
+    assert.match(ahora.fecha, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(ahora.minutos >= 0 && ahora.minutos < 1440, 'los minutos deben estar dentro del día');
   });
 
   it('days_between_cuenta_dias_completos', () => {

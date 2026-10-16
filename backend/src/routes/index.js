@@ -8,6 +8,8 @@ import { clientPaymentsRouter, debtsRouter, paymentsRouter } from './payments.ro
 import { facesRouter } from './faces.routes.js';
 import { accessRouter } from './access.routes.js';
 import { dashboardRouter } from './dashboard.routes.js';
+import { classesRouter } from './classes.routes.js';
+import { reservationsRouter } from './reservations.routes.js';
 
 export const apiRouter = Router();
 
@@ -23,6 +25,8 @@ apiRouter.use('/payments', paymentsRouter);
 apiRouter.use('/debts', debtsRouter);
 apiRouter.use('/access', accessRouter);
 apiRouter.use('/dashboard', dashboardRouter);
+apiRouter.use('/classes', classesRouter);
+apiRouter.use('/reservations', reservationsRouter);
 // Las subrutas de un cliente van antes del router de clientes
 apiRouter.use('/clients/:id/memberships', clientMembershipsRouter);
 apiRouter.use('/clients/:id/payments', clientPaymentsRouter);

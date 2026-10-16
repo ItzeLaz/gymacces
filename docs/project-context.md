@@ -67,6 +67,16 @@ El MVP contempla:
 * Reportes básicos.
 * Registro de auditoría.
 
+### Ampliación posterior al MVP
+
+Después de completar el MVP (Sprints 1 a 3) se agrega:
+
+* **Clases grupales y reservas** (Sprint 4, sección 7.11 y `docs/sprint-4.md`): horario semanal de
+  clases con cupo limitado, reservas de clientes, cancelación y asistencia.
+
+Esta ampliación la decidió la autora de la rama `004-reservas-clases` para su reporte individual.
+La aprobación formal del equipo queda pendiente (constitución, principio VIII).
+
 ---
 
 ## 5. Fuera del alcance del MVP
@@ -303,6 +313,26 @@ La auditoría podrá incluir:
 * Resultado de la operación.
 
 La consulta de auditoría será exclusiva del administrador.
+
+---
+
+## 7.11 Clases grupales y reservas
+
+Ampliación posterior al MVP (sección 4). Especificación completa en
+`specs/004-reservas-clases/spec.md`.
+
+Permitirá:
+
+* Registrar, modificar y desactivar clases semanales (nombre, entrenador, día, hora, duración y
+  cupo). Solo el administrador.
+* Consultar el horario de los próximos 7 días con los lugares disponibles de cada sesión.
+* Reservar un lugar para un cliente en una sesión, incluso durante la clase si hay lugar.
+* Cancelar una reserva antes de que empiece la clase.
+* Consultar la lista de reservados de cada sesión y cuántos lugares quedan.
+* Marcar la asistencia de los reservados el día de la clase.
+
+El administrador y el recepcionista usan el horario, las reservas, la cancelación y la asistencia.
+El entrenador y el cliente no tienen acceso a este módulo.
 
 ---
 
@@ -545,6 +575,31 @@ suspensión no compensa días: las fechas de la membresía no cambian.
 
 Una membresía es válida hasta el final de su fecha de fin y está vencida a partir del día
 siguiente.
+
+## RN-19 - Cupo máximo por sesión
+
+Una sesión de una clase nunca puede tener más reservas activas que su cupo máximo, aunque se
+reserve al mismo tiempo desde varios lugares. Las reservas canceladas no ocupan lugar.
+
+## RN-20 - Membresía vigente en la fecha de la sesión
+
+Solo puede reservar un cliente activo con una membresía activa que cubra la fecha de la sesión. Un
+adeudo pendiente no impide reservar.
+
+## RN-21 - Sin reservas duplicadas ni empalmadas
+
+Un cliente no puede tener dos reservas activas en la misma sesión ni en sesiones del mismo día cuyos
+horarios se empalmen.
+
+## RN-22 - Cancelación antes del inicio
+
+Una reserva solo se puede cancelar antes de que empiece la clase. La reserva cancelada se conserva
+en el historial.
+
+## RN-23 - Asistencia el mismo día
+
+La asistencia se marca el mismo día de la sesión, a partir de su hora de inicio. Las reservas sin
+asistencia de días anteriores se muestran como "No asistió".
 
 ---
 
@@ -867,6 +922,26 @@ estado de clientes, membresías, pagos, ingresos y accesos del gimnasio.
 La gestión de entrenadores, la asignación de clientes a entrenadores, las rutinas, los objetivos y
 el progreso de entrenamiento se propusieron para este sprint y se aplazaron; están descritos en la
 sección 8 de `docs/sprint-3.md`.
+
+---
+
+## Sprint 4 - Clases grupales y reservas (ampliación posterior al MVP)
+
+### Objetivo
+
+Controlar el cupo y la asistencia de las clases grupales (spinning, yoga, funcional) mediante un
+horario semanal y reservas hechas por recepción.
+
+### Funcionalidades principales
+
+* Registro, modificación y desactivación de clases semanales.
+* Horario de los próximos 7 días con lugares disponibles.
+* Reservas sin sobrecupo, solo para clientes con membresía vigente en la fecha de la sesión.
+* Cancelación de reservas antes del inicio.
+* Lista de reservados por sesión.
+* Asistencia el día de la clase.
+
+El detalle está en `docs/sprint-4.md` y en `specs/004-reservas-clases/`.
 
 ---
 

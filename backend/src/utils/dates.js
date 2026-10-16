@@ -12,6 +12,28 @@ export function today(date = new Date()) {
   }).format(date);
 }
 
+// Fecha (AAAA-MM-DD) y minutos desde la medianoche en la zona horaria del gimnasio (research R-05).
+// Las reglas de sesiones usan este valor en lugar de NOW() para no depender del reloj de MySQL.
+export function nowInGym(date = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: env.timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(date)
+      .map(({ type, value }) => [type, value]),
+  );
+  return {
+    fecha: `${parts.year}-${parts.month}-${parts.day}`,
+    minutos: Number(parts.hour) * 60 + Number(parts.minute),
+  };
+}
+
 // Suma días a una fecha AAAA-MM-DD trabajando en UTC para evitar desfases de horario
 export function addDays(fecha, dias) {
   const [year, month, day] = fecha.split('-').map(Number);
