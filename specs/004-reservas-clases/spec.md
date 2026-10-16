@@ -10,6 +10,15 @@
 ofrece clases grupales (spinning, yoga, funcional) con cupo limitado y hoy no hay forma de
 controlar quién asiste ni evitar sobrecupo. Usuarios: administrador y recepción."
 
+## Clarifications
+
+### Session 2026-10-16
+
+- Q: ¿Las clases se registran como un horario semanal que se repite o como sesiones sueltas con
+  fecha y hora únicas? → A: Como clase semanal que se repite (por ejemplo, Spinning cada lunes a
+  las 07:00); cada fecha es una sesión que se reserva por separado, con hasta 7 días de
+  anticipación.
+
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
 Todos los criterios de aceptación siguen los patrones EARS del principio VI de la constitución
@@ -223,8 +232,6 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
   cupo máximo (1 a 100 lugares).
 - **FR-002**: El sistema DEBE generar las sesiones de cada clase activa a partir de su día de la
   semana y hora, y DEBE controlar reservas, cupo y asistencia por sesión.
-  [NEEDS CLARIFICATION: ¿las clases se registran como un horario semanal que se repite (y se
-  reserva cada fecha) o como sesiones sueltas con fecha y hora únicas?]
 - **FR-003**: El sistema DEBE permitir que el administrador y recepción registren reservas para
   clientes activos con membresía activa que cubra la fecha de la sesión.
 - **FR-004**: El sistema NUNCA DEBE registrar en una sesión más reservas activas que su cupo
@@ -285,9 +292,8 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 
 ## Supuestos
 
-- La feature amplía el alcance del MVP descrito en la constitución (principio VIII) y en `docs/`,
-  que no mencionan clases grupales; el equipo DEBE aprobar el cambio de alcance y actualizar la
-  documentación antes de cerrar el sprint.
+- La feature amplía el alcance del MVP; la justificación y el tratamiento de esa desviación están
+  en la sección "Justificación de alcance".
 - El instructor es un usuario existente con rol entrenador y estado activo.
 - Una membresía cubre una sesión si su estado es activa y la fecha de la sesión está entre su fecha
   de inicio y su fecha de fin, ambas incluidas. Un adeudo pendiente no impide reservar, igual que no
@@ -299,3 +305,21 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 - Quedan fuera de esta feature: que los clientes reserven por su cuenta, listas de espera,
   notificaciones a clientes, cancelar una sola sesión sin desactivar la clase, sanciones por
   inasistencia, consultas para el rol entrenador, cobro por clase y reportes de ocupación.
+
+## Justificación de alcance
+
+- **Ampliación posterior al MVP**: el MVP definido en la constitución (principio VIII) cubre
+  clientes, membresías, pagos, reconocimiento facial, control de acceso, usuarios, roles y
+  reportes, y quedó completo con los Sprints 1 a 3. Las reservas de clases grupales no forman parte
+  de ese MVP: son una ampliación posterior que se construye sobre él sin modificar sus reglas.
+- **Valor para el gimnasio**:
+  - Evita el sobrecupo en clases con lugares limitados (spinning, yoga, funcional), que hoy no se
+    puede controlar.
+  - Permite saber quién está inscrito y quién asistió realmente a cada clase.
+  - Aprovecha la información existente: solo reservan clientes activos con membresía vigente, lo
+    que refuerza las reglas de negocio del principio XI.
+  - Da al administrador datos de ocupación para ajustar horarios y cupos según la demanda.
+- **Tratamiento de la desviación**: el `plan.md` de esta feature DEBE documentar la ampliación de
+  alcance en su sección "Verificación de la constitución", con su justificación y la aprobación del
+  equipo, tal como exige la gobernanza de la constitución. La documentación del proyecto (`docs/`)
+  DEBE actualizarse para incluir las clases grupales antes de cerrar el sprint.

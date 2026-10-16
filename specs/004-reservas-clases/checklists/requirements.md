@@ -13,7 +13,7 @@
 
 ## Completitud de los requisitos
 
-- [ ] No quedan marcadores [NEEDS CLARIFICATION]
+- [x] No quedan marcadores [NEEDS CLARIFICATION]
 - [x] Los requisitos se pueden probar y no son ambiguos
 - [x] Los criterios de éxito son medibles
 - [x] Los criterios de éxito no dependen de la tecnología
@@ -31,9 +31,10 @@
 
 ## Notas
 
-- Queda 1 marcador [NEEDS CLARIFICATION] en FR-002 (modelo del horario: clase semanal recurrente o
-  sesiones con fecha única). El spec está redactado con la opción recomendada (clase semanal
-  recurrente con sesiones por fecha).
-- Cambio de alcance: las clases grupales no aparecen en la constitución (principio VIII) ni en
-  `docs/`; el equipo debe aprobarlo y documentarlo.
+- Resuelto el 2026-10-16: el marcador de FR-002 se cerró con la opción A (clase semanal recurrente
+  con sesiones por fecha); la decisión queda en la sección "Clarifications" del spec.
+- Cambio de alcance: justificado en la sección "Justificación de alcance" del spec como ampliación
+  posterior al MVP; la desviación se documentará en la "Verificación de la constitución" del plan.
+- Segunda validación (2026-10-16): pasan los 16 puntos; la nueva sección no agrega detalles de
+  implementación ni requisitos sin criterios de aceptación.
 - Los puntos sin marcar requieren actualizar el spec antes de `/speckit-clarify` o `/speckit-plan`.
