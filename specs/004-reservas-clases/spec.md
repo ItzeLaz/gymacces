@@ -4,7 +4,7 @@
 
 **Creada**: 2026-10-16
 
-**Estado**: Borrador
+**Estado**: Implementada (2026-10-16)
 
 **Entrada**: Descripción del usuario: "Reservas de clases grupales para GymAccess. El gimnasio
 ofrece clases grupales (spinning, yoga, funcional) con cupo limitado y hoy no hay forma de
