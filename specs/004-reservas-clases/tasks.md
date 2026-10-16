@@ -82,7 +82,7 @@ cancelación (US3) y la asistencia (US5).
   - Sección "Fuera de alcance", copiada de los Supuestos del spec.
 
   **Atiende**: principio VIII. **Verificación**: revisión; el documento enlaza a `specs/004-reservas-clases/spec.md`.
-- [ ] T004 Presentar la ampliación de alcance al equipo y registrar el resultado (fecha, decisión y observaciones) en el punto "Aprobación" de la sección "Ampliación de alcance" de `specs/004-reservas-clases/plan.md`. Si el equipo no la aprueba, detener la implementación. **Atiende**: principio VIII y gobernanza. **Verificación**: revisión del plan; la fila VIII de la Verificación de la constitución refleja la decisión.
+- [ ] T004 Documentar el estado de la ampliación de alcance en `docs/sprint-4.md` (sección "Aprobación") y en el punto "Aprobación" de la sección "Ampliación de alcance" de `specs/004-reservas-clases/plan.md`: la decisión la tomó la autora de la rama para su reporte individual y la aprobación formal del equipo queda pendiente. Esta tarea **no bloquea** la implementación. **Atiende**: principio VIII y gobernanza (hallazgo C1 de `/speckit-analyze`). **Verificación**: revisión; `docs/sprint-4.md`, el punto "Aprobación" y la fila VIII de la Verificación de la constitución dicen lo mismo.
 
 ---
 
@@ -232,6 +232,8 @@ Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por c
 - [ ] T028 [US1] Prueba `clase_desactivada_no_aparece_para_recepcion`: `GET /classes` como recepcionista no la incluye; el administrador la ve con `?estado=inactiva`. **Atiende**: US1-12 (las partes del horario y de la reserva se comprueban en T060 y T045). **Verificación**: `npm test` en rojo.
 - [ ] T029 [US1] Prueba `rechaza_clase_que_termina_despues_de_la_medianoche`: 23:30 + 45 min → 400 "La clase debe terminar el mismo día."; 23:00 + 60 min se acepta. **Atiende**: US1-14, R-06. **Verificación**: `npm test` en rojo.
 - [ ] T030 [P] [US1] Crear `backend/tests/classes-permissions.test.js` con la prueba `solo_el_administrador_registra_modifica_o_desactiva_clases`: recepcionista, entrenador y cliente → 403 "No tienes permiso para realizar esta acción." en `POST /classes`, `PATCH /classes/:id`, `PATCH /classes/:id/status` y `GET /classes/instructors`; sin token → 401. **Atiende**: US1-13, FR-011. **Verificación**: `npm test` en rojo.
+- [ ] T106 [US1] Agregar a `backend/tests/classes.test.js` la prueba `registra_auditoria_al_crear_modificar_y_desactivar_clases`: después de `POST /classes`, `PATCH /classes/:id` y `PATCH /classes/:id/status`, la tabla `auditoria` tiene una fila `clase.crear`, una `clase.modificar` (con la descripción de los campos con su valor anterior y el nuevo) y una `clase.desactivar`, con `entidad = 'clases'`, `id_registro` igual a `id_clase` e `id_usuario` del administrador. **Atiende**: FR-012 (hallazgo G1). **Verificación**: `npm test` en rojo.
+- [ ] T108 [US1] Agregar a `backend/tests/classes.test.js` la prueba `modificar_clase_cuyo_entrenador_se_desactivo_sin_cambiar_instructor_se_acepta`: con la clase creada y su entrenador desactivado después, `PATCH /classes/:id` con solo `nombre` → 200; cambiar a otro instructor activo → 200; cambiar a un instructor inactivo → 422 "El instructor debe ser un entrenador activo.". **Atiende**: supuesto del spec sobre entrenadores desactivados, US1-6 (hallazgo U3). **Verificación**: `npm test` en rojo.
 
 ### Implementación de la historia 1
 
@@ -271,20 +273,20 @@ Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por c
 
   Las escrituras van en `withTransaction`. Orden de las reglas:
   1. Bloquear la clase con `lockById`, o 404 "La clase no existe.".
-  2. Bloquear al instructor con `lockInstructor` y validar que sea entrenador activo.
+  2. Si es un alta o si la modificación cambia `id_instructor`, bloquear al instructor con `lockInstructor` y validar que sea entrenador activo. Si no cambia el instructor, no se valida su estado (T108).
   3. Validar el empalme del instructor.
   4. Validar el cupo contra `maxActiveInFutureSessions`.
   5. Validar el cambio de horario o la desactivación contra `countActiveInFutureSessions`, usando `nowInGym()`.
   6. Escribir.
   7. Registrar la auditoría con `clase.crear`, `clase.modificar` (campos con su valor anterior y el nuevo) o `clase.desactivar`.
 
-  Devuelve un `ClassView` con `hora_fin` calculada. **Atiende**: US1-1 a US1-12, US1-14, FR-001, FR-010, FR-012. **Verificación**: pruebas de US1 en verde después de T035.
+  Devuelve un `ClassView` con `hora_fin` calculada. **Atiende**: US1-1 a US1-12, US1-14, FR-001, FR-010, FR-012. **Verificación**: pruebas de US1 (incluidas T106 y T108) en verde después de T035.
 - [ ] T035 [US1] Crear `backend/src/controllers/classes.controller.js`, con `list`, `instructors`, `create` (201 con `message: 'Clase registrada.'`), `update` y `deactivate`. Registrar las rutas en `backend/src/routes/classes.routes.js`:
   - `GET /` (administrador y recepcionista).
   - `GET /instructors` (administrador), declarada antes de `/:id`.
   - `POST /`, `PATCH /:id` y `PATCH /:id/status` (administrador).
 
-  **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T017 a T030 en verde.
+  **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T017 a T030, T106 y T108 en verde.
 - [ ] T036 [P] [US1] Crear `frontend/src/api/classes.js` con `listClasses(estado)`, `listInstructors()`, `createClass(datos)`, `updateClass(id, datos)` y `deactivateClass(id)`, siguiendo el patrón de `frontend/src/api/membershipTypes.js`. **Atiende**: R-04. **Verificación**: revisión; lo cubre T037.
 - [ ] T037 [P] [US1] Crear `frontend/src/tests/ClassForm.test.jsx`, con la API simulada:
   - `muestra_solo_los_entrenadores_activos_en_el_selector`.
@@ -354,6 +356,7 @@ se fija con `mock.timers.enable({ apis: ['Date'], now })` de `node:test`.
 
   **Atiende**: US2-8, FR-006. **Verificación**: `npm test` en rojo.
 - [ ] T050 [US2] Prueba `registra_auditoria_al_reservar`: existe una fila `reserva.registrar` con `id_registro` igual a `id_reserva` y el usuario que reservó. **Atiende**: FR-012. **Verificación**: `npm test` en rojo.
+- [ ] T107 [US2] Agregar a `backend/tests/reservations.test.js` la prueba `la_reserva_se_conserva_si_la_membresia_se_cancela_despues`: con una reserva activa, cambiar la membresía del cliente a `cancelada` (y en otro caso a `suspendida`) con `PATCH /memberships/:id/status`; la reserva sigue `activa` y ocupa su lugar. **Atiende**: caso límite "Membresía que cambia después de reservar" (hallazgo G2). **Verificación**: `npm test` en verde después de T056; no requiere código nuevo, porque ningún proceso cancela reservas automáticamente.
 - [ ] T051 [P] [US2] Crear `backend/tests/reservations-concurrency.test.js` con la prueba `veinte_reservas_simultaneas_por_el_ultimo_lugar_aceptan_solo_una`:
   - Una clase con cupo 1 y 20 clientes con membresía vigente.
   - `Promise.all` de 20 `POST /reservations`.
@@ -386,7 +389,7 @@ se fija con `mock.timers.enable({ apis: ['Date'], now })` de `node:test`.
   7. Rechazar duplicados con `existsActive` (409).
   8. Rechazar empalmes con `countClientOverlaps`.
   9. Validar el cupo con `countActiveBySession`.
-  10. Insertar. Si la sesión está `en_curso`, insertar con `asistencia: 'presente'`, `asistencia_por`, `asistencia_en` y `registrada_en_curso: 1`.
+  10. Insertar. Si la sesión está `en_curso`, insertar con `asistencia: 'presente'`, `asistencia_por`, `asistencia_en` y `registrada_en_curso: 1`. `asistencia_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05).
   11. Registrar la auditoría `reserva.registrar`.
 
   Traducir `ER_DUP_ENTRY` a 409 "El cliente ya tiene una reserva en esta clase.". **Atiende**: US2-1 a US2-9, FR-003 a FR-006, FR-012, R-02, R-07. **Verificación**: T042 a T051 en verde después de T056.
@@ -511,7 +514,7 @@ Todas en `backend/tests/reservations.test.js`.
 
 ### Implementación de la historia 3
 
-- [ ] T082 [US3] Agregar a `backend/src/models/reservation.model.js` `lockById(id, connection)` (`FOR UPDATE`, con los datos de la clase para calcular el estado de la sesión) y `cancel(id, idUsuario, connection)`, que guarda `estado = 'cancelada'`, `cancelado_por` y `cancelado_en`. **Atiende**: FR-007. **Verificación**: revisión; T078 a T081 en verde después de T084.
+- [ ] T082 [US3] Agregar a `backend/src/models/reservation.model.js` `lockById(id, connection)` (`FOR UPDATE`, con los datos de la clase para calcular el estado de la sesión) y `cancel(id, idUsuario, connection)`, que guarda `estado = 'cancelada'`, `cancelado_por` y `cancelado_en`. `cancelado_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05; hallazgo U2). **Atiende**: FR-007. **Verificación**: revisión; T078 a T081 en verde después de T084.
 - [ ] T083 [US3] Agregar `cancelReservation(id, user)` a `backend/src/services/reservations.service.js`, dentro de `withTransaction`. Pasos:
   1. `lockById`; si no existe → 404.
   2. Si está cancelada → 422.
@@ -556,7 +559,7 @@ Todas en `backend/tests/attendance.test.js`, con la hora fijada mediante `mock.t
   2. Si está cancelada → 422.
   3. Si la fecha de la sesión es posterior a hoy, o es hoy y `minutos` es menor que la hora de inicio → 422 (antes del inicio).
   4. Si la fecha de la sesión es anterior a hoy → 422 (después del día).
-  5. Guardar con `setAttendance`.
+  5. Guardar con `setAttendance`. `asistencia_en` se genera en Node con `new Date()` y se pasa como parámetro, sin `NOW()` (research R-05; hallazgo U2).
 
   Los pasos 3 y 4 usan `nowInGym()`. **Atiende**: US5-1 a US5-5, FR-009, FR-014. **Verificación**: T088 a T092 en verde después de T096.
 - [ ] T096 [US5] Agregar `attendance` a `backend/src/controllers/reservations.controller.js`. Registrar `PATCH /:id/attendance` (administrador y recepcionista) con `reservationIdParam` y `attendanceRules` en `backend/src/routes/reservations.routes.js`. **Atiende**: R-04, FR-011. **Verificación**: `cd backend && npm test`: T088 a T093 en verde.
@@ -592,8 +595,8 @@ Fase 1 (Configuración) ──▶ Fase 2 (Fundamentos) ──▶ Fase 3 (US1) �
                                               ├──▶ Fase 4 (US2) ──▶ Fase 5 (US4) ──▶ Fase 6 (US3) ──▶ Fase 7 (US5) ─┘
 ```
 
-- **Fase 1**: sin dependencias. T004 (aprobación del equipo) debe terminar antes de empezar la
-  Fase 3. Si el equipo no aprueba, no se implementa.
+- **Fase 1**: sin dependencias. T004 va después de T003 (mismo archivo `docs/sprint-4.md`) y **no
+  bloquea** las fases siguientes: la aprobación formal del equipo queda pendiente y registrada.
 - **Fase 2**: depende de T001. T005 → T006 (prueba antes que migración). T008 → T009 y T010 →
   T011 (prueba antes que implementación). T016 depende de que existan los routers. **Bloquea todas
   las historias.**
@@ -675,9 +678,9 @@ de implementación:
 | T001-T004 | `docs(docs): documentar la ampliación de alcance de clases grupales (T001-T004)` |
 | T005-T007 | `feat(database): crear tablas clases y reservas (T005-T007)` |
 | T008-T016 | `feat(classes): agregar utilidades de sesiones, auditoría y routers base (T008-T016)` |
-| T017-T035 | `feat(classes): registrar, modificar y desactivar clases (T017-T035)` |
+| T017-T035, T106, T108 | `feat(classes): registrar, modificar y desactivar clases (T017-T035, T106, T108)` |
 | T036-T041 | `feat(frontend): agregar catálogo y formulario de clases (T036-T041)` |
-| T042-T056 | `feat(reservations): reservar lugares sin sobrecupo (T042-T056)` |
+| T042-T056, T107 | `feat(reservations): reservar lugares sin sobrecupo (T042-T056, T107)` |
 | T057-T059 | `feat(frontend): agregar formulario de reserva (T057-T059)` |
 | T060-T070 | `feat(classes): consultar horario y reservados por sesión (T060-T070)` |
 | T071-T077 | `feat(frontend): agregar horario y detalle de sesión (T071-T077)` |
@@ -693,8 +696,8 @@ Sin squash ni force-push.
 
 - [P] = archivos distintos y sin dependencias pendientes.
 - Cada criterio EARS del spec tiene al menos una prueba automática:
-  - US1: T017 a T030.
-  - US2: T042 a T052.
+  - US1: T017 a T030, T106 y T108.
+  - US2: T042 a T052 y T107.
   - US3: T078 a T081.
   - US4: T060 a T066.
   - US5: T088 a T093.

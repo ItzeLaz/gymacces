@@ -60,7 +60,8 @@ recepción).
 - Reserva completa en menos de 1 minuto para recepción (SC-002).
 - Horario con lugares disponibles en menos de 10 s (SC-003).
 - Asistencia de 20 reservados en menos de 2 minutos (SC-005).
-- Cada endpoint responde en < 500 ms con decenas de clases y miles de reservas.
+
+Estos tres criterios se miden a mano en T104, durante el recorrido de [quickstart.md](./quickstart.md).
 
 **Restricciones**:
 - Nunca más reservas activas que el cupo, incluso con solicitudes simultáneas (FR-004, SC-001).
@@ -71,7 +72,8 @@ recepción).
 
 **Escala/alcance**:
 - 2 tablas y 10 endpoints nuevos.
-- 4 páginas nuevas y cambios en el menú y las rutas del frontend.
+- 4 páginas nuevas, 1 componente nuevo (`ReservationForm`) y cambios en el menú y las rutas del
+  frontend.
 - Volumen esperado: decenas de clases por semana, hasta 100 lugares por sesión.
 
 No queda ningún punto marcado como NEEDS CLARIFICATION.
@@ -117,19 +119,21 @@ Constitución v2.1.0.
 - **Aprobación**: la decisión de incluir esta ampliación la tomó la autora de la rama
   `004-reservas-clases` para su reporte individual. Todavía no la aprueba el equipo: queda
   pendiente presentarla para su aprobación formal, como exige la gobernanza de la constitución.
+  Este estado se registra en T004 y no bloquea la implementación.
 - **Pendiente operativo**: actualizar `docs/` (contexto del proyecto y sprints) para incluir las
   clases grupales antes de cerrar el sprint. Se incluirá como tarea en `tasks.md`.
 
-**Resultado de la compuerta (antes de la Fase 0)**: aprobada. La única desviación (principio VIII)
-está justificada y documentada, y queda pendiente la aprobación formal del equipo. No hay
-violaciones sin justificar.
+**Resultado de la compuerta (antes de la Fase 0)**: aprobada con condición: aprobación del equipo
+pendiente, registrada en T004. La única desviación (principio VIII) está justificada y documentada.
+No hay violaciones sin justificar.
 
 **Revisión después de la Fase 1**:
 - El modelo de datos agrega solo dos tablas con restricciones en la base.
 - El contrato sigue las convenciones existentes.
 - La estructura no crea carpetas nuevas en la raíz.
 
-El resultado se mantiene: aprobada con la desviación justificada del principio VIII. La regla "la
+El resultado se mantiene: aprobada con condición (aprobación del equipo pendiente, registrada en
+T004). La regla "la
 clase debe terminar el mismo día" (research R-06) ya tiene su criterio EARS en el spec (US1,
 criterio 14), como pide el principio VI.
 
@@ -193,10 +197,12 @@ frontend/src/
 ├── pages/ClassForm.jsx                             ➕ alta y edición (administrador)
 ├── pages/Schedule.jsx                              ➕ horario con lugares y "Llena"
 ├── pages/SessionDetail.jsx                         ➕ reservados, reservar, cancelar y asistencia
+├── components/ReservationForm.jsx                  ➕ búsqueda de cliente y reserva (US2)
 ├── App.jsx                                         ✏️ rutas /classes y /schedule
 ├── components/Navbar.jsx                           ✏️ "Clases" (administrador) y "Horario" (administrador y recepción)
 ├── styles/global.css                               ✏️ horario y lista de asistencia
-└── tests/ClassForm.test.jsx, Schedule.test.jsx, SessionDetail.test.jsx   ➕
+├── tests/ClassForm.test.jsx, Schedule.test.jsx, SessionDetail.test.jsx, ReservationForm.test.jsx   ➕
+└── tests/Navigation.test.jsx                       ✏️ opciones "Clases" y "Horario" por rol
 
 docs/                                               ✏️ registrar la ampliación de alcance
 ```

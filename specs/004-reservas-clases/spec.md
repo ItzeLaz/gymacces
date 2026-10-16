@@ -38,6 +38,8 @@ Términos usados en este documento:
   2026-10-19 a las 07:00). Las reservas, el cupo disponible y la asistencia se controlan por sesión.
 - **Recepción**: usuario con rol recepcionista. El administrador puede hacer todo lo que hace
   recepción.
+- **Sesión futura**: sesión que todavía no termina: de una fecha posterior a hoy, o de hoy y en
+  curso o por empezar. Se usa en los criterios 9 a 11 de la historia 1.
 
 ### Historia de usuario 1 — Registro del horario semanal de clases (Prioridad: P1)
 
@@ -83,7 +85,7 @@ sistema lo rechaza.
    ENTONCES el sistema DEBE rechazar la desactivación y mostrar el mensaje "No se puede desactivar
    una clase con reservas activas".
 12. MIENTRAS una clase esté desactivada, el sistema DEBE excluirla del horario semanal y rechazar
-    nuevas reservas en sus sesiones.
+    nuevas reservas en sus sesiones con el mensaje "La clase está inactiva".
 13. SI un usuario con rol recepcionista, entrenador o cliente intenta registrar, modificar o
     desactivar una clase, ENTONCES el sistema DEBE rechazar la operación y mostrar el mensaje "No
     tienes permiso para realizar esta acción".
@@ -280,7 +282,8 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
   desactivación de clases, y el registro y la cancelación de reservas, con el usuario que hizo la
   acción y la fecha y hora.
 - **FR-013**: El sistema DEBE mostrar todos los mensajes de éxito y de rechazo en español con los
-  textos definidos en los criterios de aceptación, sin revelar información técnica.
+  textos definidos en los criterios de aceptación, sin revelar información técnica. Los mensajes se
+  muestran con punto final (por ejemplo, "Clase llena.").
 - **FR-014**: El sistema DEBE usar la zona horaria del gimnasio para determinar fechas de sesión,
   si una sesión ya empezó o terminó, y el fin del día.
 
@@ -324,8 +327,11 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
   impide el acceso (decisión del Sprint 2).
 - La reserva no sustituye el control de acceso: el cliente sigue entrando al gimnasio por
   reconocimiento facial.
-- Se reutilizan sin cambios la autenticación, los roles, los clientes, las membresías y la
-  auditoría de los Sprints 1 a 3.
+- Se reutilizan sin cambios de estructura la autenticación, los roles, los clientes, las
+  membresías y la auditoría de los Sprints 1 a 3; la auditoría solo agrega acciones nuevas.
+- Si un entrenador se desactiva después de asignarle clases, sus clases se conservan. El
+  administrador puede editarlas para asignar otro instructor; la regla de entrenador activo solo se
+  valida al registrar una clase o al cambiar su instructor.
 - Quedan fuera de esta feature: que los clientes reserven por su cuenta, listas de espera,
   notificaciones a clientes, cancelar una sola sesión sin desactivar la clase, sanciones por
   inasistencia, consultas para el rol entrenador, cobro por clase y reportes de ocupación.
