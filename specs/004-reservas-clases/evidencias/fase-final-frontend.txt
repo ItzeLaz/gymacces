@@ -1,0 +1,47 @@
+Evidencia final del frontend de specs/004-reservas-clases (después de la corrección del menú, ebd1591)
+Fecha: 2026-10-16 18:11:27 -0600
+Rama: 004-reservas-clases | Último commit: a8a3551 docs(reporte): agregar REPORTE.md con índice de evidencias y reflexión
+Node: v24.21.0 | npm: 11.19.0
+
+==================================================================
+Pruebas del frontend
+   Comando: npm --prefix C:/Users/Iztel/gymacces/frontend test -- --run
+==================================================================
+
+> gym-access-frontend@1.0.0 test
+> vitest run --run
+
+
+ RUN  v3.2.7 C:/Users/Iztel/gymacces/frontend
+
+ ✓ src/tests/ClassForm.test.jsx (5 tests) 1125ms
+   ✓ formulario de clases grupales > muestra_solo_los_entrenadores_activos_en_el_selector  354ms
+ ✓ src/tests/SessionDetail.test.jsx (11 tests) 1147ms
+   ✓ detalle de sesión > muestra_quedan_x_de_y_lugares  320ms
+ ✓ src/tests/Navigation.test.jsx (14 tests) 627ms
+ ✓ src/tests/MembershipTypeForm.test.jsx (3 tests) 653ms
+   ✓ formulario de tipos de membresía > marca_los_campos_obligatorios_sin_llamar_a_la_api  326ms
+ ✓ src/tests/Dashboard.test.jsx (6 tests) 871ms
+   ✓ dashboard administrativo > lista_membresias_por_vencer_y_rechazos_recientes  374ms
+ ✓ src/tests/MembershipForm.test.jsx (3 tests) 467ms
+   ✓ formulario de asignación de membresía > solo_ofrece_tipos_activos_y_muestra_la_fecha_de_fin_calculada  330ms
+ ✓ src/tests/ClientForm.test.jsx (3 tests) 556ms
+ ✓ src/tests/Login.test.jsx (4 tests) 680ms
+   ✓ pantalla de inicio de sesión > muestra_error_si_los_campos_estan_vacios  428ms
+ ✓ src/tests/ReservationForm.test.jsx (4 tests) 546ms
+   ✓ formulario de reserva > busca_cliente_y_envia_la_reserva  345ms
+ ✓ src/tests/PaymentForm.test.jsx (3 tests) 615ms
+ ✓ src/tests/Schedule.test.jsx (4 tests) 487ms
+   ✓ horario de clases > agrupa_las_sesiones_por_dia_y_muestra_los_lugares  399ms
+ ✓ src/tests/AccessStation.test.jsx (4 tests) 408ms
+ ✓ src/tests/BarChart.test.jsx (3 tests) 359ms
+ ✓ src/tests/Profile.test.jsx (2 tests) 181ms
+ ✓ src/tests/ProtectedRoute.test.jsx (3 tests) 136ms
+ ✓ src/tests/DashboardAccess.test.jsx (3 tests) 83ms
+
+ Test Files  16 passed (16)
+      Tests  75 passed (75)
+   Start at  18:11:29
+   Duration  16.58s (transform 1.33s, setup 6.20s, collect 3.38s, tests 8.94s, environment 19.03s, prepare 3.04s)
+
+Código de salida: 0

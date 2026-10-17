@@ -323,7 +323,7 @@ Tiene **108 tareas** (T001–T108), todas en `[X]`.
 |--------|-----------|----------------------------|
 | 1 | 11 hallazgos: C1 (crítico: la compuerta decía "aprobada" con la aprobación del equipo pendiente), G1 (alto: faltaba la prueba de auditoría de clases) y nueve medios o bajos: U1, U2, U3, G2, G3, I1, I2, I3 y A1 | [`283a48d`](https://github.com/ItzeLaz/gymacces/commit/283a48d739da7ee50e50700d2a43278940d192f2) (agregó las tareas T106, T107 y T108) |
 | 2 | 3 hallazgos bajos: I4 (instructor activo solo al cambiarlo), I5 (`creado_en` desde Node) e I6 (nota del checklist) | [`20be41a`](https://github.com/ItzeLaz/gymacces/commit/20be41aa87afd7ed612e2cd4aa54e960545f70ed) |
-| 3 | PENDIENTE: no se ejecutó una tercera pasada para confirmar 0 hallazgos | — |
+| 3 (después de la implementación) | 4 hallazgos, sin críticos ni altos: G4 (medio: SC-005 sin medir con 20 clientes y T104 en `[X]` sin indicarlo), I7 (bajo: el plan no lista `Layout.jsx`, `api/client.js`, `utils/dates.js` del frontend ni `StatusBadge.jsx`), I8 (bajo: T018 todavía describe `details.<campo>`) e I9 (bajo: R-05 no registra que la casilla de asistencia usa la fecha del navegador) | Sin corregir |
 
 ---
 
@@ -340,7 +340,7 @@ Tiene **108 tareas** (T001–T108), todas en `[X]`.
 | 6 (US3) | T078–T087 | [`b2cf62f`](https://github.com/ItzeLaz/gymacces/commit/b2cf62f53a437e963c100aba8e5522a26c527b3d) | 238/238 | 69/69 | [`fase-6-us3.txt`](https://github.com/ItzeLaz/gymacces/blob/004-reservas-clases/specs/004-reservas-clases/evidencias/fase-6-us3.txt) |
 | 7 (US5) | T088–T099 | [`5efc699`](https://github.com/ItzeLaz/gymacces/commit/5efc69929629a25530ae3c1a72bb2b5dd7928a12) | 245/245 | 73/73 | [`fase-7-us5.txt`](https://github.com/ItzeLaz/gymacces/blob/004-reservas-clases/specs/004-reservas-clases/evidencias/fase-7-us5.txt) |
 | 8 | T100–T103 | [`9823b60`](https://github.com/ItzeLaz/gymacces/commit/9823b607fe867145117b45df4264cb2f15733e3d) | 246/246 | 73/73 | [`fase-8-verificacion.txt`](https://github.com/ItzeLaz/gymacces/blob/004-reservas-clases/specs/004-reservas-clases/evidencias/fase-8-verificacion.txt) |
-| Hallazgo de T104 | Corrección del menú | [`ebd1591`](https://github.com/ItzeLaz/gymacces/commit/ebd15913a8608e5317ead9eae4615194ca1f2895) | Sin cambios | 75/75 | PENDIENTE (no hay archivo de evidencia de esta ejecución) |
+| Hallazgo de T104 | Corrección del menú | [`ebd1591`](https://github.com/ItzeLaz/gymacces/commit/ebd15913a8608e5317ead9eae4615194ca1f2895) | Sin cambios | 75/75 | [`fase-final-frontend.txt`](https://github.com/ItzeLaz/gymacces/blob/004-reservas-clases/specs/004-reservas-clases/evidencias/fase-final-frontend.txt) |
 | 8 | T104–T105 | [`6f0b1bd`](https://github.com/ItzeLaz/gymacces/commit/6f0b1bd6a3e1f11a856541c6a1b6b9307cceac10) | — | — | [`quickstart.md`](https://github.com/ItzeLaz/gymacces/blob/004-reservas-clases/specs/004-reservas-clases/quickstart.md) (sección 6) y [`capturas/`](https://github.com/ItzeLaz/gymacces/tree/004-reservas-clases/specs/004-reservas-clases/evidencias/capturas) |
 
 Cambios al contrato durante la implementación:
@@ -449,14 +449,16 @@ Registrada en la sección 6 de
   ocultaba "Dashboard", "Horario" y "Entrenamiento" (captura 11), y las pruebas automáticas no lo
   detectaron porque jsdom no calcula el diseño. Se corrigió en
   [`ebd1591`](https://github.com/ItzeLaz/gymacces/commit/ebd15913a8608e5317ead9eae4615194ca1f2895).
-  La captura de la corrección (`12-menu-corregido.png`) está PENDIENTE de agregar al repositorio.
+  La corrección se verificó con las pruebas `el_menu_pasa_a_otra_linea_en_lugar_de_ocultar_opciones` y
+  `el_contenido_se_desplaza_segun_la_altura_real_del_menu` de
+  [`Navigation.test.jsx`](https://github.com/ItzeLaz/gymacces/blob/004-reservas-clases/frontend/src/tests/Navigation.test.jsx).
 
 ---
 
-## Apartado 7. EARS y reflexión
+## 7. EARS y reflexión
 
 ### (a) Qué es EARS
-EARS (Easy Approach to Requirements Syntax) es una forma de escribir requisitos usando plantillas fijas de oración, creada por Alistair Mavin y su equipo en Rolls-Royce. La idea es que cada requisito diga claramente cuándo aplica y qué debe hacer el sistema, con una sola respuesta que se pueda comprobar. Tiene cinco patrones: Ubicuo ("El sistema DEBERÁ…"), por evento ("CUANDO ocurra X, el sistema DEBERÁ…"), por estado ("MIENTRAS se cumpla X, el sistema DEBERÁ…"), comportamiento no deseado ("SI ocurre X, ENTONCES el sistema DEBERÁ…") y opcional ("DONDE exista X, el sistema DEBERÁ…"). Para mí la ventaja es que obliga a quitar la ambigüedad: si no puedo escribir el disparador y la respuesta, es que todavía no entiendo el requisito.
+EARS (Easy Approach to Requirements Syntax) es una forma de escribir requisitos usando plantillas fijas de oración, creada por Alistair Mavin y su equipo en Rolls-Royce. La idea es que cada requisito diga claramente cuándo aplica y qué debe hacer el sistema, con una sola respuesta que se pueda comprobar. Tiene cinco patrones: Ubicuo ("El sistema DEBE…"), por evento ("CUANDO ocurra X, el sistema DEBE…"), por estado ("MIENTRAS se cumpla X, el sistema DEBE…"), comportamiento no deseado ("SI ocurre X, ENTONCES el sistema DEBE…") y opcional ("DONDE exista X, el sistema DEBE…"). Para mí la ventaja es que obliga a quitar la ambigüedad: si no puedo escribir el disparador y la respuesta, es que todavía no entiendo el requisito.
 
 ### (b) Dos requisitos antes y después
 | | Antes (como lo escribí al inicio) | Después (EARS, en spec.md) |
@@ -470,7 +472,7 @@ Los dos se comprobaron con pruebas automáticas y con las capturas 06b y 02 de l
 Los specs 001, 002 y 003 de los sprints anteriores siguen escritos con "Dado / Cuando / Entonces". En el siguiente avance reescribiré en EARS los criterios de aceptación de specs/002-membresias-pagos-acceso/spec.md (renovación de membresías y rechazo de acceso), porque son las reglas con más casos de error. Lo haré al inicio del siguiente sprint, antes de correr /speckit-plan, para que las pruebas salgan de esos criterios.
 
 ### (d) Reflexión
-El spec cambió varias veces durante el proceso. Al inicio no había decidido si una clase era una sesión suelta o un horario semanal (Q1); con clarify definí que el instructor es un usuario con rol entrenador; durante el plan apareció una regla que no tenía criterio (la clase debe terminar el mismo día) y la agregué al spec; y /speckit-analyze encontró 10 problemas, incluido uno crítico: el plan decía que el equipo había aprobado el cambio de alcance, cuando no era cierto, y lo corregí para que dijera la verdad.
+El spec cambió varias veces durante el proceso. Al inicio no había decidido si una clase era una sesión suelta o un horario semanal (Q1); con clarify definí que el instructor es un usuario con rol entrenador; durante el plan apareció una regla que no tenía criterio (la clase debe terminar el mismo día) y la agregué al spec; y /speckit-analyze encontró 11 hallazgos, incluido uno crítico: el plan decía que el equipo había aprobado el cambio de alcance, cuando no era cierto, y lo corregí para que dijera la verdad.
 
 Trabajar con IA me dejó dos cosas. La primera es la velocidad: se implementaron 108 tareas con 246 pruebas en el backend y 75 en el frontend en una tarde. La segunda es que la IA toma decisiones sola (supuestos, límites, textos) y si no reviso cada resumen se quedan en el proyecto sin que yo las haya elegido. También aprendí que las pruebas automáticas no lo cubren todo: el menú escondía las opciones "Clases" y "Horario" y ninguna de las 321 pruebas lo detectó; lo encontré en la prueba manual. Spec Kit me ayudó a que todo lo que hizo la IA quedara escrito y con su commit, así que puedo explicar y defender cada decisión.
 
