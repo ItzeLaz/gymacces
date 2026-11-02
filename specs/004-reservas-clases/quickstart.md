@@ -40,11 +40,13 @@ Resultado esperado: todas las pruebas en verde, incluidas las nuevas:
 | Archivo | Qué comprueba |
 |---------|---------------|
 | `backend/tests/sessions.unit.test.js` | Empalme semiabierto, estado de la sesión, ventana `[hoy, hoy + 7]`, fechas de sesión por día ISO |
-| `backend/tests/classes.test.js` | US1, criterios 1 a 12 y 14 |
-| `backend/tests/reservations.test.js` | US2, criterios 1 a 8, y US3, criterios 1 a 4 |
+| `backend/tests/utils.unit.test.js` | US5-7: fecha y minutos en la zona del gimnasio, distintos de UTC (T008) |
+| `backend/tests/classes.test.js` | US1, criterios 1 a 12, 14 y 15 (auditoría de clases, T106) |
+| `backend/tests/reservations.test.js` | US2, criterios 1 a 8 y 11 (auditoría de reservas, T050 y T078), y US3, criterios 1 a 4 |
 | `backend/tests/reservations-concurrency.test.js` | US2, criterio 9, y SC-001: 20 solicitudes simultáneas por el último lugar → exactamente 1 aceptada |
-| `backend/tests/sessions.test.js` | US4, criterios 1 a 5 (lista, "Quedan X de Y lugares", canceladas excluidas, horario y "Llena") |
-| `backend/tests/attendance.test.js` | US5, criterios 1 a 6 (con la hora fijada mediante `mock.timers`) |
+| `backend/tests/sessions.test.js` | US4, criterios 1 a 5 y 7 (lista, "Quedan X de Y lugares", canceladas excluidas, horario de hoy a hoy + 7 y "Llena"); criterio 8 (lugares por sesión) **pendiente: T110** |
+| `backend/tests/attendance.test.js` | US5, criterios 1 a 6 (con la hora fijada mediante `mock.timers`); criterio 8 (23:30 del gimnasio frente a UTC) **pendiente: T111** |
+| `backend/tests/errorHandler.unit.test.js` | US2-13: error no previsto → 500 con mensaje genérico, sin trazas ni SQL. **Pendiente: T109** (el archivo todavía no existe) |
 | `backend/tests/classes-permissions.test.js` | US1-13, US2-10, US4-6, FR-011 y SC-006 para los cuatro roles |
 | `backend/tests/database.test.js` | Las tablas nuevas existen con InnoDB y utf8mb4 |
 | `frontend/src/tests/ClassForm.test.jsx`, `Schedule.test.jsx`, `SessionDetail.test.jsx` | Formularios, mensajes y etiquetas en español |
@@ -162,7 +164,7 @@ acción, sin datos sensibles.
 | Empalme del instructor (US1-5; escenario 1, paso 2) | `backend/tests/classes.test.js` → `rechaza_clase_si_el_instructor_tiene_otra_que_se_empalma`; `frontend/src/tests/ClassForm.test.jsx` → `muestra_el_mensaje_de_error_del_servidor` |
 | Reducción de cupo por debajo de las reservas (US1-9; escenario 3, paso 1) | `backend/tests/classes.test.js` → `rechaza_reducir_cupo_por_debajo_de_las_reservas_existentes` |
 | Desactivar una clase con reservas (US1-11; escenario 3, paso 2) | `backend/tests/classes.test.js` → `rechaza_desactivar_clase_con_reservas_activas` |
-| Auditoría (FR-012; escenario 5) | `backend/tests/classes.test.js` → `registra_auditoria_al_crear_modificar_y_desactivar_clases`; `backend/tests/reservations.test.js` → `registra_auditoria_al_reservar` y `cancelar_reserva_de_sesion_pendiente_libera_el_lugar_y_la_conserva` (`reserva.cancelar`) |
+| Auditoría (FR-012, US1-15 y US2-11; escenario 5) | `backend/tests/classes.test.js` → `registra_auditoria_al_crear_modificar_y_desactivar_clases`; `backend/tests/reservations.test.js` → `registra_auditoria_al_reservar` y `cancelar_reserva_de_sesion_pendiente_libera_el_lugar_y_la_conserva` (`reserva.cancelar`) |
 
 Otros pasos de `quickstart.md` que tampoco tienen captura y quedan cubiertos por pruebas
 automáticas:

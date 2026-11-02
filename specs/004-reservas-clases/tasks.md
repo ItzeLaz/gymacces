@@ -53,7 +53,8 @@ cancelación (US3) y la asistencia (US5).
   `backend/src/utils/dates.js` (research R-05). **Ninguna consulta nueva usa `NOW()` ni
   `CURDATE()`.**
 - **Mensajes**: se copian textualmente de [contracts/api.md](./contracts/api.md) y terminan en punto
-  (research R-08).
+  (research R-08; US2-12, FR-013). Cada prueba que comprueba un mensaje de éxito o de rechazo
+  verifica el texto exacto con punto final.
 - **Transacciones**: toda escritura usa `withTransaction` de `backend/src/config/db.js` y registra
   la auditoría con la misma conexión.
 - **Bloqueos**: al reservar, siempre en el orden cliente → clase (research R-02).
@@ -153,7 +154,7 @@ vacíos.
   - `SHOW CREATE TABLE reservas` muestra el índice único.
   - `cd backend && npm test` pone T005 en verde.
 - [X] T007 [P] Documentar las tablas `clases` y `reservas` y la migración 006 en `database/README.md`. **Atiende**: principio IV. **Verificación**: revisión.
-- [X] T008 [P] Agregar en `backend/tests/utils.unit.test.js` las pruebas `now_in_gym_devuelve_fecha_y_minutos_locales` (por ejemplo, `2026-10-19T13:05:00Z` → `{ fecha: '2026-10-19', minutos: 425 }` en `America/Mexico_City`) y `now_in_gym_cambia_de_dia_segun_la_zona_del_gimnasio`. **Atiende**: R-05, FR-014. **Verificación**: `npm test` en rojo hasta T009.
+- [X] T008 [P] Agregar en `backend/tests/utils.unit.test.js` las pruebas `now_in_gym_devuelve_fecha_y_minutos_locales` (por ejemplo, `2026-10-19T13:05:00Z` → `{ fecha: '2026-10-19', minutos: 425 }` en `America/Mexico_City`) y `now_in_gym_cambia_de_dia_segun_la_zona_del_gimnasio`. **Atiende**: US5-7, R-05, FR-014. **Verificación**: `npm test` en rojo hasta T009.
 - [X] T009 Implementar `nowInGym(date = new Date())` en `backend/src/utils/dates.js` con `Intl.DateTimeFormat` y `env.timezone`. Devuelve `{ fecha: 'AAAA-MM-DD', minutos }`, donde `minutos` son los minutos desde la medianoche local. **Atiende**: R-05, FR-014. **Verificación**: T008 en verde.
 - [X] T010 [P] Crear `backend/tests/sessions.unit.test.js` con pruebas de las funciones puras de `utils/sessions.js`:
   - `se_empalman_intervalos_que_se_cruzan` y `no_se_empalman_clases_contiguas` (08:00–09:00 y 09:00–10:00).
@@ -232,7 +233,7 @@ Todas en `backend/tests/classes.test.js`, salvo la de permisos. Una prueba por c
 - [X] T028 [US1] Prueba `clase_desactivada_no_aparece_para_recepcion`: `GET /classes` como recepcionista no la incluye; el administrador la ve con `?estado=inactiva`. **Atiende**: US1-12 (las partes del horario y de la reserva se comprueban en T060 y T045). **Verificación**: `npm test` en rojo.
 - [X] T029 [US1] Prueba `rechaza_clase_que_termina_despues_de_la_medianoche`: 23:30 + 45 min → 400 "La clase debe terminar el mismo día."; 23:00 + 60 min se acepta. **Atiende**: US1-14, R-06. **Verificación**: `npm test` en rojo.
 - [X] T030 [P] [US1] Crear `backend/tests/classes-permissions.test.js` con la prueba `solo_el_administrador_registra_modifica_o_desactiva_clases`: recepcionista, entrenador y cliente → 403 "No tienes permiso para realizar esta acción." en `POST /classes`, `PATCH /classes/:id`, `PATCH /classes/:id/status` y `GET /classes/instructors`; sin token → 401. **Atiende**: US1-13, FR-011. **Verificación**: `npm test` en rojo.
-- [X] T106 [US1] Agregar a `backend/tests/classes.test.js` la prueba `registra_auditoria_al_crear_modificar_y_desactivar_clases`: después de `POST /classes`, `PATCH /classes/:id` y `PATCH /classes/:id/status`, la tabla `auditoria` tiene una fila `clase.crear`, una `clase.modificar` (con la descripción de los campos con su valor anterior y el nuevo) y una `clase.desactivar`, con `entidad = 'clases'`, `id_registro` igual a `id_clase` e `id_usuario` del administrador. **Atiende**: FR-012 (hallazgo G1). **Verificación**: `npm test` en rojo.
+- [X] T106 [US1] Agregar a `backend/tests/classes.test.js` la prueba `registra_auditoria_al_crear_modificar_y_desactivar_clases`: después de `POST /classes`, `PATCH /classes/:id` y `PATCH /classes/:id/status`, la tabla `auditoria` tiene una fila `clase.crear`, una `clase.modificar` (con la descripción de los campos con su valor anterior y el nuevo) y una `clase.desactivar`, con `entidad = 'clases'`, `id_registro` igual a `id_clase` e `id_usuario` del administrador. **Atiende**: US1-15, FR-012 (hallazgo G1). **Verificación**: `npm test` en rojo.
 - [X] T108 [US1] Agregar a `backend/tests/classes.test.js` la prueba `modificar_clase_cuyo_entrenador_se_desactivo_sin_cambiar_instructor_se_acepta`: con la clase creada y su entrenador desactivado después, `PATCH /classes/:id` con solo `nombre` → 200; cambiar a otro instructor activo → 200; cambiar a un instructor inactivo → 422 "El instructor debe ser un entrenador activo.". **Atiende**: supuesto del spec sobre entrenadores desactivados, US1-6 (hallazgo U3). **Verificación**: `npm test` en rojo.
 
 ### Implementación de la historia 1
@@ -355,7 +356,7 @@ se fija con `mock.timers.enable({ apis: ['Date'], now })` de `node:test`.
   - En curso pero llena → "Clase llena.".
 
   **Atiende**: US2-8, FR-006. **Verificación**: `npm test` en rojo.
-- [X] T050 [US2] Prueba `registra_auditoria_al_reservar`: existe una fila `reserva.registrar` con `id_registro` igual a `id_reserva` y el usuario que reservó. **Atiende**: FR-012. **Verificación**: `npm test` en rojo.
+- [X] T050 [US2] Prueba `registra_auditoria_al_reservar`: existe una fila `reserva.registrar` con `id_registro` igual a `id_reserva` y el usuario que reservó. **Atiende**: US2-11, FR-012. **Verificación**: `npm test` en rojo.
 - [X] T107 [US2] Agregar a `backend/tests/reservations.test.js` la prueba `la_reserva_se_conserva_si_la_membresia_se_cancela_despues`: con una reserva activa, cambiar la membresía del cliente a `cancelada` (y en otro caso a `suspendida`) con `PATCH /memberships/:id/status`; la reserva sigue `activa` y ocupa su lugar. **Atiende**: caso límite "Membresía que cambia después de reservar" (hallazgo G2). **Verificación**: `npm test` en verde después de T056; no requiere código nuevo, porque ningún proceso cancela reservas automáticamente.
 - [X] T051 [P] [US2] Crear `backend/tests/reservations-concurrency.test.js` con la prueba `veinte_reservas_simultaneas_por_el_ultimo_lugar_aceptan_solo_una`:
   - Una clase con cupo 1 y 20 clientes con membresía vigente.
@@ -431,7 +432,7 @@ Todas en `backend/tests/sessions.test.js`, salvo la de permisos.
   - Excluye las clases inactivas (US1-12).
   - `desde` fuera de la ventana → 400.
 
-  **Atiende**: US4-4, US1-12, FR-008, R-05. **Verificación**: `npm test` en rojo.
+  **Atiende**: US4-4, US4-7, US1-12, FR-002, FR-008, R-05. **Verificación**: `npm test` en rojo.
 - [X] T061 [US4] Prueba `el_detalle_de_sesion_muestra_datos_y_quedan_x_de_y_lugares`: `GET /classes/:id/sessions/:fecha` → nombre, instructor, fecha, hora, cupo, `reservas_activas` y `texto_lugares: 'Quedan 17 de 20 lugares'`. **Atiende**: US4-1, FR-008. **Verificación**: `npm test` en rojo.
 - [X] T062 [US4] Prueba `la_lista_de_reservados_esta_ordenada_por_apellido_y_nombre_con_su_asistencia`. **Atiende**: US4-2. **Verificación**: `npm test` en rojo.
 - [X] T063 [US4] Prueba `las_reservas_canceladas_no_cuentan_ni_aparecen`: con 3 activas y 1 cancelada → 3 en la lista y 17 lugares. **Atiende**: US4-3. **Verificación**: `npm test` en rojo.
@@ -507,7 +508,7 @@ Todas en `backend/tests/reservations.test.js`.
   - La fila sigue en la base y los lugares suben en 1.
   - Existe una auditoría `reserva.cancelar`.
 
-  **Atiende**: US3-1, FR-007, FR-012. **Verificación**: `npm test` en rojo.
+  **Atiende**: US3-1, US2-11, FR-007, FR-012. **Verificación**: `npm test` en rojo.
 - [X] T079 [US3] Prueba `rechaza_cancelar_reserva_de_clase_que_ya_empezo`: con la hora en curso o terminada → 422 "No se puede cancelar una reserva de una clase que ya empezó.". **Atiende**: US3-2. **Verificación**: `npm test` en rojo.
 - [X] T080 [US3] Prueba `rechaza_cancelar_una_reserva_ya_cancelada`: 422 "La reserva ya está cancelada."; si la reserva no existe → 404 "La reserva no existe.". **Atiende**: US3-3. **Verificación**: `npm test` en rojo.
 - [X] T081 [US3] Prueba `el_cliente_puede_volver_a_reservar_despues_de_cancelar`: `POST /reservations` para el mismo cliente y la misma sesión → 201; la base tiene 1 activa y 1 cancelada. **Atiende**: US3-4, FR-005. **Verificación**: `npm test` en rojo.
@@ -576,7 +577,7 @@ Todas en `backend/tests/attendance.test.js`, con la hora fijada mediante `mock.t
 **Propósito**: comprobaciones de seguridad, codificación, criterios de éxito y cierre de la
 documentación.
 
-- [X] T100 [P] Revisar con `grep -rn "NOW()\|CURDATE()" backend/src/models/class.model.js backend/src/models/reservation.model.js` que no haya resultados. Revisar también que ninguna consulta nueva concatene valores del usuario. **Atiende**: R-05, FR-014, principio III. **Verificación**: el comando no devuelve resultados; revisión del código.
+- [X] T100 [P] Revisar con `grep -rn "NOW()\|CURDATE()" backend/src/models/class.model.js backend/src/models/reservation.model.js` que no haya resultados. Revisar también que ninguna consulta nueva concatene valores del usuario. **Atiende**: US5-7, R-05, FR-014, principio III. **Verificación**: el comando no devuelve resultados; revisión del código.
 - [X] T101 [P] Revisar que las respuestas de `GET /classes/:id/sessions/:fecha` y `POST /reservations` no incluyan `correo`, `telefono`, `direccion`, datos faciales ni montos. **Atiende**: principio III. **Verificación**: agregar a `backend/tests/sessions.test.js` la prueba `el_detalle_no_expone_datos_de_contacto` y correr `npm test` en verde.
 - [X] T102 Ejecutar `cd backend && npm test` y `cd frontend && npm test` completos. **Atiende**: principio II. **Verificación**: 0 pruebas fallidas en ambas carpetas.
 - [X] T103 Ejecutar `cd database && npm run db:reset && npm run db:seed && npm run db:check-encoding` para comprobar que la base se reconstruye desde cero con la migración 006. **Atiende**: principio IV. **Verificación**: los comandos terminan sin errores.
@@ -584,6 +585,39 @@ documentación.
 - [X] T104 Recorrer a mano los escenarios 1 a 5 de `specs/004-reservas-clases/quickstart.md` y medir SC-002, SC-003 y SC-005. Registrar el resultado (fecha, escenarios aprobados y tiempos) en una sección "Resultados de validación" de ese archivo. **Atiende**: SC-002, SC-003, SC-004, SC-005. **Verificación**: revisión de la sección.
   - **Hallazgo durante T104 (2026-10-16, captura `evidencias/capturas/11-bug-menu-oculta-clases-horario.png`)**: con las 9 opciones del administrador (se agregaron "Clases" y "Horario"), el menú se desplazaba en horizontal con la barra de desplazamiento oculta y no se veían "Dashboard", "Horario" ni "Entrenamiento". Corrección (opción B): `.navbar-links` usa `flex-wrap: wrap` en `frontend/src/styles/global.css`, y `frontend/src/components/Layout.jsx` mide la altura real del menú con `ResizeObserver` para ajustar `--navbar-offset` y que el contenido no quede debajo de la barra. Pruebas: `el_menu_pasa_a_otra_linea_en_lugar_de_ocultar_opciones` y `el_contenido_se_desplaza_segun_la_altura_real_del_menu` en `frontend/src/tests/Navigation.test.jsx`. Falta confirmarlo a mano en el navegador.
 - [X] T105 [P] Cambiar el estado de `specs/004-reservas-clases/spec.md` de "Borrador" a "Implementada" y marcar como `[X]` las tareas terminadas de este archivo. **Atiende**: principio VII. **Verificación**: revisión.
+
+---
+
+## Fase 9: Verificación de los criterios del clarify (QA Pre, 2026-11-02)
+
+**Propósito**: cubrir con pruebas automáticas los criterios EARS agregados por `/speckit-clarify`
+el 2026-11-02 que `/speckit-analyze` encontró sin prueba (hallazgos C1, C2 y C3).
+
+Como el código ya existe, es probable que estas pruebas pasen desde el principio. En ese caso, igual
+que en T093, se rompe temporalmente el código indicado y se comprueba que la prueba falla
+(principio II).
+
+- [ ] T109 [P] [US2] Crear `backend/tests/errorHandler.unit.test.js` con la prueba `error_no_previsto_responde_500_con_mensaje_generico_sin_detalles_tecnicos`:
+  - Montar `errorHandler` en una app de Express mínima con una ruta que lance `new Error("ER_PARSE_ERROR: SELECT * FROM reservas WHERE id_reserva = 1")`.
+  - Silenciar `console.error` con `mock.method` y comprobar que se llamó una vez (el detalle se registra solo en el servidor).
+  - Respuesta 500 con `{ error: { code: 'INTERNAL_ERROR', message: 'Ocurrió un error inesperado. Intenta de nuevo más tarde.' } }`.
+  - El cuerpo serializado no contiene `SELECT`, `reservas`, `ER_` ni `stack`.
+
+  **Atiende**: US2-13, FR-013, principio III (hallazgo C1). **Verificación**: `npm test` en verde; comprobar que falla si el manejador devuelve `error.message`.
+- [ ] T110 [US4] Agregar al final de `backend/tests/sessions.test.js` la prueba `las_reservas_de_una_fecha_no_cambian_los_lugares_de_otra_fecha_de_la_misma_clase`:
+  - Crear dentro de la prueba una clase de lunes 19:00, cupo 5, para no alterar las fixtures de T060.
+  - Registrar 2 reservas activas en `HOY_MAS_7`.
+  - En `GET /classes/schedule`, la sesión de `HOY` tiene `lugares_disponibles: 5` y la de `HOY_MAS_7` tiene 3.
+  - `GET /classes/:id/sessions/${HOY}` devuelve `texto_lugares: 'Quedan 5 de 5 lugares'`.
+
+  **Atiende**: US4-8, FR-002 (hallazgo C3). **Verificación**: `npm test` en verde; comprobar que falla si `countActiveBySessions` agrupa solo por `id_clase`.
+- [ ] T111 [US5] Agregar a `backend/tests/attendance.test.js` la prueba `a_las_23_30_del_gimnasio_se_marca_asistencia_aunque_en_utc_ya_sea_el_dia_siguiente`:
+  - Reserva en `enCurso` para `HOY` (2026-10-19).
+  - Con el reloj en `2026-10-20T05:30:00Z` (23:30 del día 19 en America/Mexico_City), `PATCH /reservations/:id/attendance` con `{ presente: true }` → 200 y `asistencia: 'presente'`.
+  - Con el reloj en `2026-10-20T06:00:00Z` (00:00 del día 20), otra reserva de la misma sesión → 422 "La asistencia solo se puede registrar el mismo día de la clase.".
+
+  **Atiende**: US5-8, US5-7, FR-014, R-05 (hallazgos C2 y C4). **Verificación**: `npm test` en verde; comprobar que falla si `setAttendance` usa la fecha UTC en lugar de `nowInGym()`.
+- [ ] T112 Ejecutar `cd backend && npm test` completo. **Atiende**: principio II. **Verificación**: 0 pruebas fallidas.
 
 ---
 
@@ -613,6 +647,8 @@ Fase 1 (Configuración) ──▶ Fase 2 (Fundamentos) ──▶ Fase 3 (US1) �
 - **Fase 7 (US5)**: su backend depende de la Fase 2. T093 depende de T069 (`asistencia_mostrada`,
   US4). El frontend (T099) depende de T075 y T087 (mismo archivo).
 - **Fase 8**: depende de todas las historias.
+- **Fase 9**: depende de la Fase 8. T109, T110 y T111 tocan archivos distintos y pueden hacerse en
+  paralelo; T112 va al final.
 
 ### Dentro de cada historia
 
@@ -630,6 +666,7 @@ Fase 1 (Configuración) ──▶ Fase 2 (Fundamentos) ──▶ Fase 3 (US1) �
 - **US2**: T051 en paralelo con las pruebas de `reservations.test.js`; T053, T057 y T058.
 - **US4**: T067, T071, T072, T073 y T077.
 - **US3 y US5**: T085, T088, T094 y T097.
+- **Fase 9**: T109, T110 y T111.
 - Después de la Fase 2, los backends de US1, US2 y US4 pueden avanzar en paralelo, porque usan
   archivos de prueba y fábricas distintos. Los cambios en `class.model.js`, `classes.service.js`
   y `classes.routes.js` se coordinan por orden de ID.
@@ -689,6 +726,7 @@ de implementación:
 | T078-T087 | `feat(reservations): cancelar reservas antes del inicio (T078-T087)` |
 | T088-T099 | `feat(reservations): marcar asistencia el día de la clase (T088-T099)` |
 | T100-T105 | `test(reservations): validar seguridad, codificación y quickstart (T100-T105)` |
+| T109-T112 | `test(classes): cubrir criterios del clarify de QA Pre (T109-T112)` |
 
 Sin squash ni force-push.
 
@@ -699,9 +737,12 @@ Sin squash ni force-push.
 - [P] = archivos distintos y sin dependencias pendientes.
 - Cada criterio EARS del spec tiene al menos una prueba automática:
   - US1: T017 a T030, T106 y T108.
-  - US2: T042 a T052 y T107.
+  - US2: T042 a T052, T107 y T109.
   - US3: T078 a T081.
-  - US4: T060 a T066.
-  - US5: T088 a T093.
+  - US4: T060 a T066 y T110.
+  - US5: T088 a T093 y T111.
+- Criterios del clarify del 2026-11-02: US1-15 (T106), US2-11 (T050, T078), US2-12 (convención
+  "Mensajes"), US2-13 (T109), US4-7 (T060), US4-8 (T110), US5-7 (T008, T100, T111) y US5-8
+  (T111).
 - Verificar que cada prueba falla antes de implementar.
 - Detenerse en cada punto de control para validar la historia de forma independiente.
