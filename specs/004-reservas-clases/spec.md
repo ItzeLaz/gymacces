@@ -45,6 +45,9 @@ controlar quién asiste ni evitar sobrecupo. Usuarios: administrador y recepció
   el inicio y fin de sesión y el fin del día se calculen con la zona configurada del gimnasio
   aunque el servidor o la base de datos usen otra (US5-7), más un caso de ejemplo con desfase
   respecto de UTC (US5-8).
+- Q: ¿En qué orden debe mostrar el sistema la lista de clientes con reserva activa de una sesión
+  (US4-2)? → A: Por apellido y, a igual apellido, por nombre; se corrige el texto de US4-2, que
+  decía "alfabéticamente por nombre".
 
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
@@ -207,8 +210,8 @@ administrador ve los 3 clientes reservados y "Quedan 17 de 20 lugares".
    clase, el instructor, la fecha y hora, el cupo máximo, el número de reservas activas y los
    lugares disponibles con el texto "Quedan X de Y lugares".
 2. CUANDO el administrador o recepción consulte una sesión, el sistema DEBE listar los clientes con
-   reserva activa ordenados alfabéticamente por nombre, junto con el estado de asistencia de cada
-   uno.
+   reserva activa ordenados alfabéticamente por apellido y, a igual apellido, por nombre, junto con
+   el estado de asistencia de cada uno.
 3. El sistema DEBE excluir las reservas canceladas del conteo de lugares ocupados y de la lista de
    reservados.
 4. CUANDO el administrador o recepción consulte el horario semanal, el sistema DEBE mostrar, para
