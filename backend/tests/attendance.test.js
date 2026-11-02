@@ -175,4 +175,22 @@ describe('asistencia a las clases', () => {
     assert.equal(mostrado[presente.id_reserva], 'Presente');
     assert.equal(mostrado[ausente.id_reserva], 'No asistió');
   });
+
+  // T111: criterios US5-8 y US5-7 (FR-014), el "mismo día" se mide en la zona del gimnasio, no en UTC
+  it('a_las_23_30_del_gimnasio_se_marca_asistencia_aunque_en_utc_ya_sea_el_dia_siguiente', async () => {
+    const antesDeMedianoche = await reserva(enCurso, HOY);
+    const despuesDeMedianoche = await reserva(enCurso, HOY);
+
+    // 05:30 UTC del día 20 = 23:30 del lunes 19 en America/Mexico_City
+    mock.timers.setTime(Date.parse('2026-10-20T05:30:00Z'));
+    const response = await marcar(antesDeMedianoche.id_reserva, { presente: true });
+    assert.equal(response.status, 200, 'a las 23:30 del gimnasio todavía es el día de la sesión');
+    assert.equal(response.body.data.asistencia, 'presente');
+
+    // 06:00 UTC del día 20 = 00:00 del martes 20 en el gimnasio
+    mock.timers.setTime(Date.parse('2026-10-20T06:00:00Z'));
+    const tarde = await marcar(despuesDeMedianoche.id_reserva, { presente: true });
+    assert.equal(tarde.status, 422);
+    assert.equal(tarde.body.error.message, DESPUES_DEL_DIA);
+  });
 });

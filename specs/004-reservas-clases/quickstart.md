@@ -44,9 +44,9 @@ Resultado esperado: todas las pruebas en verde, incluidas las nuevas:
 | `backend/tests/classes.test.js` | US1, criterios 1 a 12, 14 y 15 (auditoría de clases, T106) |
 | `backend/tests/reservations.test.js` | US2, criterios 1 a 8 y 11 (auditoría de reservas, T050 y T078), y US3, criterios 1 a 4 |
 | `backend/tests/reservations-concurrency.test.js` | US2, criterio 9, y SC-001: 20 solicitudes simultáneas por el último lugar → exactamente 1 aceptada |
-| `backend/tests/sessions.test.js` | US4, criterios 1 a 5 y 7 (lista, "Quedan X de Y lugares", canceladas excluidas, horario de hoy a hoy + 7 y "Llena"); criterio 8 (lugares por sesión) **pendiente: T110** |
-| `backend/tests/attendance.test.js` | US5, criterios 1 a 6 (con la hora fijada mediante `mock.timers`); criterio 8 (23:30 del gimnasio frente a UTC) **pendiente: T111** |
-| `backend/tests/errorHandler.unit.test.js` | US2-13: error no previsto → 500 con mensaje genérico, sin trazas ni SQL. **Pendiente: T109** (el archivo todavía no existe) |
+| `backend/tests/sessions.test.js` | US4, criterios 1 a 5 y 7 (lista, "Quedan X de Y lugares", canceladas excluidas, horario de hoy a hoy + 7 y "Llena"), y criterio 8 (lugares por sesión, T110) |
+| `backend/tests/attendance.test.js` | US5, criterios 1 a 6 (con la hora fijada mediante `mock.timers`), y criterios 7 y 8 (23:30 del gimnasio frente a UTC, T111) |
+| `backend/tests/errorHandler.unit.test.js` | US2-13: error no previsto → 500 con mensaje genérico, sin trazas ni SQL (T109) |
 | `backend/tests/classes-permissions.test.js` | US1-13, US2-10, US4-6, FR-011 y SC-006 para los cuatro roles |
 | `backend/tests/database.test.js` | Las tablas nuevas existen con InnoDB y utf8mb4 |
 | `frontend/src/tests/ClassForm.test.jsx`, `Schedule.test.jsx`, `SessionDetail.test.jsx` | Formularios, mensajes y etiquetas en español |

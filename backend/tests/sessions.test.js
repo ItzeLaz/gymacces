@@ -183,4 +183,26 @@ describe('sesiones: horario y lista de reservados', () => {
     assert.ok(!JSON.stringify(reserva.body).includes('contacto.privado'), 'el correo no aparece en ningún valor');
     assert.ok(!JSON.stringify(reserva.body).includes('5599887766'), 'el teléfono no aparece en ningún valor');
   });
+
+  // T110: criterio US4-8 (FR-002), los lugares se cuentan por sesión y no por clase
+  it('las_reservas_de_una_fecha_no_cambian_los_lugares_de_otra_fecha_de_la_misma_clase', async () => {
+    // Clase propia de esta prueba para no alterar las sesiones que comprueban las anteriores
+    const instructor = await createTrainer();
+    const box = await createClass({ id_instructor: instructor.id_usuario, nombre: 'Box', dia_semana: 1, hora_inicio: '19:00', cupo_maximo: 5 });
+    for (const nombre of ['Rosa', 'Iván']) {
+      const cliente = await createClient({ nombre });
+      await createReservation({ id_clase: box.id_clase, fecha_sesion: HOY_MAS_7, id_cliente: cliente.id_cliente, registrado_por: admin.id_usuario });
+    }
+
+    const response = await horario();
+    const lugaresPorFecha = Object.fromEntries(
+      response.body.data
+        .filter((sesion) => sesion.id_clase === box.id_clase)
+        .map((sesion) => [sesion.fecha_sesion, sesion.lugares_disponibles]),
+    );
+    assert.deepEqual(lugaresPorFecha, { [HOY]: 5, [HOY_MAS_7]: 3 }, 'las reservas del próximo lunes no ocupan lugares de hoy');
+
+    const detalleHoy = await detalle(box.id_clase, HOY);
+    assert.equal(detalleHoy.body.data.texto_lugares, 'Quedan 5 de 5 lugares');
+  });
 });

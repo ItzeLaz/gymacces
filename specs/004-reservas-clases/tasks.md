@@ -597,27 +597,27 @@ Como el código ya existe, es probable que estas pruebas pasen desde el principi
 que en T093, se rompe temporalmente el código indicado y se comprueba que la prueba falla
 (principio II).
 
-- [ ] T109 [P] [US2] Crear `backend/tests/errorHandler.unit.test.js` con la prueba `error_no_previsto_responde_500_con_mensaje_generico_sin_detalles_tecnicos`:
+- [X] T109 [P] [US2] Crear `backend/tests/errorHandler.unit.test.js` con la prueba `error_no_previsto_responde_500_con_mensaje_generico_sin_detalles_tecnicos`:
   - Montar `errorHandler` en una app de Express mínima con una ruta que lance `new Error("ER_PARSE_ERROR: SELECT * FROM reservas WHERE id_reserva = 1")`.
   - Silenciar `console.error` con `mock.method` y comprobar que se llamó una vez (el detalle se registra solo en el servidor).
   - Respuesta 500 con `{ error: { code: 'INTERNAL_ERROR', message: 'Ocurrió un error inesperado. Intenta de nuevo más tarde.' } }`.
   - El cuerpo serializado no contiene `SELECT`, `reservas`, `ER_` ni `stack`.
 
   **Atiende**: US2-13, FR-013, principio III (hallazgo C1). **Verificación**: `npm test` en verde; comprobar que falla si el manejador devuelve `error.message`.
-- [ ] T110 [US4] Agregar al final de `backend/tests/sessions.test.js` la prueba `las_reservas_de_una_fecha_no_cambian_los_lugares_de_otra_fecha_de_la_misma_clase`:
+- [X] T110 [US4] Agregar al final de `backend/tests/sessions.test.js` la prueba `las_reservas_de_una_fecha_no_cambian_los_lugares_de_otra_fecha_de_la_misma_clase`:
   - Crear dentro de la prueba una clase de lunes 19:00, cupo 5, para no alterar las fixtures de T060.
   - Registrar 2 reservas activas en `HOY_MAS_7`.
   - En `GET /classes/schedule`, la sesión de `HOY` tiene `lugares_disponibles: 5` y la de `HOY_MAS_7` tiene 3.
   - `GET /classes/:id/sessions/${HOY}` devuelve `texto_lugares: 'Quedan 5 de 5 lugares'`.
 
   **Atiende**: US4-8, FR-002 (hallazgo C3). **Verificación**: `npm test` en verde; comprobar que falla si `countActiveBySessions` agrupa solo por `id_clase`.
-- [ ] T111 [US5] Agregar a `backend/tests/attendance.test.js` la prueba `a_las_23_30_del_gimnasio_se_marca_asistencia_aunque_en_utc_ya_sea_el_dia_siguiente`:
+- [X] T111 [US5] Agregar a `backend/tests/attendance.test.js` la prueba `a_las_23_30_del_gimnasio_se_marca_asistencia_aunque_en_utc_ya_sea_el_dia_siguiente`:
   - Reserva en `enCurso` para `HOY` (2026-10-19).
   - Con el reloj en `2026-10-20T05:30:00Z` (23:30 del día 19 en America/Mexico_City), `PATCH /reservations/:id/attendance` con `{ presente: true }` → 200 y `asistencia: 'presente'`.
   - Con el reloj en `2026-10-20T06:00:00Z` (00:00 del día 20), otra reserva de la misma sesión → 422 "La asistencia solo se puede registrar el mismo día de la clase.".
 
   **Atiende**: US5-8, US5-7, FR-014, R-05 (hallazgos C2 y C4). **Verificación**: `npm test` en verde; comprobar que falla si `setAttendance` usa la fecha UTC en lugar de `nowInGym()`.
-- [ ] T112 Ejecutar `cd backend && npm test` completo. **Atiende**: principio II. **Verificación**: 0 pruebas fallidas.
+- [X] T112 Ejecutar `cd backend && npm test` completo. **Atiende**: principio II. **Verificación**: 0 pruebas fallidas.
 
 ---
 
