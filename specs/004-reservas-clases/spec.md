@@ -25,6 +25,27 @@ controlar quién asiste ni evitar sobrecupo. Usuarios: administrador y recepció
   registrarlo? → A: Sí, mientras la sesión está en curso y hay lugares; la reserva se crea con la
   asistencia ya marcada como presente.
 
+### Session 2026-11-02
+
+- Q: ¿En qué requisito funcional debe quedar la regla de US1-5 (instructor sin clases activas
+  empalmadas el mismo día de la semana)? → A: En FR-001, agregando una cláusula sin cambiar el
+  resto del requisito.
+- Q: ¿Qué comportamiento observable debe comprobar QA para dar por cumplida FR-002? → A: Que el
+  horario semanal muestre una sesión de cada clase activa en cada fecha de hoy a hoy + 7 días que
+  coincida con su día de la semana, y que las reservas y los lugares se cuenten por sesión
+  (US4-7 y US4-8).
+- Q: ¿Cómo deben redactarse los criterios que comprueban la auditoría de FR-012? → A: Dos
+  criterios: uno para registrar, modificar o desactivar clases (US1-15) y otro para registrar o
+  cancelar reservas (US2-11); la asistencia no se audita.
+- Q: ¿Qué criterios deben comprobar FR-013 (mensajes en español, sin información técnica y con
+  punto final)? → A: Texto exacto con punto final en aceptaciones y rechazos (US2-12), y el
+  mensaje genérico "Ocurrió un error inesperado. Intenta de nuevo más tarde." ante errores no
+  previstos (US2-13).
+- Q: ¿Qué criterio debe comprobar FR-014 (zona horaria del gimnasio)? → A: Que la fecha actual,
+  el inicio y fin de sesión y el fin del día se calculen con la zona configurada del gimnasio
+  aunque el servidor o la base de datos usen otra (US5-7), más un caso de ejemplo con desfase
+  respecto de UTC (US5-8).
+
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
 Todos los criterios de aceptación siguen los patrones EARS del principio VI de la constitución
@@ -92,6 +113,8 @@ sistema lo rechaza.
 14. SI la hora de inicio más la duración de una clase que se registra o modifica termina después de
     las 24:00, ENTONCES el sistema DEBE rechazar la operación y mostrar el mensaje "La clase debe
     terminar el mismo día".
+15. CUANDO el administrador registre, modifique o desactive una clase, el sistema DEBE guardar en
+    la auditoría la acción, la clase, el usuario que la hizo y la fecha y hora.
 
 ---
 
@@ -134,6 +157,13 @@ llena".
    el sistema DEBE aceptar solo una y rechazar la otra con el mensaje "Clase llena".
 10. SI un usuario con rol entrenador o cliente intenta registrar una reserva, ENTONCES el sistema
    DEBE rechazar la operación y mostrar el mensaje "No tienes permiso para realizar esta acción".
+11. CUANDO el administrador o recepción registre o cancele una reserva, el sistema DEBE guardar en
+    la auditoría la acción, la reserva, el usuario que la hizo y la fecha y hora.
+12. CUANDO el sistema acepte o rechace una operación de esta feature, el sistema DEBE mostrar el
+    mensaje en español con el texto exacto definido en los criterios de aceptación y con punto
+    final.
+13. SI ocurre un error no previsto, ENTONCES el sistema DEBE mostrar el mensaje "Ocurrió un error
+    inesperado. Intenta de nuevo más tarde." sin incluir trazas, consultas SQL ni nombres internos.
 
 ---
 
@@ -188,6 +218,11 @@ administrador ve los 3 clientes reservados y "Quedan 17 de 20 lugares".
 6. SI un usuario con rol entrenador o cliente intenta consultar la lista de reservados, ENTONCES el
    sistema DEBE rechazar la consulta y mostrar el mensaje "No tienes permiso para realizar esta
    acción".
+7. CUANDO el administrador o recepción consulte el horario semanal, el sistema DEBE mostrar una
+   sesión de cada clase activa en cada fecha, desde hoy hasta hoy + 7 días, cuyo día de la semana
+   coincida con el de la clase, con la hora de inicio y la duración de la clase.
+8. El sistema DEBE contar las reservas y los lugares disponibles de cada sesión por separado, de
+   modo que una reserva en una fecha no cambie los lugares de otra fecha de la misma clase.
 
 ---
 
@@ -219,6 +254,11 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
    regresar la reserva al estado sin asistencia.
 6. CUANDO termine el día de una sesión, el sistema DEBE mostrar como "No asistió" las reservas
    activas que no tengan asistencia registrada.
+7. El sistema DEBE determinar la fecha actual, si una sesión ya empezó o terminó y el fin del día
+   con la zona horaria configurada para el gimnasio, aunque la zona horaria del servidor o de la
+   base de datos sea distinta.
+8. MIENTRAS en la zona del gimnasio sean las 23:30 y en UTC ya sea el día siguiente, el sistema
+   DEBE seguir permitiendo marcar asistencia de las sesiones de ese día.
 
 ---
 
@@ -253,9 +293,11 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
 - **FR-001**: El sistema DEBE permitir que solo el administrador registre, modifique y desactive
   clases con nombre, instructor (usuario activo con rol entrenador), día de la semana, hora de
   inicio, duración (15 a 240 minutos) y cupo máximo (1 a 100 lugares), y DEBE exigir que cada clase
-  termine el mismo día en que empieza (hora de inicio más duración hasta las 24:00).
+  termine el mismo día en que empieza (hora de inicio más duración hasta las 24:00), y DEBE
+  impedir que un instructor tenga dos clases activas el mismo día de la semana con horarios que se
+  empalmen (US1-5).
 - **FR-002**: El sistema DEBE generar las sesiones de cada clase activa a partir de su día de la
-  semana y hora, y DEBE controlar reservas, cupo y asistencia por sesión.
+  semana y hora, y DEBE controlar reservas, cupo y asistencia por sesión (US4-7, US4-8).
 - **FR-003**: El sistema DEBE permitir que el administrador y recepción registren reservas para
   clientes activos con membresía activa que cubra la fecha de la sesión.
 - **FR-004**: El sistema NUNCA DEBE registrar en una sesión más reservas activas que su cupo
@@ -280,12 +322,12 @@ marca a 2 clientes como presentes; al terminar el día, el tercero aparece como 
   cualquier registro, modificación o desactivación de clases hecha por recepción.
 - **FR-012**: El sistema DEBE registrar en la auditoría el registro, la modificación y la
   desactivación de clases, y el registro y la cancelación de reservas, con el usuario que hizo la
-  acción y la fecha y hora.
+  acción y la fecha y hora (US1-15, US2-11).
 - **FR-013**: El sistema DEBE mostrar todos los mensajes de éxito y de rechazo en español con los
   textos definidos en los criterios de aceptación, sin revelar información técnica. Los mensajes se
-  muestran con punto final (por ejemplo, "Clase llena.").
+  muestran con punto final (por ejemplo, "Clase llena.") (US2-12, US2-13).
 - **FR-014**: El sistema DEBE usar la zona horaria del gimnasio para determinar fechas de sesión,
-  si una sesión ya empezó o terminó, y el fin del día.
+  si una sesión ya empezó o terminó, y el fin del día (US5-7, US5-8).
 
 ### Entidades clave
 
